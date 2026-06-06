@@ -1,0 +1,108 @@
+imports:
+    - { resource: parameters.yml }
+
+services:
+    # Main Marketplace controller
+    mundophpbb.marketplace.controller.main:
+        class: mundophpbb\marketplace\controller\main_controller
+        arguments:
+            - '@config'
+            - '@controller.helper'
+            - '@template'
+            - '@language'
+            - '@user'
+            - '@dbal.conn'
+            - '@request'
+            - '@pagination'
+            - '@auth'
+            - '@cache.driver'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+            - '%tables.marketplace_ads%'
+            - '%tables.marketplace_categories%'
+            - '%tables.marketplace_images%'
+            - '%tables.marketplace_reports%'
+            - '%tables.marketplace_notifications%'
+
+    # ACP controller
+    mundophpbb.marketplace.controller.acp:
+        class: mundophpbb\marketplace\controller\acp_controller
+        arguments:
+            - '@config'
+            - '@language'
+            - '@controller.helper'
+            - '@log'
+            - '@request'
+            - '@template'
+            - '@user'
+            - '@dbal.conn'
+            - '@pagination'
+            - '%core.root_path%'
+            - '%tables.marketplace_ads%'
+            - '%tables.marketplace_categories%'
+            - '%tables.marketplace_images%'
+            - '%tables.marketplace_reports%'
+            - '%tables.marketplace_notifications%'
+
+    # UCP controller
+    mundophpbb.marketplace.controller.ucp:
+        class: mundophpbb\marketplace\controller\ucp_controller
+        arguments:
+            - '@config'
+            - '@controller.helper'
+            - '@template'
+            - '@language'
+            - '@user'
+            - '@dbal.conn'
+            - '@request'
+            - '@pagination'
+            - '@auth'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+            - '%tables.marketplace_ads%'
+            - '%tables.marketplace_categories%'
+            - '%tables.marketplace_images%'
+            - '%tables.marketplace_notifications%'
+
+    # Event listener
+    mundophpbb.marketplace.listener:
+        class: mundophpbb\marketplace\event\main_listener
+        arguments:
+            - '@language'
+            - '@controller.helper'
+            - '@template'
+            - '@user'
+            - '@config'
+            - '@dbal.conn'
+            - '@auth'
+            - '%tables.marketplace_notifications%'
+            - '%core.php_ext%'
+        tags:
+            - { name: event.listener }
+
+    # Marketplace helper / service (for common functions like get categories, status etc)
+    mundophpbb.marketplace.service:
+        class: mundophpbb\marketplace\service\marketplace_service
+        arguments:
+            - '@config'
+            - '@dbal.conn'
+            - '@language'
+            - '%tables.marketplace_ads%'
+            - '%tables.marketplace_categories%'
+            - '%tables.marketplace_images%'
+            - '@cache.driver'
+
+
+    # Cron task: expire active ads whose validity date has passed
+    mundophpbb.marketplace.cron.task.expire_ads:
+        class: mundophpbb\marketplace\cron\task\expire_ads
+        arguments:
+            - '@config'
+            - '@dbal.conn'
+            - '@language'
+            - '%tables.marketplace_ads%'
+            - '%tables.marketplace_notifications%'
+        calls:
+            - [set_name, [cron.task.mundophpbb.marketplace.expire_ads]]
+        tags:
+            - { name: cron.task }

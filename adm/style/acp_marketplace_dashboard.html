@@ -1,0 +1,166 @@
+{% include 'overall_header.html' %}
+
+<style>
+	.mp-acp-dashboard-grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(130px, 1fr));
+		gap: 10px;
+		margin: 12px 0 16px;
+	}
+	.mp-acp-stat-card {
+		padding: 12px;
+		border: 1px solid #d7d7d7;
+		background: #f7f9fb;
+		border-radius: 4px;
+	}
+	.mp-acp-stat-card strong {
+		display: block;
+		font-size: 22px;
+		line-height: 1.1;
+		color: #115098;
+	}
+	.mp-acp-stat-card span {
+		display: block;
+		margin-top: 4px;
+		color: #555;
+		font-size: 11px;
+		font-weight: bold;
+		text-transform: uppercase;
+	}
+	.mp-acp-stat-card.warning strong { color: #8a5a00; }
+	.mp-acp-stat-card.danger strong { color: #8b1e1e; }
+	.mp-acp-stat-card.success strong { color: #246b24; }
+	.mp-acp-dashboard-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 7px;
+		margin: 10px 0 4px;
+	}
+	.mp-acp-dashboard-columns {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 14px;
+		margin-top: 14px;
+	}
+	.mp-acp-dashboard-columns .panel {
+		margin: 0;
+	}
+	.mp-acp-priority-list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.mp-acp-priority-list li {
+		padding: 8px 0;
+		border-bottom: 1px solid #e5e5e5;
+	}
+	.mp-acp-priority-list li:last-child {
+		border-bottom: 0;
+	}
+	.mp-acp-item-title {
+		font-weight: bold;
+	}
+	.mp-acp-item-meta {
+		display: block;
+		margin-top: 3px;
+		color: #666;
+		font-size: 11px;
+		line-height: 1.35;
+	}
+	.mp-acp-empty {
+		padding: 12px;
+		border: 1px dashed #c7c7c7;
+		background: #fbfbfb;
+		color: #666;
+		text-align: center;
+	}
+	@media (max-width: 900px) {
+		.mp-acp-dashboard-grid { grid-template-columns: repeat(2, minmax(130px, 1fr)); }
+		.mp-acp-dashboard-columns { grid-template-columns: 1fr; }
+	}
+</style>
+
+<h1>{{ lang('MARKETPLACE_ACP_DASHBOARD') }}</h1>
+<p>{{ lang('MARKETPLACE_ACP_DASHBOARD_EXPLAIN') }}</p>
+
+<div class="panel">
+	<div class="inner">
+		<h2>{{ lang('MARKETPLACE_STATS_OVERVIEW') }}</h2>
+
+		<div class="mp-acp-dashboard-grid">
+			<a href="{{ U_ACP_ADS }}" class="mp-acp-stat-card"><strong>{{ TOTAL_ADS }}</strong><span>{{ lang('MARKETPLACE_STATS_TOTAL_ADS') }}</span></a>
+			<a href="{{ U_ACP_PENDING_ADS }}" class="mp-acp-stat-card warning"><strong>{{ PENDING_ADS }}</strong><span>{{ lang('MARKETPLACE_STATUS_PENDING') }}</span></a>
+			<a href="{{ U_ACP_OPEN_REPORTS }}" class="mp-acp-stat-card danger"><strong>{{ OPEN_REPORTS }}</strong><span>{{ lang('MARKETPLACE_REPORT_OPEN') }}</span></a>
+			<a href="{{ U_ACP_ACTIVE_ADS }}" class="mp-acp-stat-card success"><strong>{{ ACTIVE_ADS }}</strong><span>{{ lang('MARKETPLACE_STATUS_ACTIVE') }}</span></a>
+			<div class="mp-acp-stat-card"><strong>{{ SOLD_ADS }}</strong><span>{{ lang('MARKETPLACE_STATUS_SOLD') }}</span></div>
+			<div class="mp-acp-stat-card"><strong>{{ EXPIRED_ADS }}</strong><span>{{ lang('MARKETPLACE_STATUS_EXPIRED') }}</span></div>
+			<a href="{{ U_ACP_HIDDEN_ADS }}" class="mp-acp-stat-card"><strong>{{ HIDDEN_ADS }}</strong><span>{{ lang('MARKETPLACE_STATUS_HIDDEN') }}</span></a>
+			<div class="mp-acp-stat-card"><strong>{{ FEATURED_ADS }}</strong><span>{{ lang('MARKETPLACE_FEATURED') }}</span></div>
+		</div>
+
+		<h2>{{ lang('MARKETPLACE_ACP_QUICK_LINKS') }}</h2>
+		<div class="mp-acp-dashboard-actions">
+			<a href="{{ U_ACP_PENDING_ADS }}" class="button1">{{ lang('MARKETPLACE_REVIEW_PENDING_ADS') }}</a>
+			<a href="{{ U_ACP_OPEN_REPORTS }}" class="button1">{{ lang('MARKETPLACE_REVIEW_REPORTS') }}</a>
+			<a href="{{ U_ACP_CATEGORIES }}" class="button2">{{ lang('MARKETPLACE_ACP_CATEGORIES') }}</a>
+			<a href="{{ U_ACP_SETTINGS }}" class="button2">{{ lang('MARKETPLACE_ACP_SETTINGS') }}</a>
+		</div>
+	</div>
+</div>
+
+<div class="mp-acp-dashboard-columns">
+	<div class="panel">
+		<div class="inner">
+			<h2>{{ lang('MARKETPLACE_RECENT_PENDING_ADS') }}</h2>
+			{% if RECENT_PENDING_ADS|length %}
+				<ul class="mp-acp-priority-list">
+				{% for ad in RECENT_PENDING_ADS %}
+					<li>
+						<a href="{{ ad.U_AD }}" target="_blank" rel="noopener" class="mp-acp-item-title">{{ ad.ad_title }}</a>
+						<span class="mp-acp-item-meta">{{ ad.username }}{% if ad.cat_name %} &bull; {{ ad.cat_name }}{% endif %}{% if ad.AD_PRICE_DISPLAY %} &bull; {{ ad.AD_PRICE_DISPLAY }}{% endif %}</span>
+						{% if ad.AD_CREATED_DISPLAY %}<span class="mp-acp-item-meta">{{ lang('MARKETPLACE_CREATED') }}{{ lang('COLON') }} {{ ad.AD_CREATED_DISPLAY }}</span>{% endif %}
+					</li>
+				{% endfor %}
+				</ul>
+				<p><a href="{{ U_ACP_PENDING_ADS }}" class="button2">{{ lang('MARKETPLACE_VIEW_ALL_PENDING') }}</a></p>
+			{% else %}
+				<div class="mp-acp-empty">{{ lang('MARKETPLACE_NO_PENDING_ADS') }}</div>
+			{% endif %}
+		</div>
+	</div>
+
+	<div class="panel">
+		<div class="inner">
+			<h2>{{ lang('MARKETPLACE_RECENT_REPORTS') }}</h2>
+			{% if RECENT_REPORTS|length %}
+				<ul class="mp-acp-priority-list">
+				{% for report in RECENT_REPORTS %}
+					<li>
+						{% if report.U_AD %}<a href="{{ report.U_AD }}" target="_blank" rel="noopener" class="mp-acp-item-title">{{ report.ad_title }}</a>{% else %}<span class="mp-acp-item-title">{{ report.ad_title }}</span>{% endif %}
+						<span class="mp-acp-item-meta">{{ report.username }} &bull; {{ report.REPORT_STATUS_LANG }}{% if report.REPORT_CREATED_DISPLAY %} &bull; {{ report.REPORT_CREATED_DISPLAY }}{% endif %}</span>
+						<span class="mp-acp-item-meta">{{ report.report_reason }}</span>
+					</li>
+				{% endfor %}
+				</ul>
+				<p><a href="{{ U_ACP_REPORTS }}" class="button2">{{ lang('MARKETPLACE_VIEW_ALL_REPORTS') }}</a></p>
+			{% else %}
+				<div class="mp-acp-empty">{{ lang('MARKETPLACE_NO_RECENT_REPORTS') }}</div>
+			{% endif %}
+		</div>
+	</div>
+</div>
+
+<div class="panel">
+	<div class="inner">
+		<h2>{{ lang('MARKETPLACE_ACP_STORAGE_HEALTH') }}</h2>
+		<table class="table1 zebra-table">
+			<tbody>
+				<tr><td>{{ lang('MARKETPLACE_STATS_TOTAL_REPORTS') }}</td><td>{{ TOTAL_REPORTS }}</td></tr>
+				<tr><td>{{ lang('MARKETPLACE_STATS_TOTAL_IMAGES') }}</td><td>{{ TOTAL_IMAGES }}</td></tr>
+				<tr><td>{{ lang('MARKETPLACE_STATS_DISK_USAGE') }}</td><td>{{ DISK_USAGE }}</td></tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+
+{% include 'overall_footer.html' %}

@@ -1,0 +1,170 @@
+{% include 'overall_header.html' %}
+
+<h1>{{ lang('MARKETPLACE_ACP_CATEGORIES') }}</h1>
+<p>{{ lang('MARKETPLACE_ACP_CATEGORIES_EXPLAIN') }}</p>
+
+{% if S_EDIT or S_ADD %}
+	<form method="post" action="{{ U_ACTION }}">
+		<fieldset>
+			<legend>{{ S_EDIT ? lang('MARKETPLACE_EDIT_CATEGORY') : lang('MARKETPLACE_ADD_CATEGORY') }}</legend>
+
+			<dl>
+				<dt><label for="cat_name">{{ lang('MARKETPLACE_CAT_NAME') ~ lang('COLON') }}</label></dt>
+				<dd><input type="text" id="cat_name" name="cat_name" value="{{ CAT_NAME }}" class="inputbox autowidth" required></dd>
+			</dl>
+
+			<dl>
+				<dt><label for="cat_desc">{{ lang('MARKETPLACE_CAT_DESC') ~ lang('COLON') }}</label></dt>
+				<dd><textarea id="cat_desc" name="cat_desc" rows="3" class="inputbox autowidth">{{ CAT_DESC }}</textarea></dd>
+			</dl>
+
+			<dl>
+				<dt><label for="cat_order">{{ lang('MARKETPLACE_CAT_ORDER') ~ lang('COLON') }}</label></dt>
+				<dd><input type="number" id="cat_order" name="cat_order" value="{{ CAT_ORDER }}" class="inputbox autowidth"></dd>
+			</dl>
+
+			<dl>
+				<dt><label for="cat_enabled">{{ lang('MARKETPLACE_CAT_ENABLED') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_CAT_ENABLED_EXPLAIN') }}</span></dt>
+				<dd>
+					<label><input type="radio" class="radio" name="cat_enabled" value="1"{% if CAT_ENABLED %} checked{% endif %}> {{ lang('YES') }}</label>
+					<label><input type="radio" class="radio" name="cat_enabled" value="0"{% if not CAT_ENABLED %} checked{% endif %}> {{ lang('NO') }}</label>
+				</dd>
+			</dl>
+		</fieldset>
+
+		<fieldset>
+			<legend>{{ lang('MARKETPLACE_CAT_RULES') }}</legend>
+
+			<dl>
+				<dt><label for="cat_expiration_days">{{ lang('MARKETPLACE_CAT_EXPIRATION_DAYS') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_CAT_EXPIRATION_DAYS_EXPLAIN') }}</span></dt>
+				<dd><input type="number" id="cat_expiration_days" name="cat_expiration_days" value="{{ CAT_EXPIRATION_DAYS }}" min="0" class="inputbox autowidth"> <span>{{ lang('DAYS') }}</span></dd>
+			</dl>
+
+			<dl>
+				<dt><label for="cat_require_price">{{ lang('MARKETPLACE_CAT_REQUIRE_PRICE') ~ lang('COLON') }}</label></dt>
+				<dd>
+					<label><input type="radio" class="radio" name="cat_require_price" value="1"{% if CAT_REQUIRE_PRICE %} checked{% endif %}> {{ lang('YES') }}</label>
+					<label><input type="radio" class="radio" name="cat_require_price" value="0"{% if not CAT_REQUIRE_PRICE %} checked{% endif %}> {{ lang('NO') }}</label>
+				</dd>
+			</dl>
+
+			<dl>
+				<dt><label for="cat_allow_price">{{ lang('MARKETPLACE_CAT_ALLOW_PRICE') ~ lang('COLON') }}</label></dt>
+				<dd>
+					<label><input type="radio" class="radio" name="cat_allow_price" value="1"{% if CAT_ALLOW_PRICE %} checked{% endif %}> {{ lang('YES') }}</label>
+					<label><input type="radio" class="radio" name="cat_allow_price" value="0"{% if not CAT_ALLOW_PRICE %} checked{% endif %}> {{ lang('NO') }}</label>
+				</dd>
+			</dl>
+
+			<dl>
+				<dt><label>{{ lang('MARKETPLACE_CAT_ALLOWED_TYPES') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_CAT_ALLOWED_TYPES_EXPLAIN') }}</span></dt>
+				<dd>
+					{% for option in CAT_TYPE_OPTIONS %}
+						<label><input type="checkbox" class="checkbox" name="cat_allowed_types[]" value="{{ option.VALUE }}"{% if option.CHECKED %} checked{% endif %}> {{ option.LABEL }}</label><br>
+					{% endfor %}
+				</dd>
+			</dl>
+
+			<dl>
+				<dt><label for="cat_require_location">{{ lang('MARKETPLACE_CAT_REQUIRE_LOCATION') ~ lang('COLON') }}</label></dt>
+				<dd>
+					<label><input type="radio" class="radio" name="cat_require_location" value="1"{% if CAT_REQUIRE_LOCATION %} checked{% endif %}> {{ lang('YES') }}</label>
+					<label><input type="radio" class="radio" name="cat_require_location" value="0"{% if not CAT_REQUIRE_LOCATION %} checked{% endif %}> {{ lang('NO') }}</label>
+				</dd>
+			</dl>
+
+			<dl>
+				<dt><label for="cat_require_phone">{{ lang('MARKETPLACE_CAT_REQUIRE_PHONE') ~ lang('COLON') }}</label></dt>
+				<dd>
+					<label><input type="radio" class="radio" name="cat_require_phone" value="1"{% if CAT_REQUIRE_PHONE %} checked{% endif %}> {{ lang('YES') }}</label>
+					<label><input type="radio" class="radio" name="cat_require_phone" value="0"{% if not CAT_REQUIRE_PHONE %} checked{% endif %}> {{ lang('NO') }}</label>
+				</dd>
+			</dl>
+
+			<dl>
+				<dt><label for="cat_allow_images">{{ lang('MARKETPLACE_CAT_ALLOW_IMAGES') ~ lang('COLON') }}</label></dt>
+				<dd>
+					<label><input type="radio" class="radio" name="cat_allow_images" value="1"{% if CAT_ALLOW_IMAGES %} checked{% endif %}> {{ lang('YES') }}</label>
+					<label><input type="radio" class="radio" name="cat_allow_images" value="0"{% if not CAT_ALLOW_IMAGES %} checked{% endif %}> {{ lang('NO') }}</label>
+				</dd>
+			</dl>
+		</fieldset>
+
+		<fieldset class="submit-buttons">
+			<input type="submit" name="submit" value="{{ lang('SUBMIT') }}" class="button1">
+			<a href="{{ U_ACTION }}" class="button2">{{ lang('CANCEL') }}</a>
+			{{ S_FORM_TOKEN }}
+		</fieldset>
+	</form>
+{% else %}
+	<div class="mp-acp-category-toolbar">
+		<a href="{{ U_ACTION }}&amp;action=add" class="button">{{ lang('MARKETPLACE_ADD_CATEGORY') }}</a>
+		<span>{{ lang('MARKETPLACE_ACP_CATEGORY_HINT') }}</span>
+	</div>
+{% endif %}
+
+<table class="table1 zebra-table marketplace-acp-categories-table">
+	<thead>
+		<tr>
+			<th>{{ lang('MARKETPLACE_CAT_NAME') }}</th>
+			<th>{{ lang('MARKETPLACE_CAT_ORDER') }}</th>
+			<th>{{ lang('MARKETPLACE_CAT_ENABLED') }}</th>
+			<th>{{ lang('MARKETPLACE_CAT_ADS_COUNT') }}</th>
+			<th>{{ lang('MARKETPLACE_CAT_RULES') }}</th>
+			<th>{{ lang('ACTIONS') }}</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for cat in categories %}
+			<tr{% if not cat.cat_enabled %} class="mp-acp-category-disabled"{% endif %}>
+				<td>
+					<strong>{{ cat.CAT_NAME_DISPLAY }}</strong>
+					{% if cat.S_CATEGORY_EMPTY %}<span class="mp-acp-muted-badge">{{ lang('MARKETPLACE_CATEGORY_EMPTY') }}</span>{% endif %}
+					{% if cat.CAT_DESC_DISPLAY %}<br><small>{{ cat.CAT_DESC_DISPLAY }}</small>{% endif %}
+				</td>
+				<td>{{ cat.cat_order }}</td>
+				<td><span class="mp-acp-status {{ cat.cat_enabled ? 'enabled' : 'disabled' }}">{{ cat.cat_enabled ? lang('YES') : lang('NO') }}</span></td>
+				<td>
+					<div class="mp-acp-category-counts">
+						<strong>{{ cat.ADS_COUNT }}</strong> <span>{{ lang('MARKETPLACE_TOTAL') }}</span>
+						{% if cat.ADS_ACTIVE_COUNT %}<em>{{ cat.ADS_ACTIVE_COUNT }} {{ lang('MARKETPLACE_STATUS_ACTIVE') }}</em>{% endif %}
+						{% if cat.ADS_PENDING_COUNT %}<em class="warning">{{ cat.ADS_PENDING_COUNT }} {{ lang('MARKETPLACE_STATUS_PENDING') }}</em>{% endif %}
+						{% if cat.ADS_HIDDEN_COUNT %}<em class="danger">{{ cat.ADS_HIDDEN_COUNT }} {{ lang('MARKETPLACE_STATUS_HIDDEN') }}</em>{% endif %}
+						{% if cat.ADS_SOLD_COUNT %}<em>{{ cat.ADS_SOLD_COUNT }} {{ lang('MARKETPLACE_STATUS_SOLD') }}</em>{% endif %}
+						{% if cat.ADS_EXPIRED_COUNT %}<em>{{ cat.ADS_EXPIRED_COUNT }} {{ lang('MARKETPLACE_STATUS_EXPIRED') }}</em>{% endif %}
+					</div>
+				</td>
+				<td>
+					<div class="mp-acp-rule-pills">
+						<span>{{ lang('MARKETPLACE_CAT_EXPIRATION_DAYS') }}: {{ cat.cat_expiration_days ? cat.cat_expiration_days : lang('MARKETPLACE_GLOBAL_DEFAULT') }}</span>
+						{% if cat.cat_require_price %}<span>{{ lang('MARKETPLACE_CAT_REQUIRE_PRICE') }}</span>{% endif %}
+						{% if cat.cat_require_location %}<span>{{ lang('MARKETPLACE_CAT_REQUIRE_LOCATION') }}</span>{% endif %}
+						{% if cat.cat_require_phone %}<span>{{ lang('MARKETPLACE_CAT_REQUIRE_PHONE') }}</span>{% endif %}
+						{% if not cat.cat_allow_price %}<span>{{ lang('MARKETPLACE_CAT_ALLOW_PRICE') }}: {{ lang('NO') }}</span>{% endif %}
+						{% if not cat.cat_allow_images %}<span>{{ lang('MARKETPLACE_CAT_ALLOW_IMAGES') }}: {{ lang('NO') }}</span>{% endif %}
+					</div>
+					<small>{{ lang('MARKETPLACE_CAT_ALLOWED_TYPES') }}: {{ cat.CAT_ALLOWED_TYPES_DISPLAY }}</small>
+				</td>
+				<td class="mp-acp-category-actions">
+					<a href="{{ U_ACTION }}&amp;cat_id={{ cat.cat_id }}" class="button-small">{{ lang('MARKETPLACE_EDIT_CATEGORY') }}</a>
+					<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form acp-action-form">
+						<input type="hidden" name="action" value="toggle">
+						<input type="hidden" name="cat_id" value="{{ cat.cat_id }}">
+						<input type="submit" name="submit_action" value="{{ cat.cat_enabled ? lang('MARKETPLACE_DISABLE_CATEGORY') : lang('MARKETPLACE_ENABLE_CATEGORY') }}" class="button-small">
+						{{ S_FORM_TOKEN }}
+					</form>
+					<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form acp-action-form">
+						<input type="hidden" name="action" value="delete">
+						<input type="hidden" name="cat_id" value="{{ cat.cat_id }}">
+						<input type="submit" name="submit_action" value="{{ lang('DELETE') }}" class="button-small">
+						{{ S_FORM_TOKEN }}
+					</form>
+				</td>
+			</tr>
+		{% else %}
+			<tr><td colspan="6"><div class="mp-acp-empty"><strong>{{ lang('MARKETPLACE_ACP_EMPTY_CATEGORIES_TITLE') }}</strong><br><span>{{ lang('MARKETPLACE_ACP_EMPTY_CATEGORIES_EXPLAIN') }}</span></div></td></tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+{% include 'overall_footer.html' %}

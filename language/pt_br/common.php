@@ -1,0 +1,338 @@
+<?php
+/**
+ *
+ * Marketplace / Classificados Extension for phpBB.
+ * Arquivo de idioma em Português do Brasil.
+ *
+ * @copyright (c) 2026, Mundo phpBB
+ * @license GNU General Public License, version 2 (GPL-2.0)
+ *
+ */
+
+if (!defined('IN_PHPBB'))
+{
+	exit;
+}
+
+if (empty($lang) || !is_array($lang))
+{
+	$lang = [];
+}
+
+$lang = array_merge($lang, [
+	// Geral
+	'MARKETPLACE'                  => 'Classificados',
+	'MARKETPLACE_TITLE'            => 'Marketplace / Classificados',
+	'MARKETPLACE_DISABLED'         => 'O Marketplace está temporariamente desativado.',
+	'MARKETPLACE_NO_PERMISSION'    => 'Você não tem permissão para usar o Marketplace.',
+	'MARKETPLACE_AD_NOT_FOUND'     => 'O anúncio solicitado não existe ou não está mais disponível.',
+	'MARKETPLACE_CAT_NOT_FOUND'    => 'A categoria solicitada não foi encontrada.',
+
+	// Navegação
+	'MARKETPLACE_PAGE'             => 'Classificados',
+	'VIEWING_MARKETPLACE'          => 'Visualizando Classificados',
+	'MARKETPLACE_POST_AD'          => 'Publicar anúncio',
+	'MARKETPLACE_EDIT_AD'          => 'Editar anúncio',
+	'MARKETPLACE_MY_ADS'           => 'Meus anúncios',
+
+	// Lista
+	'MARKETPLACE_ALL_CATEGORIES'   => 'Todas as categorias',
+	'MARKETPLACE_NO_ADS'           => 'Nenhum anúncio encontrado nesta seção.',
+	'MARKETPLACE_TOTAL_ADS'        => '%d anúncios encontrados',
+	'MARKETPLACE_NO_IMAGE'         => 'Sem imagem',
+	'MARKETPLACE_POSTED_BY'        => 'Publicado por',
+	'MARKETPLACE_VIEWS'            => 'Visualizações',
+	'MARKETPLACE_PRICE_NEGOTIABLE' => 'Preço a combinar / Contate o vendedor',
+	'MARKETPLACE_LOCATION'         => 'Localização',
+
+	// Visualizar anúncio
+	'MARKETPLACE_CONTACT_SELLER'   => 'Contatar vendedor',
+	'MARKETPLACE_CONTACT_UNAVAILABLE' => 'Este anúncio não está ativo para contato.',
+	'MARKETPLACE_SEND_PM'          => 'Enviar mensagem privada',
+	'MARKETPLACE_PHONE'            => 'Telefone',
+	'MARKETPLACE_AD_DETAILS'       => 'Detalhes do anúncio',
+	'MARKETPLACE_POSTED_ON'        => 'Publicado em',
+	'MARKETPLACE_EXPIRES_ON'       => 'Expira em',
+	'MARKETPLACE_EXPIRES_IN_DAYS'  => 'Expira em %d dia(s)',
+	'MARKETPLACE_EXPIRES_TODAY'    => 'Expira hoje',
+	'MARKETPLACE_SOLD_ON'          => 'Vendido em',
+	'MARKETPLACE_EXPIRED_ON'       => 'Expirado em',
+	'MARKETPLACE_RENEW_AD'         => 'Renovar anúncio',
+	'MARKETPLACE_REPUBLISH_AD'     => 'Republicar anúncio',
+	'MARKETPLACE_MARK_AS_SOLD'     => 'Marcar como vendido',
+	'MARKETPLACE_APPROVE_AD'       => 'Aprovar este anúncio',
+	'MARKETPLACE_STATUS'           => 'Status',
+
+	// Formulário post/edit
+	'MARKETPLACE_TITLE_LABEL'      => 'Título do anúncio',
+	'MARKETPLACE_CATEGORY'         => 'Categoria',
+	'MARKETPLACE_PRICE'            => 'Preço',
+	'MARKETPLACE_LOCATION_LABEL'   => 'Localização / Cidade',
+	'MARKETPLACE_PHONE_LABEL'      => 'Telefone para contato (opcional)',
+	'MARKETPLACE_CONTACT_METHOD'   => 'Método de contato preferido',
+	'MARKETPLACE_CONTACT_PM'       => 'Somente mensagem privada',
+	'MARKETPLACE_CONTACT_PHONE'    => 'Somente telefone',
+	'MARKETPLACE_CONTACT_BOTH'     => 'MP ou Telefone',
+	'MARKETPLACE_DESCRIPTION'      => 'Descrição',
+	'MARKETPLACE_DESC_EXPLAIN'     => 'Descreva o item ou serviço, estado de conservação, forma de entrega e outros detalhes relevantes.',
+	'MARKETPLACE_IMAGES'           => 'Fotos (opcional)',
+	'MARKETPLACE_IMAGES_EXPLAIN'   => 'Você pode enviar até %d fotos. JPG, PNG, GIF ou WebP. Máximo 2MB cada.',
+	'MARKETPLACE_SUBMIT_AD'        => 'Publicar anúncio',
+	'MARKETPLACE_UPDATE_AD'        => 'Atualizar anúncio',
+	'MARKETPLACE_TITLE_REQUIRED'   => 'O título do anúncio é obrigatório.',
+	'MARKETPLACE_CAT_REQUIRED'     => 'Por favor, selecione uma categoria.',
+	'MARKETPLACE_DESC_REQUIRED'    => 'A descrição não pode ficar em branco.',
+	'MARKETPLACE_MAX_ADS_REACHED'  => 'Você atingiu o limite de %d anúncios ativos.',
+	'MARKETPLACE_AD_POSTED'        => 'Seu anúncio foi publicado com sucesso.',
+	'MARKETPLACE_AD_POSTED_PENDING'=> 'Seu anúncio foi enviado e está aguardando aprovação de um moderador.',
+	'MARKETPLACE_AD_UPDATED'       => 'O anúncio foi atualizado com sucesso.',
+	'MARKETPLACE_AD_APPROVED'      => 'Anúncio aprovado com sucesso.',
+	'MARKETPLACE_AD_MARKED_SOLD'   => 'Anúncio marcado como vendido.',
+	'MARKETPLACE_AD_RENEWED'       => 'Anúncio renovado com sucesso.',
+	'MARKETPLACE_AD_RENEWED_PENDING' => 'Anúncio reenviado e aguardando aprovação.',
+	'MARKETPLACE_ACTION_NOT_ALLOWED' => 'Esta ação não é permitida para este anúncio.',
+
+	// Excluir
+	'MARKETPLACE_CONFIRM_DELETE'   => 'Tem certeza de que deseja excluir este anúncio? Esta ação não pode ser desfeita.',
+	'MARKETPLACE_AD_DELETED'       => 'Anúncio excluído com sucesso.',
+
+	// Status
+	'MARKETPLACE_STATUS_PENDING'   => 'Aguardando aprovação',
+	'MARKETPLACE_STATUS_ACTIVE'    => 'Ativo',
+	'MARKETPLACE_STATUS_SOLD'      => 'Vendido',
+	'MARKETPLACE_STATUS_EXPIRED'   => 'Expirado',
+	'MARKETPLACE_STATUS_HIDDEN'    => 'Oculto',
+	'MARKETPLACE_STATUS_UNKNOWN'   => 'Desconhecido',
+	'MARKETPLACE_STATUS_ALL_PUBLIC' => 'Ativos e vendidos',
+
+	// MP
+	'MARKETPLACE_PM_SUBJECT'       => 'Sobre seu anúncio: %s',
+
+	// Erros de imagem
+	'MARKETPLACE_INVALID_IMAGE_EXT'=> 'Formato de imagem inválido para %s. Permitidos: JPG, PNG, GIF, WebP.',
+	'MARKETPLACE_IMAGE_TOO_BIG'    => 'A imagem %s é muito grande (máx 2MB).',
+	'MARKETPLACE_IMAGE_UPLOAD_FAILED' => 'Falha ao enviar a imagem %s.',
+	'CURRENT_IMAGES'               => 'Imagens atuais',
+	'MARKETPLACE_IMAGE_UNAVAILABLE'=> 'Imagem indisponível',
+
+	// UCP
+	'UCP_MARKETPLACE_TITLE'        => 'Classificados',
+	'UCP_MARKETPLACE_OVERVIEW'     => 'Meus classificados',
+	'MARKETPLACE_NO_MY_ADS'        => 'Você ainda não publicou nenhum anúncio.',
+	'MARKETPLACE_MANAGE_ADS'       => 'Gerenciar meus anúncios',
+
+	// Pacote 2 - pesquisa, filtros, preço e imagens
+	'MARKETPLACE_SEARCH' => 'Pesquisar',
+	'MARKETPLACE_SEARCH_PLACEHOLDER' => 'Título ou descrição',
+	'MARKETPLACE_LOCATION_PLACEHOLDER' => 'Cidade, região ou país',
+	'MARKETPLACE_AD_TYPE' => 'Tipo de anúncio',
+	'MARKETPLACE_ALL_TYPES' => 'Todos os tipos',
+	'MARKETPLACE_TYPE_SELL' => 'Vendo',
+	'MARKETPLACE_TYPE_BUY' => 'Compro',
+	'MARKETPLACE_TYPE_TRADE' => 'Troco',
+	'MARKETPLACE_TYPE_SERVICE' => 'Serviço',
+	'MARKETPLACE_TYPE_RENT' => 'Alugo',
+	'MARKETPLACE_TYPE_WANTED' => 'Procuro',
+	'MARKETPLACE_CONDITION' => 'Condição',
+	'MARKETPLACE_ALL_CONDITIONS' => 'Todas as condições',
+	'MARKETPLACE_CONDITION_NA' => 'Não se aplica',
+	'MARKETPLACE_CONDITION_NEW' => 'Novo',
+	'MARKETPLACE_CONDITION_USED' => 'Usado',
+	'MARKETPLACE_CONDITION_REFURBISHED' => 'Recondicionado',
+	'MARKETPLACE_PRICE_TYPE_NEGOTIABLE' => 'A combinar',
+	'MARKETPLACE_PRICE_TYPE_FIXED' => 'Preço fixo',
+	'MARKETPLACE_PRICE_TYPE_FREE' => 'Gratuito',
+	'MARKETPLACE_PRICE_TYPE_ON_REQUEST' => 'Sob consulta',
+	'MARKETPLACE_PRICE_FREE' => 'Gratuito',
+	'MARKETPLACE_PRICE_ON_REQUEST' => 'Preço sob consulta',
+	'MARKETPLACE_PRICE_EXPLAIN' => 'Informe um valor para “Preço fixo” ou, opcionalmente, para “A combinar”. Para “Gratuito” ou “Sob consulta”, o valor será ignorado.',
+	'MARKETPLACE_PRICE_INVALID' => 'Informe um preço válido maior que zero ou escolha outro tipo de preço.',
+	'MARKETPLACE_PRICE_MIN' => 'Preço mín.',
+	'MARKETPLACE_PRICE_MAX' => 'Preço máx.',
+	'MARKETPLACE_ONLY_WITH_IMAGE' => 'Somente com imagem',
+	'MARKETPLACE_APPLY_FILTERS' => 'Filtrar',
+	'MARKETPLACE_CLEAR_FILTERS' => 'Limpar filtros',
+	'MARKETPLACE_SORT_BY' => 'Ordenar por',
+	'MARKETPLACE_SORT_RECENT' => 'Mais recentes',
+	'MARKETPLACE_SORT_UPDATED' => 'Atualizados recentemente',
+	'MARKETPLACE_SORT_PRICE_ASC' => 'Menor preço',
+	'MARKETPLACE_SORT_PRICE_DESC' => 'Maior preço',
+	'MARKETPLACE_SORT_VIEWS' => 'Mais visualizados',
+	'MARKETPLACE_MAIN_IMAGE' => 'Imagem principal',
+	'MARKETPLACE_REMOVE_IMAGE' => 'Remover imagem',
+	'MARKETPLACE_IMAGE_LIMIT_REACHED' => 'O limite de imagens disponíveis para este anúncio é %d.',
+
+	'MARKETPLACE_FILTER_APPLY' => 'Aplicar filtros',
+	'MARKETPLACE_FILTER_RESET' => 'Limpar filtros',
+	'MARKETPLACE_WITH_IMAGES' => 'Somente com fotos',
+	'MARKETPLACE_PRICE_TYPE_CONTACT' => 'Sob consulta',
+	'MARKETPLACE_IMAGES_LEFT' => 'Pode adicionar mais %d foto(s).',
+	'MARKETPLACE_IMAGE_REMOVE' => 'Remover',
+	'MARKETPLACE_IMAGE_SET_MAIN' => 'Definir como principal',
+	'MARKETPLACE_IMAGE_MAIN' => 'Imagem principal',
+	'MARKETPLACE_STATUS_ACTIVE_ONLY' => 'Somente ativos',
+	'MARKETPLACE_STATUS_SOLD_ONLY' => 'Somente vendidos',
+	'MARKETPLACE_STATUS_ACTIVE_AND_SOLD' => 'Ativos e vendidos',
+
+	// Diversos
+	'RETURN_MARKETPLACE'           => '%sVoltar para o Marketplace%s',
+	'MARKETPLACE_CURRENCY'         => 'R$',
+
+	// Permissões (usadas pelo sistema ACL do phpBB)
+	'ACL_U_MARKETPLACE_VIEW'       => 'Pode visualizar anúncios do Marketplace',
+	'ACL_U_MARKETPLACE_POST'       => 'Pode publicar novos anúncios',
+	'ACL_U_MARKETPLACE_EDIT_OWN'   => 'Pode editar próprios anúncios',
+	'ACL_U_MARKETPLACE_DELETE_OWN' => 'Pode excluir próprios anúncios',
+
+	'ACL_M_MARKETPLACE_APPROVE'    => 'Pode aprovar/rejeitar anúncios do Marketplace',
+	'ACL_M_MARKETPLACE_EDIT'       => 'Pode editar qualquer anúncio do Marketplace',
+	'ACL_M_MARKETPLACE_DELETE'     => 'Pode excluir qualquer anúncio do Marketplace',
+
+	// Pacote 3 - moderação, denúncias, notificações e destaques
+	'MARKETPLACE_FEATURED' => 'Destaque',
+	'MARKETPLACE_FEATURED_UNTIL' => 'Destaque até',
+	'MARKETPLACE_FEATURE_AD' => 'Destacar anúncio',
+	'MARKETPLACE_UNFEATURE_AD' => 'Remover destaque',
+	'MARKETPLACE_AD_FEATURED' => 'Anúncio destacado com sucesso.',
+	'MARKETPLACE_AD_UNFEATURED' => 'Destaque removido com sucesso.',
+	'MARKETPLACE_BUMP_AD' => 'Subir anúncio',
+	'MARKETPLACE_AD_BUMPED' => 'Anúncio subido com sucesso.',
+	'MARKETPLACE_LAST_BUMPED' => 'Subido em',
+	'MARKETPLACE_NEXT_BUMP' => 'Próxima subida em',
+	'MARKETPLACE_HIDDEN_REASON' => 'Motivo da ocultação',
+	'MARKETPLACE_HIDDEN_ON' => 'Ocultado em',
+	'MARKETPLACE_NO_REASON_GIVEN' => 'Sem motivo informado',
+	'MARKETPLACE_REPORTS' => 'Denúncias',
+	'MARKETPLACE_REPORT_AD' => 'Denunciar anúncio',
+	'MARKETPLACE_REPORT_REASON' => 'Motivo da denúncia',
+	'MARKETPLACE_REPORT_REASON_REQUIRED' => 'Informe o motivo da denúncia.',
+	'MARKETPLACE_REPORT_SEND' => 'Enviar denúncia',
+	'MARKETPLACE_REPORT_SENT' => 'Denúncia enviada para a moderação.',
+	'MARKETPLACE_REPORT_OPEN' => 'Aberta',
+	'MARKETPLACE_REPORT_CLOSED' => 'Fechada',
+	'MARKETPLACE_NOTIFICATIONS' => 'Notificações do Marketplace',
+	'MARKETPLACE_NO_NOTIFICATIONS' => 'Ainda não há notificações.',
+	'MARKETPLACE_MARK_NOTIFICATIONS_READ' => 'Marcar notificações como lidas',
+	'MARKETPLACE_NOTIFICATIONS_MARKED_READ' => 'Notificações marcadas como lidas.',
+	'MARKETPLACE_VIEW_AD' => 'Ver anúncio',
+	'MARKETPLACE_NOTIFICATION_APPROVED_TITLE' => 'Anúncio aprovado',
+	'MARKETPLACE_NOTIFICATION_APPROVED_MESSAGE' => 'O anúncio “%s” foi aprovado e está visível.',
+	'MARKETPLACE_NOTIFICATION_HIDDEN_TITLE' => 'Anúncio ocultado',
+	'MARKETPLACE_NOTIFICATION_HIDDEN_MESSAGE' => 'O anúncio “%1$s” foi ocultado. Motivo: %2$s',
+	'MARKETPLACE_NOTIFICATION_SOLD_TITLE' => 'Anúncio marcado como vendido',
+	'MARKETPLACE_NOTIFICATION_SOLD_MESSAGE' => 'O anúncio “%s” foi marcado como vendido.',
+	'MARKETPLACE_NOTIFICATION_REPORT_CLOSED_TITLE' => 'Denúncia analisada',
+	'MARKETPLACE_NOTIFICATION_FEATURED_TITLE' => 'Anúncio destacado',
+	'MARKETPLACE_NOTIFICATION_FEATURED_MESSAGE' => 'O seu anúncio “%1$s” foi destacado.',
+	'MARKETPLACE_NOTIFICATION_UNFEATURED_TITLE' => 'Destaque removido',
+	'MARKETPLACE_NOTIFICATION_UNFEATURED_MESSAGE' => 'O destaque do seu anúncio “%1$s” foi removido.',
+	'MARKETPLACE_NOTIFICATION_EXPIRED_TITLE' => 'Anúncio expirado',
+	'MARKETPLACE_NOTIFICATION_EXPIRED_MESSAGE' => 'O seu anúncio “%1$s” expirou automaticamente.',
+	'MARKETPLACE_NOTIFICATION_REPORT_CLOSED_MESSAGE' => 'A denúncia sobre o anúncio “%s” foi analisada pela moderação.',
+	'MARKETPLACE_CAT_PRICE_REQUIRED' => 'Esta categoria exige preço.',
+	'MARKETPLACE_CAT_LOCATION_REQUIRED' => 'Esta categoria exige localização.',
+	'MARKETPLACE_CAT_PHONE_REQUIRED' => 'Esta categoria exige telefone de contato.',
+
+	// Pacote 3 - moderação avançada, denúncias, destaque e notificações
+	'MARKETPLACE_BUMPED_ON' => 'Subido em',
+	'MARKETPLACE_REJECT_REASON' => 'Motivo da rejeição',
+	'MARKETPLACE_REPORT_MESSAGE' => 'Observação',
+	'MARKETPLACE_REPORT_ALREADY_OPEN' => 'Você já tem uma denúncia aberta para este anúncio.',
+	'MARKETPLACE_REPORT_NOT_FOUND' => 'Denúncia não encontrada.',
+	'MARKETPLACE_REPORT_RESOLVED' => 'Denúncia encerrada.',
+	'MARKETPLACE_REPORT_REOPENED' => 'Denúncia reaberta.',
+	'MARKETPLACE_REPORT_DELETED' => 'Denúncia excluída.',
+	'MARKETPLACE_REPORTER' => 'Denunciante',
+	'MARKETPLACE_CLOSE_REPORT' => 'Encerrar denúncia',
+	'MARKETPLACE_REOPEN_REPORT' => 'Reabrir denúncia',
+	'MARKETPLACE_CAT_TYPE_NOT_ALLOWED' => 'Este tipo de anúncio não é permitido nesta categoria.',
+	'ACL_U_MARKETPLACE_REPORT' => 'Pode denunciar anúncios do Marketplace',
+	'ACL_U_MARKETPLACE_BUMP_OWN' => 'Pode subir os próprios anúncios',
+	'ACL_M_MARKETPLACE_FEATURE' => 'Pode destacar anúncios do Marketplace',
+	'ACL_M_MARKETPLACE_REPORTS' => 'Pode gerir denúncias do Marketplace',
+
+	'MARKETPLACE_REPORT_STATUS_OPEN' => 'Aberta',
+	'MARKETPLACE_REPORT_STATUS_CLOSED' => 'Fechada',
+
+	// Visual refresh - ad form
+	'MARKETPLACE_POST_INTRO' => 'Preencha os dados principais, adicione uma boa descrição e publique seu anúncio com aparência profissional.',
+	'MARKETPLACE_POST_SECTION_BASICS' => 'Informações principais',
+	'MARKETPLACE_POST_SECTION_BASICS_EXPLAIN' => 'Comece pelo título, categoria, tipo de anúncio e condição do item.',
+	'MARKETPLACE_POST_SECTION_PRICE_CONTACT' => 'Preço e contato',
+	'MARKETPLACE_POST_SECTION_PRICE_CONTACT_EXPLAIN' => 'Informe o preço, localização e como os interessados devem entrar em contato.',
+	'MARKETPLACE_POST_UPLOAD_TITLE' => 'Adicionar fotos do anúncio',
+	'MARKETPLACE_POST_UPLOAD_HELP' => 'Clique para selecionar uma ou mais imagens do seu computador.',
+	'MARKETPLACE_POST_PUBLISH_BOX' => 'Pronto para publicar?',
+	'MARKETPLACE_POST_PUBLISH_BOX_EXPLAIN' => 'Revise as informações antes de enviar. Um anúncio claro recebe mais contatos.',
+	'MARKETPLACE_POST_TIP_TITLE' => 'Use um título objetivo, com marca/modelo se houver.',
+	'MARKETPLACE_POST_TIP_PRICE' => 'Informe um preço coerente ou marque como sob consulta.',
+	'MARKETPLACE_POST_TIP_IMAGES' => 'Fotos reais aumentam a confiança dos interessados.',
+
+	// Categorias padrão traduzíveis
+	'MARKETPLACE_CAT_VEHICLES' => 'Veículos',
+	'MARKETPLACE_CAT_VEHICLES_DESC' => 'Carros, motos, caminhões, peças e acessórios automotivos',
+	'MARKETPLACE_CAT_REAL_ESTATE' => 'Imóveis',
+	'MARKETPLACE_CAT_REAL_ESTATE_DESC' => 'Casas, apartamentos, terrenos, salas comerciais para alugar ou vender',
+	'MARKETPLACE_CAT_ELECTRONICS' => 'Eletrônicos e Celulares',
+	'MARKETPLACE_CAT_ELECTRONICS_DESC' => 'Smartphones, computadores, TVs, videogames e acessórios',
+	'MARKETPLACE_CAT_HOME_GARDEN' => 'Casa e Jardim',
+	'MARKETPLACE_CAT_HOME_GARDEN_DESC' => 'Móveis, eletrodomésticos, decoração, ferramentas e jardinagem',
+	'MARKETPLACE_CAT_FASHION_BEAUTY' => 'Moda e Beleza',
+	'MARKETPLACE_CAT_FASHION_BEAUTY_DESC' => 'Roupas, calçados, bolsas, maquiagem, perfumes e acessórios',
+	'MARKETPLACE_CAT_SERVICES' => 'Serviços',
+	'MARKETPLACE_CAT_SERVICES_DESC' => 'Profissionais autônomos, diaristas, reparos, aulas particulares',
+	'MARKETPLACE_CAT_JOBS_OPPORTUNITIES' => 'Empregos e Oportunidades',
+	'MARKETPLACE_CAT_JOBS_OPPORTUNITIES_DESC' => 'Vagas de emprego, estágios e oportunidades de negócio',
+	'MARKETPLACE_CAT_SPORTS_LEISURE' => 'Esportes e Lazer',
+	'MARKETPLACE_CAT_SPORTS_LEISURE_DESC' => 'Equipamentos esportivos, bikes, instrumentos musicais',
+	'MARKETPLACE_CAT_PETS' => 'Animais e Pets',
+	'MARKETPLACE_CAT_PETS_DESC' => 'Cães, gatos, aves, acessórios e serviços para pets',
+	'MARKETPLACE_CAT_OTHER' => 'Outros',
+	'MARKETPLACE_CAT_OTHER_DESC' => 'Diversos itens e serviços que não se encaixam nas categorias acima',
+
+	// Package v151 - image upload feedback
+	'MARKETPLACE_SELECTED_IMAGES' => 'Imagens selecionadas',
+	'MARKETPLACE_SELECTED_IMAGES_EXPLAIN' => 'Estas imagens ainda não foram enviadas. Clique em publicar/atualizar uma única vez para salvar o anúncio e as fotos.',
+	'MARKETPLACE_POST_SAVED_TITLE' => 'Anúncio salvo com imagens',
+	'MARKETPLACE_POST_SAVED_EXPLAIN' => 'Seu anúncio foi salvo e as imagens já foram processadas. Você não precisa publicar novamente.',
+	'MARKETPLACE_IMAGES_UPDATED_TITLE' => 'Imagens atualizadas',
+	'MARKETPLACE_IMAGE_ORDER_EXPLAIN' => 'Arraste as fotos ou use as setas para ordenar. A primeira foto é usada como destaque quando nenhuma principal for definida.',
+
+	'MARKETPLACE_IMAGES_UPDATED_EXPLAIN' => 'As imagens foram salvas e a galeria abaixo já foi atualizada.',
+	'MARKETPLACE_ZOOM_HINT' => 'Passe o mouse para ampliar',
+
+	'MARKETPLACE_EMPTY_RESULTS_TITLE' => 'Nenhum anúncio encontrado',
+	'MARKETPLACE_EMPTY_RESULTS_EXPLAIN' => 'Não encontramos anúncios com estes filtros. Tente remover algum filtro ou publique o primeiro anúncio nesta categoria.',
+	'MARKETPLACE_EMPTY_MY_ADS_TITLE' => 'Você ainda não publicou anúncios',
+	'MARKETPLACE_EMPTY_MY_ADS_EXPLAIN' => 'Crie seu primeiro anúncio para acompanhar status, visualizações e ações por aqui.',
+	'MARKETPLACE_EMPTY_NOTIFICATIONS_TITLE' => 'Nenhuma notificação no momento',
+	'MARKETPLACE_EMPTY_NOTIFICATIONS_EXPLAIN' => 'Quando houver atualizações sobre seus anúncios, elas aparecerão aqui.',
+	'MARKETPLACE_FORM_ERRORS_TITLE' => 'Revise o anúncio antes de continuar',
+	'MARKETPLACE_FORM_ERRORS_EXPLAIN' => 'Alguns campos precisam de atenção. Corrija os itens abaixo e envie novamente.',
+	'MARKETPLACE_ACP_EMPTY_ADS_TITLE' => 'Nenhum anúncio encontrado',
+	'MARKETPLACE_ACP_EMPTY_ADS_EXPLAIN' => 'Quando os usuários publicarem anúncios, eles aparecerão nesta tabela.',
+	'MARKETPLACE_ACP_EMPTY_CATEGORIES_TITLE' => 'Nenhuma categoria cadastrada',
+	'MARKETPLACE_ACP_EMPTY_CATEGORIES_EXPLAIN' => 'Crie ao menos uma categoria para permitir novos anúncios.',
+	'MARKETPLACE_ACP_EMPTY_REPORTS_TITLE' => 'Nenhuma denúncia encontrada',
+	'MARKETPLACE_ACP_EMPTY_REPORTS_EXPLAIN' => 'As denúncias enviadas pelos usuários aparecerão aqui.',
+
+	'MARKETPLACE_UCP_PENDING_EXPLAIN' => 'Este anúncio está aguardando aprovação da moderação e ainda não aparece publicamente para todos os usuários.',
+	'MARKETPLACE_UCP_HIDDEN_EXPLAIN' => 'Este anúncio foi ocultado pela moderação e precisa ser ajustado antes de voltar ao público.',
+	'MARKETPLACE_CATEGORY_RULES_NOTICE' => 'Regras desta categoria',
+	'MARKETPLACE_CATEGORY_NO_PRICE_HINT' => 'Esta categoria não usa preço.',
+	'MARKETPLACE_CATEGORY_NO_IMAGES_HINT' => 'Esta categoria não permite imagens.',
+	'MARKETPLACE_REQUIRE_APPROVAL_PUBLIC_HINT' => 'Após publicar, o anúncio aguardará aprovação da moderação antes de ficar público.',
+	// Package v165 - simple stock quantity
+	'MARKETPLACE_QUANTITY' => 'Quantidade disponível',
+	'MARKETPLACE_QUANTITY_EXPLAIN' => 'Informe quantas unidades deste item estão disponíveis. Use 1 para produto único; use 0 para esgotado.',
+	'MARKETPLACE_QUANTITY_AVAILABLE' => 'Disponibilidade',
+	'MARKETPLACE_STOCK' => 'Estoque',
+	'MARKETPLACE_STOCK_ONE' => '1 unidade disponível',
+	'MARKETPLACE_STOCK_MANY' => '%d unidades disponíveis',
+	'MARKETPLACE_STOCK_OUT' => 'Esgotado',
+	'MARKETPLACE_STOCK_INCREASE' => '+1 unidade',
+	'MARKETPLACE_STOCK_DECREASE' => '-1 unidade',
+	'MARKETPLACE_STOCK_OUT_ACTION' => 'Marcar esgotado',
+	'MARKETPLACE_STOCK_UPDATED' => 'Estoque atualizado com sucesso.',
+
+]);

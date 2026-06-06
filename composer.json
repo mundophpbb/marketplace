@@ -1,0 +1,31 @@
+{
+    "name": "mundophpbb/marketplace",
+    "type": "phpbb-extension",
+    "description": "Marketplace / Classificados - Permite que usuários postem anúncios classificados (venda, compra, serviços) no fórum phpBB.",
+    "homepage": "https://github.com/mundophpbb/marketplace",
+    "version": "1.4.3",
+    "time": "2026-06-06",
+    "license": "GPL-2.0-only",
+    "authors": [
+        {
+            "name": "Mundo phpBB",
+            "homepage": "https://www.mundophpbb.com.br"
+        }
+    ],
+    "require": {
+        "php": ">=7.2",
+        "composer/installers": "^1.0 || ^2.0"
+    },
+    "extra": {
+        "display-name": "Marketplace / Classificados",
+        "soft-require": {
+            "phpbb/phpbb": ">=3.3.0,<4.0.0@dev"
+        },
+        "version-check": {
+            "host": "www.mundophpbb.com.br",
+            "directory": "/phpbb/marketplace",
+            "filename": "version_check",
+            "ssl": true
+        }
+    }
+}

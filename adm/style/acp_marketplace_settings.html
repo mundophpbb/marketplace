@@ -1,0 +1,123 @@
+{% include 'overall_header.html' %}
+
+<h1>{{ lang('MARKETPLACE_ACP_SETTINGS') }}</h1>
+
+{% if S_ERROR %}
+	<div class="errorbox">
+		<h3>{{ lang('WARNING') }}</h3>
+		<p>{{ ERROR_MSG }}</p>
+	</div>
+{% endif %}
+
+<form id="marketplace_settings" method="post" action="{{ U_ACTION }}">
+	<fieldset>
+		<legend>{{ lang('MARKETPLACE_SETTINGS') }}</legend>
+
+		<dl>
+			<dt><label for="marketplace_enabled">{{ lang('MARKETPLACE_ENABLE') ~ lang('COLON') }}</label></dt>
+			<dd>
+				<label><input type="radio" class="radio" name="marketplace_enabled" value="1"{% if MARKETPLACE_ENABLED %} checked="checked"{% endif %}> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="marketplace_enabled" value="0"{% if not MARKETPLACE_ENABLED %} checked="checked"{% endif %}> {{ lang('NO') }}</label>
+			</dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_require_approval">{{ lang('MARKETPLACE_REQUIRE_APPROVAL') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_REQUIRE_APPROVAL_EXPLAIN') }}</span></dt>
+			<dd>
+				<label><input type="radio" class="radio" name="marketplace_require_approval" value="1"{% if MARKETPLACE_REQUIRE_APPROVAL %} checked="checked"{% endif %}> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="marketplace_require_approval" value="0"{% if not MARKETPLACE_REQUIRE_APPROVAL %} checked="checked"{% endif %}> {{ lang('NO') }}</label>
+			</dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_max_ads_per_user">{{ lang('MARKETPLACE_MAX_ADS_PER_USER') ~ lang('COLON') }}</label></dt>
+			<dd><input type="number" name="marketplace_max_ads_per_user" id="marketplace_max_ads_per_user" value="{{ MARKETPLACE_MAX_ADS_PER_USER }}" min="1" max="100" class="inputbox autowidth"></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_ad_expiration_days">{{ lang('MARKETPLACE_EXPIRATION_DAYS') ~ lang('COLON') }}</label></dt>
+			<dd><input type="number" name="marketplace_ad_expiration_days" id="marketplace_ad_expiration_days" value="{{ MARKETPLACE_AD_EXPIRATION_DAYS }}" min="0" class="inputbox autowidth"> <span>{{ lang('DAYS') }}</span></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_max_images">{{ lang('MARKETPLACE_MAX_IMAGES') ~ lang('COLON') }}</label></dt>
+			<dd><input type="number" name="marketplace_max_images" id="marketplace_max_images" value="{{ MARKETPLACE_MAX_IMAGES }}" min="0" max="20" class="inputbox autowidth"></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_items_per_page">{{ lang('MARKETPLACE_ITEMS_PER_PAGE') ~ lang('COLON') }}</label></dt>
+			<dd><input type="number" name="marketplace_items_per_page" id="marketplace_items_per_page" value="{{ MARKETPLACE_ITEMS_PER_PAGE }}" min="5" class="inputbox autowidth"></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_allow_images">{{ lang('MARKETPLACE_ALLOW_IMAGES') ~ lang('COLON') }}</label></dt>
+			<dd>
+				<label><input type="radio" class="radio" name="marketplace_allow_images" value="1"{% if MARKETPLACE_ALLOW_IMAGES %} checked{% endif %}> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="marketplace_allow_images" value="0"{% if not MARKETPLACE_ALLOW_IMAGES %} checked{% endif %}> {{ lang('NO') }}</label>
+			</dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_enable_price">{{ lang('MARKETPLACE_ENABLE_PRICE') ~ lang('COLON') }}</label></dt>
+			<dd>
+				<label><input type="radio" class="radio" name="marketplace_enable_price" value="1"{% if MARKETPLACE_ENABLE_PRICE %} checked{% endif %}> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="marketplace_enable_price" value="0"{% if not MARKETPLACE_ENABLE_PRICE %} checked{% endif %}> {{ lang('NO') }}</label>
+			</dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_currency_default">{{ lang('MARKETPLACE_CURRENCY_DEFAULT') ~ lang('COLON') }}</label></dt>
+			<dd><input type="text" name="marketplace_currency_default" id="marketplace_currency_default" value="{{ MARKETPLACE_CURRENCY_DEFAULT }}" class="inputbox autowidth" size="5"></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_show_sold_ads">{{ lang('MARKETPLACE_SHOW_SOLD_ADS') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_SHOW_SOLD_ADS_EXPLAIN') }}</span></dt>
+			<dd>
+				<label><input type="radio" class="radio" name="marketplace_show_sold_ads" value="1"{% if MARKETPLACE_SHOW_SOLD_ADS %} checked{% endif %}> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="marketplace_show_sold_ads" value="0"{% if not MARKETPLACE_SHOW_SOLD_ADS %} checked{% endif %}> {{ lang('NO') }}</label>
+			</dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_sold_visible_days">{{ lang('MARKETPLACE_SOLD_VISIBLE_DAYS') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_SOLD_VISIBLE_DAYS_EXPLAIN') }}</span></dt>
+			<dd><input type="number" name="marketplace_sold_visible_days" id="marketplace_sold_visible_days" value="{{ MARKETPLACE_SOLD_VISIBLE_DAYS }}" min="0" class="inputbox autowidth"> <span>{{ lang('DAYS') }}</span></dd>
+		</dl>
+	</fieldset>
+
+	<fieldset>
+		<legend>{{ lang('MARKETPLACE_ADVANCED_FEATURES') }}</legend>
+
+		<dl>
+			<dt><label for="marketplace_allow_reports">{{ lang('MARKETPLACE_ALLOW_REPORTS') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_ALLOW_REPORTS_EXPLAIN') }}</span></dt>
+			<dd>
+				<label><input type="radio" class="radio" name="marketplace_allow_reports" value="1"{% if MARKETPLACE_ALLOW_REPORTS %} checked{% endif %}> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="marketplace_allow_reports" value="0"{% if not MARKETPLACE_ALLOW_REPORTS %} checked{% endif %}> {{ lang('NO') }}</label>
+			</dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_allow_bump">{{ lang('MARKETPLACE_ALLOW_BUMP') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_ALLOW_BUMP_EXPLAIN') }}</span></dt>
+			<dd>
+				<label><input type="radio" class="radio" name="marketplace_allow_bump" value="1"{% if MARKETPLACE_ALLOW_BUMP %} checked{% endif %}> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="marketplace_allow_bump" value="0"{% if not MARKETPLACE_ALLOW_BUMP %} checked{% endif %}> {{ lang('NO') }}</label>
+			</dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_bump_interval_days">{{ lang('MARKETPLACE_BUMP_INTERVAL_DAYS') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_BUMP_INTERVAL_DAYS_EXPLAIN') }}</span></dt>
+			<dd><input type="number" name="marketplace_bump_interval_days" id="marketplace_bump_interval_days" value="{{ MARKETPLACE_BUMP_INTERVAL_DAYS }}" min="0" class="inputbox autowidth"> <span>{{ lang('DAYS') }}</span></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_featured_days">{{ lang('MARKETPLACE_FEATURED_DAYS') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_FEATURED_DAYS_EXPLAIN') }}</span></dt>
+			<dd><input type="number" name="marketplace_featured_days" id="marketplace_featured_days" value="{{ MARKETPLACE_FEATURED_DAYS }}" min="1" class="inputbox autowidth"> <span>{{ lang('DAYS') }}</span></dd>
+		</dl>
+	</fieldset>
+
+	<fieldset class="submit-buttons">
+		<input class="button1" type="submit" id="submit" name="submit" value="{{ lang('SUBMIT') }}">
+		{{ S_FORM_TOKEN }}
+	</fieldset>
+</form>
+
+{% include 'overall_footer.html' %}

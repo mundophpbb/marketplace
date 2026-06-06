@@ -1,0 +1,95 @@
+{% include 'ucp_header.html' %}
+
+<h2>{{ lang('UCP_MARKETPLACE_TITLE') }}</h2>
+
+<div class="panel marketplace-notifications-panel">
+	<div class="inner">
+		<h3>{{ lang('MARKETPLACE_NOTIFICATIONS') }}{% if UNREAD_NOTIFICATIONS %} <span class="marketplace-nav-badge">{{ UNREAD_NOTIFICATIONS }}</span>{% endif %}</h3>
+		{% if NOTIFICATIONS|length %}
+			<ul class="marketplace-notifications-list">
+				{% for notification in NOTIFICATIONS %}
+					<li{% if not notification.notification_read %} class="unread"{% endif %}>
+						<strong>{{ notification.notification_title }}</strong><br>
+						<span>{{ notification.notification_message }}</span>
+						{% if notification.U_AD %}<br><a href="{{ notification.U_AD }}">{{ lang('MARKETPLACE_VIEW_AD') }}</a>{% endif %}
+						<small>{{ notification.NOTIFICATION_TIME_DISPLAY }}</small>
+					</li>
+				{% endfor %}
+			</ul>
+			{% if UNREAD_NOTIFICATIONS %}
+				<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form">
+					<input type="hidden" name="action" value="mark_notifications_read">
+					<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_MARK_NOTIFICATIONS_READ') }}" class="button button-small">
+					{{ S_FORM_TOKEN }}
+				</form>
+			{% endif %}
+		{% else %}
+			<div class="mp-ucp-empty mp-ucp-empty-small">
+				<strong>{{ lang('MARKETPLACE_EMPTY_NOTIFICATIONS_TITLE') }}</strong>
+				<p>{{ lang('MARKETPLACE_EMPTY_NOTIFICATIONS_EXPLAIN') }}</p>
+			</div>
+		{% endif %}
+	</div>
+</div>
+
+<div class="panel">
+	<div class="inner">
+		{% if S_CAN_POST %}
+			<p><a href="{{ U_POST_NEW }}" class="button">{{ lang('MARKETPLACE_POST_AD') }}</a></p>
+		{% endif %}
+
+		{% if MY_ADS|length %}
+			<div class="mp-ucp-grid">
+				{% for ad in MY_ADS %}
+					<article class="mp-ucp-card">
+						<a href="{{ ad.U_VIEW }}" class="mp-ucp-media">
+							{% if ad.MAIN_IMAGE %}<img src="{{ ad.MAIN_IMAGE }}" alt="{{ ad.ad_title }}" loading="lazy">{% else %}<span>{{ lang('MARKETPLACE_NO_IMAGE') }}</span>{% endif %}
+						</a>
+						<div class="mp-ucp-body">
+							<div class="mp-ucp-top">
+								<span class="status-badge status-{{ ad.ad_status }}">{{ ad.STATUS_LANG }}</span>
+								{% if ad.S_IS_FEATURED %}<span class="status-badge status-featured">{{ lang('MARKETPLACE_FEATURED') }}</span>{% endif %}
+							</div>
+							<h3><a href="{{ ad.U_VIEW }}">{{ ad.ad_title }}</a></h3>
+							{% if ad.AD_PRICE_DISPLAY %}<div class="mp-ucp-price">{{ ad.AD_PRICE_DISPLAY }}</div>{% endif %}
+							{% if ad.ad_status == 0 %}<div class="mp-ucp-status-note pending">{{ lang('MARKETPLACE_UCP_PENDING_EXPLAIN') }}</div>{% endif %}
+							{% if ad.ad_status == 4 %}<div class="mp-ucp-status-note hidden">{{ lang('MARKETPLACE_UCP_HIDDEN_EXPLAIN') }}{% if ad.ad_hidden_reason %}<br><strong>{{ lang('MARKETPLACE_HIDDEN_REASON') }}:</strong> {{ ad.ad_hidden_reason }}{% endif %}</div>{% endif %}
+							<div class="mp-ucp-meta">
+								<span>{{ ad.cat_name }}</span>
+								<span>{{ ad.AD_QUANTITY_LANG }}</span>
+								<span>{{ ad.AD_TYPE_LANG }}</span>
+								{% if ad.ad_condition != 0 %}<span>{{ ad.AD_CONDITION_LANG }}</span>{% endif %}
+								<span>{{ ad.ad_views }} {{ lang('MARKETPLACE_VIEWS') }}</span>
+							</div>
+							<div class="mp-ucp-dates">
+								{% if ad.AD_EXPIRES_DISPLAY %}<span>{{ lang('MARKETPLACE_EXPIRES_ON') }}: {{ ad.AD_EXPIRES_DISPLAY }}</span>{% endif %}
+								{% if ad.AD_NEXT_BUMP_DISPLAY %}<span>{{ lang('MARKETPLACE_NEXT_BUMP') }}: {{ ad.AD_NEXT_BUMP_DISPLAY }}</span>{% endif %}
+							</div>
+							<div class="ucp-marketplace-actions mp-ucp-actions">
+								<a href="{{ ad.U_VIEW }}" class="button button-small">{{ lang('MARKETPLACE_VIEW_AD') }}</a>
+								{% if ad.U_EDIT %}<a href="{{ ad.U_EDIT }}" class="button button-small">{{ lang('MARKETPLACE_EDIT_AD') }}</a>{% endif %}
+								{% if ad.U_DELETE %}<a href="{{ ad.U_DELETE }}" class="button button-small button-danger">{{ lang('MARKETPLACE_DELETE_AD') }}</a>{% endif %}
+
+								{% if ad.S_CAN_MARK_SOLD %}<form method="post" action="{{ ad.U_ACTION }}" class="marketplace-inline-form"><input type="hidden" name="action" value="mark_sold"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_MARK_AS_SOLD') }}" class="button button-small">{{ S_FORM_TOKEN }}</form>{% endif %}
+								{% if ad.S_CAN_MANAGE_STOCK %}<form method="post" action="{{ ad.U_ACTION }}" class="marketplace-inline-form"><input type="hidden" name="action" value="stock_decrease"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_STOCK_DECREASE') }}" class="button button-small">{{ S_FORM_TOKEN }}</form><form method="post" action="{{ ad.U_ACTION }}" class="marketplace-inline-form"><input type="hidden" name="action" value="stock_increase"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_STOCK_INCREASE') }}" class="button button-small">{{ S_FORM_TOKEN }}</form>{% endif %}
+								{% if ad.S_CAN_RENEW %}<form method="post" action="{{ ad.U_ACTION }}" class="marketplace-inline-form"><input type="hidden" name="action" value="renew"><input type="submit" name="submit_action" value="{{ ad.ad_status == 3 ? lang('MARKETPLACE_REPUBLISH_AD') : lang('MARKETPLACE_RENEW_AD') }}" class="button button-small">{{ S_FORM_TOKEN }}</form>{% endif %}
+								{% if ad.S_CAN_BUMP %}<form method="post" action="{{ ad.U_ACTION }}" class="marketplace-inline-form"><input type="hidden" name="action" value="bump"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_BUMP_AD') }}" class="button button-small">{{ S_FORM_TOKEN }}</form>{% endif %}
+							</div>
+						</div>
+					</article>
+				{% endfor %}
+			</div>
+
+			{% if pagination|length %}<div class="pagination">{% include 'pagination.html' %}</div>{% endif %}
+		{% else %}
+			<div class="mp-ucp-empty mp-ucp-empty-ads">
+				<span class="mp-empty-icon" aria-hidden="true">＋</span>
+				<h3>{{ lang('MARKETPLACE_EMPTY_MY_ADS_TITLE') }}</h3>
+				<p>{{ lang('MARKETPLACE_EMPTY_MY_ADS_EXPLAIN') }}</p>
+				{% if S_CAN_POST %}<p><a href="{{ U_POST_NEW }}" class="button button-primary">{{ lang('MARKETPLACE_POST_AD') }}</a></p>{% endif %}
+			</div>
+		{% endif %}
+	</div>
+</div>
+
+{% include 'ucp_footer.html' %}

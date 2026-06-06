@@ -1,0 +1,6 @@
+parameters:
+    tables.marketplace_ads: '%core.table_prefix%marketplace_ads'
+    tables.marketplace_categories: '%core.table_prefix%marketplace_categories'
+    tables.marketplace_images: '%core.table_prefix%marketplace_images'
+    tables.marketplace_reports: '%core.table_prefix%marketplace_reports'
+    tables.marketplace_notifications: '%core.table_prefix%marketplace_notifications'

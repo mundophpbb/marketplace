@@ -1,0 +1,338 @@
+<?php
+/**
+ *
+ * Marketplace / Classificados Extension for phpBB.
+ * English language file.
+ *
+ * @copyright (c) 2026, Mundo phpBB
+ * @license GNU General Public License, version 2 (GPL-2.0)
+ *
+ */
+
+if (!defined('IN_PHPBB'))
+{
+	exit;
+}
+
+if (empty($lang) || !is_array($lang))
+{
+	$lang = [];
+}
+
+$lang = array_merge($lang, [
+	// General
+	'MARKETPLACE'                  => 'Marketplace',
+	'MARKETPLACE_TITLE'            => 'Marketplace / Classificados',
+	'MARKETPLACE_DISABLED'         => 'The Marketplace is currently disabled.',
+	'MARKETPLACE_NO_PERMISSION'    => 'You do not have permission to use the Marketplace.',
+	'MARKETPLACE_AD_NOT_FOUND'     => 'The requested ad does not exist or is no longer available.',
+	'MARKETPLACE_CAT_NOT_FOUND'    => 'The requested category was not found.',
+
+	// Navigation / Links
+	'MARKETPLACE_PAGE'             => 'Marketplace',
+	'VIEWING_MARKETPLACE'          => 'Viewing Marketplace',
+	'MARKETPLACE_POST_AD'          => 'Post new ad',
+	'MARKETPLACE_EDIT_AD'          => 'Edit ad',
+	'MARKETPLACE_MY_ADS'           => 'My ads',
+
+	// List / Index
+	'MARKETPLACE_ALL_CATEGORIES'   => 'All categories',
+	'MARKETPLACE_NO_ADS'           => 'No ads found in this section.',
+	'MARKETPLACE_TOTAL_ADS'        => '%d ads found',
+	'MARKETPLACE_NO_IMAGE'         => 'No image',
+	'MARKETPLACE_POSTED_BY'        => 'Posted by',
+	'MARKETPLACE_VIEWS'            => 'Views',
+	'MARKETPLACE_PRICE_NEGOTIABLE' => 'Price negotiable / Contact seller',
+	'MARKETPLACE_LOCATION'         => 'Location',
+
+	// View ad
+	'MARKETPLACE_CONTACT_SELLER'   => 'Contact seller',
+	'MARKETPLACE_CONTACT_UNAVAILABLE' => 'This ad is not active for contact.',
+	'MARKETPLACE_SEND_PM'          => 'Send private message',
+	'MARKETPLACE_PHONE'            => 'Phone',
+	'MARKETPLACE_AD_DETAILS'       => 'Ad details',
+	'MARKETPLACE_POSTED_ON'        => 'Posted on',
+	'MARKETPLACE_EXPIRES_ON'       => 'Expires on',
+	'MARKETPLACE_EXPIRES_IN_DAYS'  => 'Expires in %d day(s)',
+	'MARKETPLACE_EXPIRES_TODAY'    => 'Expires today',
+	'MARKETPLACE_SOLD_ON'          => 'Sold on',
+	'MARKETPLACE_EXPIRED_ON'       => 'Expired on',
+	'MARKETPLACE_RENEW_AD'         => 'Renew ad',
+	'MARKETPLACE_REPUBLISH_AD'     => 'Republish ad',
+	'MARKETPLACE_MARK_AS_SOLD'     => 'Mark as sold',
+	'MARKETPLACE_APPROVE_AD'       => 'Approve this ad',
+	'MARKETPLACE_STATUS'           => 'Status',
+
+	// Post / Edit form
+	'MARKETPLACE_TITLE_LABEL'      => 'Ad title',
+	'MARKETPLACE_CATEGORY'         => 'Category',
+	'MARKETPLACE_PRICE'            => 'Price',
+	'MARKETPLACE_LOCATION_LABEL'   => 'Location / City',
+	'MARKETPLACE_PHONE_LABEL'      => 'Contact phone (optional)',
+	'MARKETPLACE_CONTACT_METHOD'   => 'Preferred contact method',
+	'MARKETPLACE_CONTACT_PM'       => 'Private message only',
+	'MARKETPLACE_CONTACT_PHONE'    => 'Phone only',
+	'MARKETPLACE_CONTACT_BOTH'     => 'PM or Phone',
+	'MARKETPLACE_DESCRIPTION'      => 'Description',
+	'MARKETPLACE_DESC_EXPLAIN'     => 'Describe the item or service, its condition, delivery options, and any relevant details.',
+	'MARKETPLACE_IMAGES'           => 'Images (optional)',
+	'MARKETPLACE_IMAGES_EXPLAIN'   => 'You can upload up to %d images. JPG, PNG, GIF or WebP. Max 2MB each.',
+	'MARKETPLACE_SUBMIT_AD'        => 'Publish ad',
+	'MARKETPLACE_UPDATE_AD'        => 'Update ad',
+	'MARKETPLACE_TITLE_REQUIRED'   => 'The ad title is required.',
+	'MARKETPLACE_CAT_REQUIRED'     => 'Please select a category.',
+	'MARKETPLACE_DESC_REQUIRED'    => 'The description cannot be empty.',
+	'MARKETPLACE_MAX_ADS_REACHED'  => 'You have reached the limit of %d active ads.',
+	'MARKETPLACE_AD_POSTED'        => 'Your ad has been published successfully.',
+	'MARKETPLACE_AD_POSTED_PENDING'=> 'Your ad has been submitted and is awaiting moderator approval.',
+	'MARKETPLACE_AD_UPDATED'       => 'The ad was updated successfully.',
+	'MARKETPLACE_AD_APPROVED'      => 'Ad approved successfully.',
+	'MARKETPLACE_AD_MARKED_SOLD'   => 'Ad marked as sold.',
+	'MARKETPLACE_AD_RENEWED'       => 'Ad renewed successfully.',
+	'MARKETPLACE_AD_RENEWED_PENDING' => 'Ad resubmitted and awaiting approval.',
+	'MARKETPLACE_ACTION_NOT_ALLOWED' => 'This action is not allowed for this ad.',
+
+	// Delete
+	'MARKETPLACE_CONFIRM_DELETE'   => 'Are you sure you want to delete this ad? This action cannot be undone.',
+	'MARKETPLACE_AD_DELETED'       => 'Ad deleted successfully.',
+
+	// Statuses
+	'MARKETPLACE_STATUS_PENDING'   => 'Pending approval',
+	'MARKETPLACE_STATUS_ACTIVE'    => 'Active',
+	'MARKETPLACE_STATUS_SOLD'      => 'Sold',
+	'MARKETPLACE_STATUS_EXPIRED'   => 'Expired',
+	'MARKETPLACE_STATUS_HIDDEN'    => 'Hidden',
+	'MARKETPLACE_STATUS_UNKNOWN'   => 'Unknown',
+	'MARKETPLACE_STATUS_ALL_PUBLIC' => 'Active and sold',
+
+	// PM
+	'MARKETPLACE_PM_SUBJECT'       => 'Regarding your ad: %s',
+
+	// Image errors
+	'MARKETPLACE_INVALID_IMAGE_EXT'=> 'Invalid image format for %s. Allowed: JPG, PNG, GIF, WebP.',
+	'MARKETPLACE_IMAGE_TOO_BIG'    => 'The image %s is too large (max 2MB).',
+	'MARKETPLACE_IMAGE_UPLOAD_FAILED' => 'Failed to upload image %s.',
+	'CURRENT_IMAGES'               => 'Current images',
+	'MARKETPLACE_IMAGE_UNAVAILABLE'=> 'Image unavailable',
+
+	// UCP
+	'UCP_MARKETPLACE_TITLE'        => 'Marketplace',
+	'UCP_MARKETPLACE_OVERVIEW'     => 'My classifieds',
+	'MARKETPLACE_NO_MY_ADS'        => 'You have not posted any ads yet.',
+	'MARKETPLACE_MANAGE_ADS'       => 'Manage your ads',
+
+	// Package 2 - search, filters, price and images
+	'MARKETPLACE_SEARCH' => 'Search',
+	'MARKETPLACE_SEARCH_PLACEHOLDER' => 'Title or description',
+	'MARKETPLACE_LOCATION_PLACEHOLDER' => 'City, region or country',
+	'MARKETPLACE_AD_TYPE' => 'Ad type',
+	'MARKETPLACE_ALL_TYPES' => 'All types',
+	'MARKETPLACE_TYPE_SELL' => 'Selling',
+	'MARKETPLACE_TYPE_BUY' => 'Buying',
+	'MARKETPLACE_TYPE_TRADE' => 'Trading',
+	'MARKETPLACE_TYPE_SERVICE' => 'Service',
+	'MARKETPLACE_TYPE_RENT' => 'Renting',
+	'MARKETPLACE_TYPE_WANTED' => 'Wanted',
+	'MARKETPLACE_CONDITION' => 'Condition',
+	'MARKETPLACE_ALL_CONDITIONS' => 'All conditions',
+	'MARKETPLACE_CONDITION_NA' => 'Not applicable',
+	'MARKETPLACE_CONDITION_NEW' => 'New',
+	'MARKETPLACE_CONDITION_USED' => 'Used',
+	'MARKETPLACE_CONDITION_REFURBISHED' => 'Refurbished',
+	'MARKETPLACE_PRICE_TYPE_NEGOTIABLE' => 'Negotiable',
+	'MARKETPLACE_PRICE_TYPE_FIXED' => 'Fixed price',
+	'MARKETPLACE_PRICE_TYPE_FREE' => 'Free',
+	'MARKETPLACE_PRICE_TYPE_ON_REQUEST' => 'On request',
+	'MARKETPLACE_PRICE_FREE' => 'Free',
+	'MARKETPLACE_PRICE_ON_REQUEST' => 'Price on request',
+	'MARKETPLACE_PRICE_EXPLAIN' => 'Enter a value for “Fixed price” or, optionally, for “Negotiable”. For “Free” or “On request”, the value is ignored.',
+	'MARKETPLACE_PRICE_INVALID' => 'Enter a valid price greater than zero or choose another price type.',
+	'MARKETPLACE_PRICE_MIN' => 'Min. price',
+	'MARKETPLACE_PRICE_MAX' => 'Max. price',
+	'MARKETPLACE_ONLY_WITH_IMAGE' => 'Only with image',
+	'MARKETPLACE_APPLY_FILTERS' => 'Filter',
+	'MARKETPLACE_CLEAR_FILTERS' => 'Clear filters',
+	'MARKETPLACE_SORT_BY' => 'Sort by',
+	'MARKETPLACE_SORT_RECENT' => 'Newest',
+	'MARKETPLACE_SORT_UPDATED' => 'Recently updated',
+	'MARKETPLACE_SORT_PRICE_ASC' => 'Lowest price',
+	'MARKETPLACE_SORT_PRICE_DESC' => 'Highest price',
+	'MARKETPLACE_SORT_VIEWS' => 'Most viewed',
+	'MARKETPLACE_MAIN_IMAGE' => 'Main image',
+	'MARKETPLACE_REMOVE_IMAGE' => 'Remove image',
+	'MARKETPLACE_IMAGE_LIMIT_REACHED' => 'The available image limit for this ad is %d.',
+
+	'MARKETPLACE_FILTER_APPLY' => 'Apply filters',
+	'MARKETPLACE_FILTER_RESET' => 'Reset filters',
+	'MARKETPLACE_WITH_IMAGES' => 'With images only',
+	'MARKETPLACE_PRICE_TYPE_CONTACT' => 'On request',
+	'MARKETPLACE_IMAGES_LEFT' => 'You can add %d more image(s).',
+	'MARKETPLACE_IMAGE_REMOVE' => 'Remove',
+	'MARKETPLACE_IMAGE_SET_MAIN' => 'Set as main',
+	'MARKETPLACE_IMAGE_MAIN' => 'Main image',
+	'MARKETPLACE_STATUS_ACTIVE_ONLY' => 'Active only',
+	'MARKETPLACE_STATUS_SOLD_ONLY' => 'Sold only',
+	'MARKETPLACE_STATUS_ACTIVE_AND_SOLD' => 'Active and sold',
+
+	// Misc
+	'RETURN_MARKETPLACE'           => '%sReturn to Marketplace%s',
+	'MARKETPLACE_CURRENCY'         => 'R$',
+
+	// Permissions (used by phpBB ACL system)
+	'ACL_U_MARKETPLACE_VIEW'       => 'Can view Marketplace ads',
+	'ACL_U_MARKETPLACE_POST'       => 'Can post new ads',
+	'ACL_U_MARKETPLACE_EDIT_OWN'   => 'Can edit own ads',
+	'ACL_U_MARKETPLACE_DELETE_OWN' => 'Can delete own ads',
+
+	'ACL_M_MARKETPLACE_APPROVE'    => 'Can approve/reject Marketplace ads',
+	'ACL_M_MARKETPLACE_EDIT'       => 'Can edit any Marketplace ad',
+	'ACL_M_MARKETPLACE_DELETE'     => 'Can delete any Marketplace ad',
+
+	// Package 3 - moderation, reports, notifications and featured ads
+	'MARKETPLACE_FEATURED' => 'Featured',
+	'MARKETPLACE_FEATURED_UNTIL' => 'Featured until',
+	'MARKETPLACE_FEATURE_AD' => 'Feature ad',
+	'MARKETPLACE_UNFEATURE_AD' => 'Remove feature',
+	'MARKETPLACE_AD_FEATURED' => 'Ad featured successfully.',
+	'MARKETPLACE_AD_UNFEATURED' => 'Feature removed successfully.',
+	'MARKETPLACE_BUMP_AD' => 'Bump ad',
+	'MARKETPLACE_AD_BUMPED' => 'Ad bumped successfully.',
+	'MARKETPLACE_LAST_BUMPED' => 'Bumped on',
+	'MARKETPLACE_NEXT_BUMP' => 'Next bump on',
+	'MARKETPLACE_HIDDEN_REASON' => 'Hidden reason',
+	'MARKETPLACE_HIDDEN_ON' => 'Hidden on',
+	'MARKETPLACE_NO_REASON_GIVEN' => 'No reason provided',
+	'MARKETPLACE_REPORTS' => 'Reports',
+	'MARKETPLACE_REPORT_AD' => 'Report ad',
+	'MARKETPLACE_REPORT_REASON' => 'Report reason',
+	'MARKETPLACE_REPORT_REASON_REQUIRED' => 'Please provide a report reason.',
+	'MARKETPLACE_REPORT_SEND' => 'Send report',
+	'MARKETPLACE_REPORT_SENT' => 'Report sent to moderation.',
+	'MARKETPLACE_REPORT_OPEN' => 'Open',
+	'MARKETPLACE_REPORT_CLOSED' => 'Closed',
+	'MARKETPLACE_NOTIFICATIONS' => 'Marketplace notifications',
+	'MARKETPLACE_NO_NOTIFICATIONS' => 'There are no notifications yet.',
+	'MARKETPLACE_MARK_NOTIFICATIONS_READ' => 'Mark notifications as read',
+	'MARKETPLACE_NOTIFICATIONS_MARKED_READ' => 'Notifications marked as read.',
+	'MARKETPLACE_VIEW_AD' => 'View ad',
+	'MARKETPLACE_NOTIFICATION_APPROVED_TITLE' => 'Ad approved',
+	'MARKETPLACE_NOTIFICATION_APPROVED_MESSAGE' => 'The ad “%s” was approved and is now visible.',
+	'MARKETPLACE_NOTIFICATION_HIDDEN_TITLE' => 'Ad hidden',
+	'MARKETPLACE_NOTIFICATION_HIDDEN_MESSAGE' => 'The ad “%1$s” was hidden. Reason: %2$s',
+	'MARKETPLACE_NOTIFICATION_SOLD_TITLE' => 'Ad marked as sold',
+	'MARKETPLACE_NOTIFICATION_SOLD_MESSAGE' => 'The ad “%s” was marked as sold.',
+	'MARKETPLACE_NOTIFICATION_REPORT_CLOSED_TITLE' => 'Report reviewed',
+	'MARKETPLACE_NOTIFICATION_FEATURED_TITLE' => 'Ad featured',
+	'MARKETPLACE_NOTIFICATION_FEATURED_MESSAGE' => 'Your ad “%1$s” has been featured.',
+	'MARKETPLACE_NOTIFICATION_UNFEATURED_TITLE' => 'Feature removed',
+	'MARKETPLACE_NOTIFICATION_UNFEATURED_MESSAGE' => 'The feature status was removed from your ad “%1$s”.',
+	'MARKETPLACE_NOTIFICATION_EXPIRED_TITLE' => 'Ad expired',
+	'MARKETPLACE_NOTIFICATION_EXPIRED_MESSAGE' => 'Your ad “%1$s” expired automatically.',
+	'MARKETPLACE_NOTIFICATION_REPORT_CLOSED_MESSAGE' => 'The report for ad “%s” was reviewed by moderation.',
+	'MARKETPLACE_CAT_PRICE_REQUIRED' => 'This category requires a price.',
+	'MARKETPLACE_CAT_LOCATION_REQUIRED' => 'This category requires a location.',
+	'MARKETPLACE_CAT_PHONE_REQUIRED' => 'This category requires a contact phone.',
+
+	// Pacote 3 - moderação avançada, denúncias, destaque e notificações
+	'MARKETPLACE_BUMPED_ON' => 'Bumped on',
+	'MARKETPLACE_REJECT_REASON' => 'Rejection reason',
+	'MARKETPLACE_REPORT_MESSAGE' => 'Note',
+	'MARKETPLACE_REPORT_ALREADY_OPEN' => 'You already have an open report for this ad.',
+	'MARKETPLACE_REPORT_NOT_FOUND' => 'Report not found.',
+	'MARKETPLACE_REPORT_RESOLVED' => 'Report closed.',
+	'MARKETPLACE_REPORT_REOPENED' => 'Report reopened.',
+	'MARKETPLACE_REPORT_DELETED' => 'Report deleted.',
+	'MARKETPLACE_REPORTER' => 'Reporter',
+	'MARKETPLACE_CLOSE_REPORT' => 'Close report',
+	'MARKETPLACE_REOPEN_REPORT' => 'Reopen report',
+	'MARKETPLACE_CAT_TYPE_NOT_ALLOWED' => 'This ad type is not allowed in this category.',
+	'ACL_U_MARKETPLACE_REPORT' => 'Can report Marketplace ads',
+	'ACL_U_MARKETPLACE_BUMP_OWN' => 'Can bump own Marketplace ads',
+	'ACL_M_MARKETPLACE_FEATURE' => 'Can feature Marketplace ads',
+	'ACL_M_MARKETPLACE_REPORTS' => 'Can manage Marketplace reports',
+
+	'MARKETPLACE_REPORT_STATUS_OPEN' => 'Open',
+	'MARKETPLACE_REPORT_STATUS_CLOSED' => 'Closed',
+
+	// Visual refresh - ad form
+	'MARKETPLACE_POST_INTRO' => 'Fill in the main details, add a clear description, and publish a professional-looking ad.',
+	'MARKETPLACE_POST_SECTION_BASICS' => 'Main information',
+	'MARKETPLACE_POST_SECTION_BASICS_EXPLAIN' => 'Start with the title, category, ad type, and item condition.',
+	'MARKETPLACE_POST_SECTION_PRICE_CONTACT' => 'Price and contact',
+	'MARKETPLACE_POST_SECTION_PRICE_CONTACT_EXPLAIN' => 'Set the price, location, and how interested users should contact you.',
+	'MARKETPLACE_POST_UPLOAD_TITLE' => 'Add ad photos',
+	'MARKETPLACE_POST_UPLOAD_HELP' => 'Click to select one or more images from your computer.',
+	'MARKETPLACE_POST_PUBLISH_BOX' => 'Ready to publish?',
+	'MARKETPLACE_POST_PUBLISH_BOX_EXPLAIN' => 'Review the information before submitting. A clear ad gets more contacts.',
+	'MARKETPLACE_POST_TIP_TITLE' => 'Use a direct title with brand/model when relevant.',
+	'MARKETPLACE_POST_TIP_PRICE' => 'Set a reasonable price or mark it as on request.',
+	'MARKETPLACE_POST_TIP_IMAGES' => 'Real photos increase buyer confidence.',
+
+	// Translatable default categories
+	'MARKETPLACE_CAT_VEHICLES' => 'Vehicles',
+	'MARKETPLACE_CAT_VEHICLES_DESC' => 'Cars, motorcycles, trucks, parts, and automotive accessories',
+	'MARKETPLACE_CAT_REAL_ESTATE' => 'Real Estate',
+	'MARKETPLACE_CAT_REAL_ESTATE_DESC' => 'Houses, apartments, land, and commercial spaces for rent or sale',
+	'MARKETPLACE_CAT_ELECTRONICS' => 'Electronics and Phones',
+	'MARKETPLACE_CAT_ELECTRONICS_DESC' => 'Smartphones, computers, TVs, video games, and accessories',
+	'MARKETPLACE_CAT_HOME_GARDEN' => 'Home and Garden',
+	'MARKETPLACE_CAT_HOME_GARDEN_DESC' => 'Furniture, appliances, decor, tools, and gardening items',
+	'MARKETPLACE_CAT_FASHION_BEAUTY' => 'Fashion and Beauty',
+	'MARKETPLACE_CAT_FASHION_BEAUTY_DESC' => 'Clothing, shoes, bags, makeup, perfumes, and accessories',
+	'MARKETPLACE_CAT_SERVICES' => 'Services',
+	'MARKETPLACE_CAT_SERVICES_DESC' => 'Freelancers, home services, repairs, classes, and local professionals',
+	'MARKETPLACE_CAT_JOBS_OPPORTUNITIES' => 'Jobs and Opportunities',
+	'MARKETPLACE_CAT_JOBS_OPPORTUNITIES_DESC' => 'Job openings, internships, gigs, and business opportunities',
+	'MARKETPLACE_CAT_SPORTS_LEISURE' => 'Sports and Leisure',
+	'MARKETPLACE_CAT_SPORTS_LEISURE_DESC' => 'Sports equipment, bikes, musical instruments, and leisure items',
+	'MARKETPLACE_CAT_PETS' => 'Animals and Pets',
+	'MARKETPLACE_CAT_PETS_DESC' => 'Dogs, cats, birds, accessories, and pet services',
+	'MARKETPLACE_CAT_OTHER' => 'Other',
+	'MARKETPLACE_CAT_OTHER_DESC' => 'Miscellaneous items and services that do not fit other categories',
+
+	// Package v151 - image upload feedback
+	'MARKETPLACE_SELECTED_IMAGES' => 'Selected images',
+	'MARKETPLACE_SELECTED_IMAGES_EXPLAIN' => 'These images have not been uploaded yet. Click publish/update once to save the ad and photos.',
+	'MARKETPLACE_POST_SAVED_TITLE' => 'Ad saved with images',
+	'MARKETPLACE_POST_SAVED_EXPLAIN' => 'Your ad has been saved and the images have already been processed. You do not need to publish again.',
+	'MARKETPLACE_IMAGES_UPDATED_TITLE' => 'Images updated',
+	'MARKETPLACE_IMAGE_ORDER_EXPLAIN' => 'Drag photos or use the arrows to reorder them. The first photo is used as the cover when no main image is selected.',
+
+	'MARKETPLACE_IMAGES_UPDATED_EXPLAIN' => 'The images were saved and the gallery below has already been refreshed.',
+	'MARKETPLACE_ZOOM_HINT' => 'Hover to zoom',
+
+	'MARKETPLACE_EMPTY_RESULTS_TITLE' => 'No ads found',
+	'MARKETPLACE_EMPTY_RESULTS_EXPLAIN' => 'No ads match these filters. Try removing a filter or publish the first ad in this category.',
+	'MARKETPLACE_EMPTY_MY_ADS_TITLE' => 'You have not posted any ads yet',
+	'MARKETPLACE_EMPTY_MY_ADS_EXPLAIN' => 'Create your first ad to track status, views, and actions here.',
+	'MARKETPLACE_EMPTY_NOTIFICATIONS_TITLE' => 'No notifications right now',
+	'MARKETPLACE_EMPTY_NOTIFICATIONS_EXPLAIN' => 'Updates about your ads will appear here.',
+	'MARKETPLACE_FORM_ERRORS_TITLE' => 'Review the ad before continuing',
+	'MARKETPLACE_FORM_ERRORS_EXPLAIN' => 'Some fields need attention. Fix the items below and submit again.',
+	'MARKETPLACE_ACP_EMPTY_ADS_TITLE' => 'No ads found',
+	'MARKETPLACE_ACP_EMPTY_ADS_EXPLAIN' => 'When users publish ads, they will appear in this table.',
+	'MARKETPLACE_ACP_EMPTY_CATEGORIES_TITLE' => 'No categories created',
+	'MARKETPLACE_ACP_EMPTY_CATEGORIES_EXPLAIN' => 'Create at least one category before users can post ads.',
+	'MARKETPLACE_ACP_EMPTY_REPORTS_TITLE' => 'No reports found',
+	'MARKETPLACE_ACP_EMPTY_REPORTS_EXPLAIN' => 'Reports sent by users will appear here.',
+
+	'MARKETPLACE_UCP_PENDING_EXPLAIN' => 'This ad is waiting for moderator approval and is not publicly visible to all users yet.',
+	'MARKETPLACE_UCP_HIDDEN_EXPLAIN' => 'This ad was hidden by moderation and needs adjustments before returning to public view.',
+	'MARKETPLACE_CATEGORY_RULES_NOTICE' => 'Rules for this category',
+	'MARKETPLACE_CATEGORY_NO_PRICE_HINT' => 'This category does not use prices.',
+	'MARKETPLACE_CATEGORY_NO_IMAGES_HINT' => 'This category does not allow images.',
+	'MARKETPLACE_REQUIRE_APPROVAL_PUBLIC_HINT' => 'After publishing, the ad will wait for moderator approval before becoming public.',
+	// Package v165 - simple stock quantity
+	'MARKETPLACE_QUANTITY' => 'Available quantity',
+	'MARKETPLACE_QUANTITY_EXPLAIN' => 'Enter how many units are available. Use 1 for a single item; use 0 for out of stock.',
+	'MARKETPLACE_QUANTITY_AVAILABLE' => 'Availability',
+	'MARKETPLACE_STOCK' => 'Stock',
+	'MARKETPLACE_STOCK_ONE' => '1 unit available',
+	'MARKETPLACE_STOCK_MANY' => '%d units available',
+	'MARKETPLACE_STOCK_OUT' => 'Out of stock',
+	'MARKETPLACE_STOCK_INCREASE' => '+1 unit',
+	'MARKETPLACE_STOCK_DECREASE' => '-1 unit',
+	'MARKETPLACE_STOCK_OUT_ACTION' => 'Mark out of stock',
+	'MARKETPLACE_STOCK_UPDATED' => 'Stock updated successfully.',
+
+]);

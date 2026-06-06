@@ -1,0 +1,77 @@
+{% include 'overall_header.html' %}
+
+<h1>{{ lang('MARKETPLACE_ACP_REPORTS') }}</h1>
+
+<form method="get" action="{{ U_ACTION }}">
+	<fieldset>
+		<label>{{ lang('MARKETPLACE_FILTER_STATUS') }}:
+			<select name="status" onchange="this.form.submit()">
+				<option value="-1">{{ lang('ALL') }}</option>
+				<option value="0"{% if S_FILTER == 0 %} selected{% endif %}>{{ lang('MARKETPLACE_REPORT_OPEN') }}</option>
+				<option value="1"{% if S_FILTER == 1 %} selected{% endif %}>{{ lang('MARKETPLACE_REPORT_CLOSED') }}</option>
+			</select>
+		</label>
+		<input type="hidden" name="mode" value="reports">
+	</fieldset>
+</form>
+
+<table class="table1 zebra-table">
+	<thead>
+		<tr>
+			<th>ID</th>
+			<th>{{ lang('MARKETPLACE_TITLE_LABEL') }}</th>
+			<th>{{ lang('MARKETPLACE_REPORTER') }}</th>
+			<th>{{ lang('MARKETPLACE_REPORT_REASON') }}</th>
+			<th>{{ lang('MARKETPLACE_STATUS') }}</th>
+			<th>{{ lang('MARKETPLACE_CREATED') }}</th>
+			<th>{{ lang('ACTIONS') }}</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for report in REPORTS %}
+			<tr>
+				<td>{{ report.report_id }}</td>
+				<td>{% if report.U_AD %}<a href="{{ report.U_AD }}" target="_blank">{{ report.ad_title|default('—') }}</a>{% else %}&mdash;{% endif %}</td>
+				<td>{{ report.username|default('—') }}</td>
+				<td>{{ report.report_reason }}{% if report.report_note %}<br><small>{{ lang('MARKETPLACE_REPORT_NOTE') }}: {{ report.report_note }}</small>{% endif %}</td>
+				<td>{{ report.REPORT_STATUS_LANG }}{% if report.REPORT_CLOSED_DISPLAY %}<br><small>{{ report.REPORT_CLOSED_DISPLAY }}</small>{% endif %}</td>
+				<td>{{ report.REPORT_CREATED_DISPLAY }}</td>
+				<td class="actions acp-marketplace-actions">
+					{% if report.report_status == 0 %}
+						<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form acp-action-form">
+							<input type="hidden" name="action" value="resolve">
+							<input type="hidden" name="report_id" value="{{ report.report_id }}">
+							<input type="text" name="report_note_{{ report.report_id }}" value="" placeholder="{{ lang('MARKETPLACE_REPORT_NOTE') }}" class="inputbox autowidth" size="18">
+							<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_REPORT_RESOLVE') }}" class="button-small">
+							{{ S_FORM_TOKEN }}
+						</form>
+					{% else %}
+						<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form acp-action-form">
+							<input type="hidden" name="action" value="reopen">
+							<input type="hidden" name="report_id" value="{{ report.report_id }}">
+							<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_REPORT_REOPEN') }}" class="button-small">
+							{{ S_FORM_TOKEN }}
+						</form>
+					{% endif %}
+
+					<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form acp-action-form">
+						<input type="hidden" name="action" value="delete">
+						<input type="hidden" name="report_id" value="{{ report.report_id }}">
+						<input type="submit" name="submit_action" value="{{ lang('DELETE') }}" class="button-small">
+						{{ S_FORM_TOKEN }}
+					</form>
+				</td>
+			</tr>
+		{% else %}
+			<tr><td colspan="7"><div class="mp-acp-empty"><strong>{{ lang('MARKETPLACE_ACP_EMPTY_REPORTS_TITLE') }}</strong><br><span>{{ lang('MARKETPLACE_ACP_EMPTY_REPORTS_EXPLAIN') }}</span></div></td></tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+{% if pagination|length %}
+	<div class="pagination">
+		{% include 'pagination.html' %}
+	</div>
+{% endif %}
+
+{% include 'overall_footer.html' %}

@@ -1,0 +1,42 @@
+mundophpbb_marketplace_index:
+    path: /marketplace
+    defaults: { _controller: mundophpbb.marketplace.controller.main:index }
+
+mundophpbb_marketplace_category:
+    path: /marketplace/category/{cat_id}
+    defaults: { _controller: mundophpbb.marketplace.controller.main:category }
+    requirements:
+        cat_id: \d+
+
+mundophpbb_marketplace_view:
+    path: /marketplace/ad/{ad_id}
+    defaults: { _controller: mundophpbb.marketplace.controller.main:view }
+    requirements:
+        ad_id: \d+
+
+mundophpbb_marketplace_image:
+    path: /marketplace/image/{image_id}
+    defaults: { _controller: mundophpbb.marketplace.controller.main:image }
+    requirements:
+        image_id: \d+
+
+mundophpbb_marketplace_post:
+    path: /marketplace/post
+    defaults: { _controller: mundophpbb.marketplace.controller.main:post }
+
+mundophpbb_marketplace_edit:
+    path: /marketplace/edit/{ad_id}
+    defaults: { _controller: mundophpbb.marketplace.controller.main:edit }
+    requirements:
+        ad_id: \d+
+
+mundophpbb_marketplace_delete:
+    path: /marketplace/delete/{ad_id}
+    defaults: { _controller: mundophpbb.marketplace.controller.main:delete }
+    requirements:
+        ad_id: \d+
+
+# UCP routes (handled via ucp controller too, but can use main or dedicated)
+mundophpbb_marketplace_ucp:
+    path: /ucp/marketplace
+    defaults: { _controller: mundophpbb.marketplace.controller.ucp:main }

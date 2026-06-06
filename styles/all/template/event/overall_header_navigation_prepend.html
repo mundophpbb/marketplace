@@ -1,0 +1,7 @@
+{% if S_MARKETPLACE_ENABLED and U_MARKETPLACE %}
+	<li>
+		<a href="{{ U_MARKETPLACE }}" title="{{ lang('MARKETPLACE') }}">
+			<i class="icon fa-shopping-cart fa-fw" aria-hidden="true"></i><span>{{ lang('MARKETPLACE') }}</span>{% if MARKETPLACE_UNREAD_NOTIFICATIONS %} <strong class="marketplace-nav-badge">{{ MARKETPLACE_UNREAD_NOTIFICATIONS }}</strong>{% endif %}
+		</a>
+	</li>
+{% endif %}

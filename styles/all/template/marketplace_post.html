@@ -1,0 +1,404 @@
+{% include 'overall_header.html' %}
+
+<div class="mp-shell mp-post-shell">
+	<div class="mp-post-hero panel">
+		<div class="inner">
+			<div>
+				<p class="mp-eyebrow">{{ lang('MARKETPLACE') }}</p>
+				<h2>{{ S_EDIT_MODE ? lang('MARKETPLACE_EDIT_AD') : lang('MARKETPLACE_POST_AD') }}</h2>
+				<p class="mp-lead">{{ lang('MARKETPLACE_POST_INTRO') }}</p>
+			</div>
+			<a href="{{ U_BACK }}" class="button mp-post-back">{{ lang('BACK') }}</a>
+		</div>
+	</div>
+
+	{% if ERRORS|length %}
+	<div class="errorbox mp-post-errors">
+		<h3>{{ lang('MARKETPLACE_FORM_ERRORS_TITLE') }}</h3>
+		<p>{{ lang('MARKETPLACE_FORM_ERRORS_EXPLAIN') }}</p>
+		<ul>
+			{% for error in ERRORS %}<li>{{ error }}</li>{% endfor %}
+		</ul>
+	</div>
+	{% endif %}
+
+
+	{% if S_IMAGE_GALLERY_UPDATED %}
+	<div class="successbox mp-post-success">
+		<div class="mp-feedback-icon" aria-hidden="true">✓</div>
+		<div>
+			<h3>{{ S_AD_SAVED ? lang('MARKETPLACE_POST_SAVED_TITLE') : lang('MARKETPLACE_IMAGES_UPDATED_TITLE') }}</h3>
+			<p>{{ S_AD_SAVED ? lang('MARKETPLACE_POST_SAVED_EXPLAIN') : lang('MARKETPLACE_IMAGES_UPDATED_EXPLAIN') }}</p>
+			{% if U_VIEW_AD %}<p><a href="{{ U_VIEW_AD }}" class="button">{{ lang('MARKETPLACE_VIEW_AD') }}</a></p>{% endif %}
+		</div>
+	</div>
+	{% endif %}
+
+	<form method="post" action="{{ U_ACTION }}" enctype="multipart/form-data" class="marketplace-form mp-post-form">
+		<div class="mp-post-grid">
+			<div class="mp-post-main">
+				<section class="mp-form-card panel">
+					<div class="inner">
+						<div class="mp-form-section-head">
+							<span class="mp-step-badge">1</span>
+							<div>
+								<h3>{{ lang('MARKETPLACE_POST_SECTION_BASICS') }}</h3>
+								<p>{{ lang('MARKETPLACE_POST_SECTION_BASICS_EXPLAIN') }}</p>
+							</div>
+						</div>
+
+						<div class="mp-form-grid mp-form-grid-2">
+							<div class="mp-field mp-field-wide">
+								<label for="ad_title">{{ lang('MARKETPLACE_TITLE_LABEL') ~ lang('COLON') }}</label>
+								<input type="text" name="ad_title" id="ad_title" value="{{ AD.ad_title }}" maxlength="255" class="inputbox" required placeholder="{{ lang('MARKETPLACE_TITLE_LABEL') }}">
+							</div>
+
+							<div class="mp-field">
+								<label for="cat_id">{{ lang('MARKETPLACE_CATEGORY') ~ lang('COLON') }}</label>
+								<select name="cat_id" id="cat_id" required>
+									<option value="">{{ lang('SELECT') }}</option>
+									{% for cat in CATEGORIES %}
+										<option value="{{ cat.cat_id }}" data-require-price="{{ cat.cat_require_price ? 1 : 0 }}" data-require-location="{{ cat.cat_require_location ? 1 : 0 }}" data-require-phone="{{ cat.cat_require_phone ? 1 : 0 }}" data-allow-price="{{ cat.cat_allow_price is defined and not cat.cat_allow_price ? 0 : 1 }}" data-allow-images="{{ cat.cat_allow_images is defined and not cat.cat_allow_images ? 0 : 1 }}"{% if cat.cat_id == AD.cat_id %} selected{% endif %}>{{ cat.cat_name }}</option>
+									{% endfor %}
+								</select>
+								<div class="mp-category-rule-hints" id="mp-category-rule-hints" hidden>
+									<strong>{{ lang('MARKETPLACE_CATEGORY_RULES_NOTICE') }}</strong>
+									<ul>
+										<li data-cat-hint="require-price">{{ lang('MARKETPLACE_CAT_PRICE_REQUIRED') }}</li>
+										<li data-cat-hint="require-location">{{ lang('MARKETPLACE_CAT_LOCATION_REQUIRED') }}</li>
+										<li data-cat-hint="require-phone">{{ lang('MARKETPLACE_CAT_PHONE_REQUIRED') }}</li>
+										<li data-cat-hint="no-price">{{ lang('MARKETPLACE_CATEGORY_NO_PRICE_HINT') }}</li>
+										<li data-cat-hint="no-images">{{ lang('MARKETPLACE_CATEGORY_NO_IMAGES_HINT') }}</li>
+									</ul>
+								</div>
+							</div>
+
+							<div class="mp-field">
+								<label for="ad_type">{{ lang('MARKETPLACE_AD_TYPE') ~ lang('COLON') }}</label>
+								<select name="ad_type" id="ad_type">
+									{% for option in AD_TYPE_OPTIONS %}<option value="{{ option.VALUE }}"{% if option.SELECTED %} selected{% endif %}>{{ option.LABEL }}</option>{% endfor %}
+								</select>
+							</div>
+
+							<div class="mp-field">
+								<label for="ad_condition">{{ lang('MARKETPLACE_CONDITION') ~ lang('COLON') }}</label>
+								<select name="ad_condition" id="ad_condition">
+									{% for option in AD_CONDITION_OPTIONS %}<option value="{{ option.VALUE }}"{% if option.SELECTED %} selected{% endif %}>{{ option.LABEL }}</option>{% endfor %}
+								</select>
+							</div>
+
+							<div class="mp-field">
+								<label for="ad_quantity">{{ lang('MARKETPLACE_QUANTITY') ~ lang('COLON') }}</label>
+								<input type="number" name="ad_quantity" id="ad_quantity" value="{{ AD.ad_quantity|default(1) }}" min="0" max="999999" class="inputbox">
+								<p class="help">{{ lang('MARKETPLACE_QUANTITY_EXPLAIN') }}</p>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section class="mp-form-card panel">
+					<div class="inner">
+						<div class="mp-form-section-head">
+							<span class="mp-step-badge">2</span>
+							<div>
+								<h3>{{ lang('MARKETPLACE_POST_SECTION_PRICE_CONTACT') }}</h3>
+								<p>{{ lang('MARKETPLACE_POST_SECTION_PRICE_CONTACT_EXPLAIN') }}</p>
+							</div>
+						</div>
+
+						<div class="mp-form-grid mp-form-grid-2">
+							{% if S_ENABLE_PRICE %}
+							<div class="mp-field mp-price-combo">
+								<label for="ad_price_type">{{ lang('MARKETPLACE_PRICE') ~ lang('COLON') }}</label>
+								<div class="mp-inline-fields">
+									<select name="ad_price_type" id="ad_price_type">
+										{% for option in PRICE_TYPE_OPTIONS %}<option value="{{ option.VALUE }}"{% if option.SELECTED %} selected{% endif %}>{{ option.LABEL }}</option>{% endfor %}
+									</select>
+									<input type="text" name="ad_price" id="ad_price" value="{{ AD.ad_price }}" class="inputbox" placeholder="0,00">
+								</div>
+								<p class="help">{{ lang('MARKETPLACE_PRICE_EXPLAIN') }}</p>
+							</div>
+							{% endif %}
+
+							<div class="mp-field">
+								<label for="ad_location">{{ lang('MARKETPLACE_LOCATION_LABEL') ~ lang('COLON') }}</label>
+								<input type="text" name="ad_location" id="ad_location" value="{{ AD.ad_location }}" class="inputbox" placeholder="{{ lang('MARKETPLACE_LOCATION_LABEL') }}">
+							</div>
+
+							<div class="mp-field">
+								<label for="ad_phone">{{ lang('MARKETPLACE_PHONE_LABEL') ~ lang('COLON') }}</label>
+								<input type="text" name="ad_phone" id="ad_phone" value="{{ AD.ad_phone }}" class="inputbox">
+							</div>
+
+							<div class="mp-field mp-field-wide">
+								<span class="mp-field-label">{{ lang('MARKETPLACE_CONTACT_METHOD') ~ lang('COLON') }}</span>
+								<div class="mp-choice-grid">
+									<label><input type="radio" name="contact_method" value="1"{% if not AD.ad_contact_method or AD.ad_contact_method == 1 %} checked{% endif %}> <span>{{ lang('MARKETPLACE_CONTACT_PM') }}</span></label>
+									<label><input type="radio" name="contact_method" value="2"{% if AD.ad_contact_method == 2 %} checked{% endif %}> <span>{{ lang('MARKETPLACE_CONTACT_PHONE') }}</span></label>
+									<label><input type="radio" name="contact_method" value="3"{% if AD.ad_contact_method == 3 %} checked{% endif %}> <span>{{ lang('MARKETPLACE_CONTACT_BOTH') }}</span></label>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section class="mp-form-card panel">
+					<div class="inner">
+						<div class="mp-form-section-head">
+							<span class="mp-step-badge">3</span>
+							<div>
+								<h3>{{ lang('MARKETPLACE_DESCRIPTION') }}</h3>
+								<p>{{ lang('MARKETPLACE_DESC_EXPLAIN') }}</p>
+							</div>
+						</div>
+
+						<div class="mp-field">
+							<label for="ad_desc">{{ lang('MARKETPLACE_DESCRIPTION') ~ lang('COLON') }}</label>
+							<textarea name="ad_desc" id="ad_desc" rows="10" class="inputbox mp-desc-input" required>{{ AD.ad_desc }}</textarea>
+						</div>
+					</div>
+				</section>
+
+				{% if S_ALLOW_IMAGES %}
+				<section class="mp-form-card panel">
+					<div class="inner">
+						<div class="mp-form-section-head">
+							<span class="mp-step-badge">4</span>
+							<div>
+								<h3>{{ lang('MARKETPLACE_IMAGES') }}</h3>
+								<p>{{ lang('MARKETPLACE_IMAGES_EXPLAIN', MAX_IMAGES) }}</p>
+							</div>
+						</div>
+
+						<label for="images" class="mp-upload-box">
+							<span class="mp-upload-icon">＋</span>
+							<span class="mp-upload-title">{{ lang('MARKETPLACE_POST_UPLOAD_TITLE') }}</span>
+							<span class="mp-upload-help">{{ lang('MARKETPLACE_POST_UPLOAD_HELP') }}</span>
+							<input type="file" name="images[]" id="images" multiple accept="image/*">
+						</label>
+
+
+						<div class="mp-selected-images" id="mp-selected-images" hidden>
+							<strong>{{ lang('MARKETPLACE_SELECTED_IMAGES') }}</strong>
+							<div class="mp-selected-images-grid" id="mp-selected-images-grid"></div>
+							<p class="help">{{ lang('MARKETPLACE_SELECTED_IMAGES_EXPLAIN') }}</p>
+						</div>
+
+						{% if IMAGE_SLOTS_LEFT > 0 %}<p class="help mp-upload-slots">{{ lang('MARKETPLACE_IMAGES_LEFT', IMAGE_SLOTS_LEFT) }}</p>{% endif %}
+
+						{% if CURRENT_IMAGES|length %}
+							<div class="current-images mp-current-images">
+								<div class="mp-current-images-head">
+									<strong>{{ lang('CURRENT_IMAGES') }}:</strong>
+									<small>{{ lang('MARKETPLACE_IMAGE_ORDER_EXPLAIN') }}</small>
+								</div>
+								<input type="hidden" name="image_order_touched" id="mp-image-order-touched" value="0">
+								<div class="thumbs mp-sortable-images" id="mp-sortable-images">
+									{% for img in CURRENT_IMAGES %}
+										<div class="marketplace-image-edit-item mp-image-edit-item{% if img.S_IS_MAIN %} is-main{% endif %}" draggable="true" data-image-item>
+											<input type="hidden" name="image_order[]" value="{{ img.image_id }}">
+											<a href="{{ img.SRC }}" target="_blank" rel="noopener"><img src="{{ img.SRC }}" alt="{{ AD.ad_title }}" loading="lazy"></a>
+											{% if img.S_IS_MAIN %}<span class="mp-main-image-ribbon">{{ lang('MARKETPLACE_IMAGE_MAIN') }}</span>{% endif %}
+											<div class="mp-image-controls">
+												<button type="button" class="button2 mp-image-move" data-image-move="up">↑</button>
+												<button type="button" class="button2 mp-image-move" data-image-move="down">↓</button>
+											</div>
+											<label class="mp-main-choice"><input type="radio" name="main_image_id" value="{{ img.image_id }}"{% if img.S_IS_MAIN %} checked{% endif %}> {{ lang('MARKETPLACE_IMAGE_SET_MAIN') }}</label>
+											<label class="mp-delete-choice"><input type="checkbox" name="delete_images[]" value="{{ img.image_id }}"> {{ lang('MARKETPLACE_REMOVE_IMAGE') }}</label>
+										</div>
+									{% endfor %}
+								</div>
+							</div>
+						{% endif %}
+					</div>
+				</section>
+				{% endif %}
+			</div>
+
+			<aside class="mp-post-aside">
+				<div class="panel mp-publish-card">
+					<div class="inner">
+						<h3>{{ lang('MARKETPLACE_POST_PUBLISH_BOX') }}</h3>
+						<p>{{ lang('MARKETPLACE_POST_PUBLISH_BOX_EXPLAIN') }}</p>
+						{% if S_REQUIRE_APPROVAL %}<div class="mp-publish-notice">{{ lang('MARKETPLACE_REQUIRE_APPROVAL_PUBLIC_HINT') }}</div>{% endif %}
+						<ul class="mp-post-checklist">
+							<li>{{ lang('MARKETPLACE_POST_TIP_TITLE') }}</li>
+							<li>{{ lang('MARKETPLACE_POST_TIP_PRICE') }}</li>
+							<li>{{ lang('MARKETPLACE_POST_TIP_IMAGES') }}</li>
+						</ul>
+						<div class="mp-submit-box">
+							<input type="submit" name="submit" value="{{ S_EDIT_MODE ? lang('MARKETPLACE_UPDATE_AD') : lang('MARKETPLACE_SUBMIT_AD') }}" class="button1 mp-submit-primary">
+							<a href="{{ U_BACK }}" class="button2 mp-submit-secondary">{{ lang('CANCEL') }}</a>
+							{{ S_FORM_TOKEN }}
+						</div>
+					</div>
+				</div>
+			</aside>
+		</div>
+	</form>
+</div>
+
+
+<script>
+(function () {
+	var select = document.getElementById('cat_id');
+	var wrap = document.getElementById('mp-category-rule-hints');
+	if (!select || !wrap) {
+		return;
+	}
+
+	var hints = {
+		'require-price': wrap.querySelector('[data-cat-hint="require-price"]'),
+		'require-location': wrap.querySelector('[data-cat-hint="require-location"]'),
+		'require-phone': wrap.querySelector('[data-cat-hint="require-phone"]'),
+		'no-price': wrap.querySelector('[data-cat-hint="no-price"]'),
+		'no-images': wrap.querySelector('[data-cat-hint="no-images"]')
+	};
+
+	function setVisible(item, visible) {
+		if (item) { item.hidden = !visible; }
+	}
+
+	function updateHints() {
+		var option = select.options[select.selectedIndex];
+		if (!option || !option.value) {
+			wrap.hidden = true;
+			return;
+		}
+
+		var hasHints = false;
+		var values = {
+			'require-price': option.getAttribute('data-require-price') === '1',
+			'require-location': option.getAttribute('data-require-location') === '1',
+			'require-phone': option.getAttribute('data-require-phone') === '1',
+			'no-price': option.getAttribute('data-allow-price') === '0',
+			'no-images': option.getAttribute('data-allow-images') === '0'
+		};
+
+		for (var key in hints) {
+			if (Object.prototype.hasOwnProperty.call(hints, key)) {
+				setVisible(hints[key], values[key]);
+				if (values[key]) { hasHints = true; }
+			}
+		}
+		wrap.hidden = !hasHints;
+	}
+
+	select.addEventListener('change', updateHints);
+	updateHints();
+}());
+
+(function () {
+	var input = document.getElementById('images');
+	var wrap = document.getElementById('mp-selected-images');
+	var grid = document.getElementById('mp-selected-images-grid');
+
+	if (!input || !wrap || !grid || !window.FileReader) {
+		return;
+	}
+
+	input.addEventListener('change', function () {
+		grid.innerHTML = '';
+
+		if (!input.files || !input.files.length) {
+			wrap.hidden = true;
+			return;
+		}
+
+		wrap.hidden = false;
+
+		Array.prototype.slice.call(input.files).forEach(function (file) {
+			if (!file.type || file.type.indexOf('image/') !== 0) {
+				return;
+			}
+
+			var item = document.createElement('div');
+			item.className = 'mp-selected-image-item';
+
+			var img = document.createElement('img');
+			img.alt = file.name;
+
+			var name = document.createElement('span');
+			name.textContent = file.name;
+
+			item.appendChild(img);
+			item.appendChild(name);
+			grid.appendChild(item);
+
+			var reader = new FileReader();
+			reader.onload = function (event) {
+				img.src = event.target.result;
+			};
+			reader.readAsDataURL(file);
+		});
+	});
+}());
+
+(function () {
+	var list = document.getElementById('mp-sortable-images');
+	var touched = document.getElementById('mp-image-order-touched');
+	var dragged = null;
+
+	if (!list || !touched) {
+		return;
+	}
+
+	function markTouched() {
+		touched.value = '1';
+	}
+
+	function moveItem(item, direction) {
+		if (!item) {
+			return;
+		}
+		if (direction === 'up' && item.previousElementSibling) {
+			list.insertBefore(item, item.previousElementSibling);
+			markTouched();
+		}
+		if (direction === 'down' && item.nextElementSibling) {
+			list.insertBefore(item.nextElementSibling, item);
+			markTouched();
+		}
+	}
+
+	list.addEventListener('click', function (event) {
+		var button = event.target.closest ? event.target.closest('[data-image-move]') : null;
+		if (!button) {
+			return;
+		}
+		event.preventDefault();
+		moveItem(button.closest('[data-image-item]'), button.getAttribute('data-image-move'));
+	});
+
+	list.addEventListener('dragstart', function (event) {
+		dragged = event.target.closest ? event.target.closest('[data-image-item]') : null;
+		if (dragged) {
+			dragged.classList.add('is-dragging');
+		}
+	});
+
+	list.addEventListener('dragend', function () {
+		if (dragged) {
+			dragged.classList.remove('is-dragging');
+		}
+		dragged = null;
+	});
+
+	list.addEventListener('dragover', function (event) {
+		if (!dragged) {
+			return;
+		}
+		event.preventDefault();
+		var target = event.target.closest ? event.target.closest('[data-image-item]') : null;
+		if (!target || target === dragged) {
+			return;
+		}
+		var rect = target.getBoundingClientRect();
+		var before = event.clientY < rect.top + (rect.height / 2);
+		list.insertBefore(dragged, before ? target : target.nextSibling);
+		markTouched();
+	});
+}());
+</script>
+
+{% include 'overall_footer.html' %}
