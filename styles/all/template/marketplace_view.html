@@ -87,7 +87,7 @@
 					<div class="mp-contact-box">
 						<h3>{{ lang('MARKETPLACE_CONTACT_SELLER') }}</h3>
 						{% if AD.ad_contact_method != 2 and AD.U_PM %}<a href="{{ AD.U_PM }}" class="button button-primary mp-contact-button">{{ lang('MARKETPLACE_SEND_PM') }}</a>{% endif %}
-						{% if AD.ad_contact_method != 1 and AD.ad_phone %}<a href="tel:{{ AD.ad_phone }}" class="button mp-contact-button">{{ lang('MARKETPLACE_PHONE') }}: {{ AD.ad_phone }}</a>{% endif %}
+						{% if AD.ad_contact_method != 1 and AD.ad_phone and AD.U_WHATSAPP %}<a href="{{ AD.U_WHATSAPP }}" class="button mp-contact-button" target="_blank" rel="noopener noreferrer">{{ lang('MARKETPLACE_WHATSAPP') }}: {{ AD.ad_phone }}</a>{% endif %}
 					</div>
 				{% elseif AD.ad_status != 1 %}
 					<p class="mp-contact-unavailable">{{ lang('MARKETPLACE_CONTACT_UNAVAILABLE') }}</p>

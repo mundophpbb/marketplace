@@ -283,6 +283,7 @@ class main_controller
 		$ad['AD_DESC_HTML'] = $this->render_description($ad['ad_desc']);
 		$ad['U_POSTER'] = \append_sid("{$this->root_path}memberlist.{$this->php_ext}", ['mode' => 'viewprofile', 'u' => $ad['user_id']]);
 		$ad['U_PM'] = ((int) $this->user->data['user_id'] !== ANONYMOUS && (int) $ad['ad_status'] === 1 && !$is_owner) ? \append_sid("{$this->root_path}ucp.{$this->php_ext}", ['i' => 'pm', 'mode' => 'compose', 'u' => $ad['user_id'], 'subject' => $this->language->lang('MARKETPLACE_PM_SUBJECT', $ad['ad_title'])]) : '';
+		$ad['U_WHATSAPP'] = $this->build_whatsapp_url(isset($ad['ad_phone']) ? $ad['ad_phone'] : '');
 		$ad['U_EDIT'] = $this->can_edit_ad($ad) ? $this->helper->route('mundophpbb_marketplace_edit', ['ad_id' => $ad_id]) : '';
 		$ad['U_DELETE'] = $this->can_delete_ad($ad) ? $this->helper->route('mundophpbb_marketplace_delete', ['ad_id' => $ad_id]) : '';
 		$ad['U_ACTION'] = $this->helper->route('mundophpbb_marketplace_view', ['ad_id' => $ad_id]);
@@ -500,6 +501,11 @@ class main_controller
 			if ($selected_category)
 			{
 				$this->validate_category_requirements($selected_category, $ad_type, $ad_price_type, $ad_price_cents, $ad_location, $ad_phone, $errors);
+			}
+
+			if (in_array((int) $contact_method, [2, 3], true) && \utf8_clean_string($ad_phone) === '')
+			{
+				$errors[] = $this->language->lang('MARKETPLACE_WHATSAPP_REQUIRED');
 			}
 
 			// Check max ads for new ads.
@@ -1201,6 +1207,27 @@ class main_controller
 				$ad['AD_NEXT_BUMP_DISPLAY'] = $this->user->format_date($next_bump);
 			}
 		}
+	}
+
+	private function build_whatsapp_url($phone)
+	{
+		$digits = preg_replace('/\D+/', '', (string) $phone);
+
+		if ($digits === '')
+		{
+			return '';
+		}
+
+		$digits = ltrim($digits, '0');
+
+		// Brazilian local numbers are commonly entered without the country code.
+		// WhatsApp wa.me links require the international format without +, spaces or punctuation.
+		if (strlen($digits) === 10 || strlen($digits) === 11)
+		{
+			$digits = '55' . $digits;
+		}
+
+		return 'https://wa.me/' . $digits;
 	}
 
 	private function can_edit_ad($ad)

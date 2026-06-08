@@ -132,6 +132,11 @@
 									<span class="mp-no-image">{{ lang('MARKETPLACE_NO_IMAGE') }}</span>
 								{% endif %}
 								<span class="mp-media-shade"></span>
+
+								{% if S_SHOW_PRICE and ad.AD_PRICE_DISPLAY %}
+									<span class="mp-price-overlay">{{ ad.AD_PRICE_DISPLAY }}</span>
+								{% endif %}
+
 								<span class="mp-card-badges">
 									<span>
 										{% if ad.S_IS_FEATURED %}<span class="status-badge status-featured">{{ lang('MARKETPLACE_FEATURED') }}</span>{% endif %}
