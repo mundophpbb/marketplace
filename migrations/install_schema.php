@@ -18,7 +18,11 @@ class install_schema extends \phpbb\db\migration\migration
 			&& $this->db_tools->sql_table_exists($this->table_prefix . 'marketplace_ads')
 			&& $this->db_tools->sql_table_exists($this->table_prefix . 'marketplace_images')
 			&& $this->db_tools->sql_table_exists($this->table_prefix . 'marketplace_reports')
-			&& $this->db_tools->sql_table_exists($this->table_prefix . 'marketplace_notifications');
+			&& $this->db_tools->sql_table_exists($this->table_prefix . 'marketplace_notifications')
+			&& $this->db_tools->sql_table_exists($this->table_prefix . 'marketplace_promotions')
+			&& $this->db_tools->sql_table_exists($this->table_prefix . 'marketplace_promotion_packages')
+			&& $this->db_tools->sql_table_exists($this->table_prefix . 'marketplace_purchases')
+			&& $this->db_tools->sql_table_exists($this->table_prefix . 'marketplace_follows');
 	}
 
 	public static function depends_on()
@@ -66,6 +70,7 @@ class install_schema extends \phpbb\db\migration\migration
 						'ad_currency'       => ['VCHAR:10', 'R$'],
 						'ad_location'       => ['VCHAR:255', ''],
 						'ad_phone'          => ['VCHAR:50', ''],
+						'ad_paypal_email'   => ['VCHAR:255', ''],
 						'ad_status'         => ['TINT:3', 0], // 0=pending, 1=active, 2=sold, 3=expired, 4=hidden
 						'ad_created'        => ['TIMESTAMP', 0],
 						'ad_updated'        => ['TIMESTAMP', 0],
@@ -81,6 +86,8 @@ class install_schema extends \phpbb\db\migration\migration
 						'ad_last_bumped'    => ['TIMESTAMP', 0],
 						'ad_featured_until' => ['TIMESTAMP', 0],
 						'ad_featured_by'    => ['UINT', 0],
+						'ad_boosted_until'  => ['TIMESTAMP', 0],
+						'ad_boosted_by'     => ['UINT', 0],
 						'ad_views'          => ['UINT', 0],
 						'ad_contact_method' => ['TINT:1', 1], // 1=pm, 2=phone, 3=both
 					],
@@ -95,6 +102,7 @@ class install_schema extends \phpbb\db\migration\migration
 						'price'     => ['INDEX', 'ad_price_cents'],
 						'quantity'  => ['INDEX', 'ad_quantity'],
 						'featured'  => ['INDEX', 'ad_featured_until'],
+						'boosted'   => ['INDEX', 'ad_boosted_until'],
 						'bumped'    => ['INDEX', 'ad_last_bumped'],
 						'expires'   => ['INDEX', 'ad_expires'],
 						'updated'   => ['INDEX', 'ad_updated'],
@@ -140,6 +148,93 @@ class install_schema extends \phpbb\db\migration\migration
 						'unread'  => ['INDEX', ['user_id', 'notification_read']],
 					],
 				],
+				$this->table_prefix . 'marketplace_promotions' => [
+					'COLUMNS' => [
+						'promotion_id'        => ['UINT', null, 'auto_increment'],
+						'ad_id'               => ['UINT', 0],
+						'user_id'             => ['UINT', 0],
+						'promotion_type'      => ['VCHAR:20', ''],
+						'package_id'          => ['UINT', 0],
+						'promotion_status'    => ['TINT:1', 0],
+						'promotion_days'      => ['UINT', 0],
+						'promotion_amount_cents' => ['BINT', 0],
+						'promotion_currency'  => ['VCHAR:10', ''],
+						'payment_provider'    => ['VCHAR:50', 'manual'],
+						'payment_reference'   => ['VCHAR:255', ''],
+						'promotion_requested'=> ['TIMESTAMP', 0],
+						'promotion_decided'  => ['TIMESTAMP', 0],
+						'promotion_decided_by' => ['UINT', 0],
+						'promotion_note'     => ['TEXT_UNI', ''],
+					],
+					'PRIMARY_KEY' => 'promotion_id',
+					'KEYS' => [
+						'ad_id' => ['INDEX', 'ad_id'],
+						'user_id' => ['INDEX', 'user_id'],
+						'status' => ['INDEX', 'promotion_status'],
+						'type_status' => ['INDEX', ['promotion_type', 'promotion_status']],
+						'package_id' => ['INDEX', 'package_id'],
+					],
+				],
+
+				$this->table_prefix . 'marketplace_promotion_packages' => [
+					'COLUMNS' => [
+						'package_id'          => ['UINT', null, 'auto_increment'],
+						'package_title'       => ['VCHAR:255', ''],
+						'package_desc'        => ['TEXT_UNI', ''],
+						'package_type'        => ['VCHAR:20', 'featured'],
+						'package_days'        => ['UINT', 7],
+						'package_amount_cents'=> ['BINT', 0],
+						'package_currency'    => ['VCHAR:10', ''],
+						'package_enabled'     => ['BOOL', 1],
+						'package_order'       => ['UINT', 0],
+						'package_created'     => ['TIMESTAMP', 0],
+						'package_updated'     => ['TIMESTAMP', 0],
+					],
+					'PRIMARY_KEY' => 'package_id',
+					'KEYS' => [
+						'type_enabled' => ['INDEX', ['package_type', 'package_enabled']],
+						'package_order' => ['INDEX', 'package_order'],
+					],
+				],
+				$this->table_prefix . 'marketplace_purchases' => [
+					'COLUMNS' => [
+						'purchase_id'           => ['UINT', null, 'auto_increment'],
+						'ad_id'                 => ['UINT', 0],
+						'buyer_user_id'         => ['UINT', 0],
+						'seller_user_id'        => ['UINT', 0],
+						'purchase_status'       => ['TINT:1', 3],
+						'purchase_amount_cents' => ['BINT', 0],
+						'purchase_currency'     => ['VCHAR:10', ''],
+						'payment_provider'      => ['VCHAR:50', 'paypal'],
+						'payment_reference'     => ['VCHAR:255', ''],
+						'purchase_created'      => ['TIMESTAMP', 0],
+						'purchase_decided'      => ['TIMESTAMP', 0],
+						'purchase_decided_by'   => ['UINT', 0],
+						'purchase_note'         => ['TEXT_UNI', ''],
+					],
+					'PRIMARY_KEY' => 'purchase_id',
+					'KEYS' => [
+						'ad_id' => ['INDEX', 'ad_id'],
+						'buyer_user_id' => ['INDEX', 'buyer_user_id'],
+						'seller_user_id' => ['INDEX', 'seller_user_id'],
+						'status' => ['INDEX', 'purchase_status'],
+						'payment_reference' => ['INDEX', 'payment_reference'],
+					],
+				],
+				$this->table_prefix . 'marketplace_follows' => [
+					'COLUMNS' => [
+						'follow_id'        => ['UINT', null, 'auto_increment'],
+						'follower_user_id' => ['UINT', 0],
+						'followed_user_id' => ['UINT', 0],
+						'follow_created'   => ['TIMESTAMP', 0],
+					],
+					'PRIMARY_KEY' => 'follow_id',
+					'KEYS' => [
+						'follower' => ['INDEX', 'follower_user_id'],
+						'followed' => ['INDEX', 'followed_user_id'],
+						'pair'     => ['INDEX', ['follower_user_id', 'followed_user_id']],
+					],
+				],
 				$this->table_prefix . 'marketplace_images' => [
 					'COLUMNS' => [
 						'image_id'      => ['UINT', null, 'auto_increment'],
@@ -166,6 +261,10 @@ class install_schema extends \phpbb\db\migration\migration
 				$this->table_prefix . 'marketplace_images',
 				$this->table_prefix . 'marketplace_reports',
 				$this->table_prefix . 'marketplace_notifications',
+				$this->table_prefix . 'marketplace_promotions',
+				$this->table_prefix . 'marketplace_promotion_packages',
+				$this->table_prefix . 'marketplace_purchases',
+				$this->table_prefix . 'marketplace_follows',
 			],
 		];
 	}

@@ -40,11 +40,27 @@ class install_data extends \phpbb\db\migration\migration
 			['config.add', ['marketplace_allow_reports', 1]],
 			['config.add', ['marketplace_allow_bump', 1]],
 			['config.add', ['marketplace_bump_interval_days', 7]],
+			['config.add', ['marketplace_allow_featured', 1]],
 			['config.add', ['marketplace_featured_days', 14]],
-			['config.add', ['marketplace_version', '1.4.3']],
+			['config.add', ['marketplace_allow_boosted', 1]],
+			['config.add', ['marketplace_boosted_days', 7]],
+			['config.add', ['marketplace_version', '1.4.12']],
+			['config.add', ['marketplace_allow_follows', 1]],
+			['config.add', ['marketplace_paypal_enabled', 0]],
+			['config.add', ['marketplace_direct_purchase_enabled', 0]],
+			['config.add', ['marketplace_paypal_sandbox', 1]],
+			['config.add', ['marketplace_paypal_business', '']],
+			['config.add', ['marketplace_paypal_sandbox_business', '']],
+			['config.add', ['marketplace_paypal_currency', 'BRL']],
+			['config.add', ['marketplace_allow_promotion_requests', 1]],
 			['config.add', ['marketplace_quantity_support', 1]],
 
 			// Add ACP module
+			['custom', [[$this, 'insert_default_package'], ['Destaque 7 dias', 'Destaca o anúncio visualmente por 7 dias.', 'featured', 7, 0, 'R$', 10]]],
+			['custom', [[$this, 'insert_default_package'], ['Destaque 30 dias', 'Destaca o anúncio visualmente por 30 dias.', 'featured', 30, 0, 'R$', 20]]],
+			['custom', [[$this, 'insert_default_package'], ['Impulso 7 dias', 'Dá prioridade de ordenação ao anúncio por 7 dias.', 'boosted', 7, 0, 'R$', 30]]],
+			['custom', [[$this, 'insert_default_package'], ['Impulso 30 dias', 'Dá prioridade de ordenação ao anúncio por 30 dias.', 'boosted', 30, 0, 'R$', 40]]],
+
 			['module.add', [
 				'acp',
 				'ACP_CAT_DOT_MODS',
@@ -55,7 +71,7 @@ class install_data extends \phpbb\db\migration\migration
 				'MARKETPLACE_TITLE',
 				[
 					'module_basename'	=> '\mundophpbb\marketplace\acp\main_module',
-					'modes'				=> ['dashboard', 'settings', 'categories', 'ads', 'reports'],
+					'modes'				=> ['dashboard', 'settings', 'categories', 'ads', 'packages', 'reports'],
 				],
 			]],
 
@@ -156,4 +172,24 @@ class install_data extends \phpbb\db\migration\migration
 		}
 	}
 
+
+
+	public function insert_default_package($title, $desc, $type, $days, $amount_cents, $currency, $order)
+	{
+		$now = time();
+		$sql_ary = [
+			'package_title' => (string) $title,
+			'package_desc' => (string) $desc,
+			'package_type' => (string) $type,
+			'package_days' => (int) $days,
+			'package_amount_cents' => (int) $amount_cents,
+			'package_currency' => (string) $currency,
+			'package_enabled' => 1,
+			'package_order' => (int) $order,
+			'package_created' => (int) $now,
+			'package_updated' => (int) $now,
+		];
+
+		$this->db->sql_query('INSERT INTO ' . $this->table_prefix . 'marketplace_promotion_packages ' . $this->db->sql_build_array('INSERT', $sql_ary));
+	}
 }

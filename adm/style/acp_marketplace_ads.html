@@ -94,7 +94,10 @@
 	.mp-badge-status-3 { background: #f1f1f1; border-color: #c7c7c7; color: #555; }
 	.mp-badge-status-4 { background: #fde7e7; border-color: #e0a1a1; color: #8b1e1e; }
 	.mp-badge-featured { background: #fff2bd; border-color: #dcbf52; color: #7a5600; }
+	.mp-badge-boosted { background: #e0f2fe; border-color: #38bdf8; color: #075985; }
 	.mp-badge-reports { background: #fde7e7; border-color: #df9a9a; color: #8b1e1e; }
+	.mp-promotion-box { margin: 12px 0 16px; padding: 12px; border: 1px solid #c9def5; background: #f3f8ff; border-radius: 4px; }
+	.mp-promotion-box h2 { margin-top: 0; }
 
 	.mp-report-muted {
 		color: #777;
@@ -179,6 +182,94 @@
 
 <p>{{ lang('MARKETPLACE_ACP_ADS_EXPLAIN') }}</p>
 
+{% if S_HAS_PENDING_PROMOTIONS %}
+<div class="mp-promotion-box">
+	<h2>{{ lang('MARKETPLACE_PENDING_PROMOTIONS') }}</h2>
+	<p>{{ lang('MARKETPLACE_PENDING_PROMOTIONS_EXPLAIN') }}</p>
+	<table class="table1 zebra-table">
+		<thead>
+			<tr>
+				<th>{{ lang('MARKETPLACE_AD') }}</th>
+				<th>{{ lang('MARKETPLACE_POSTED_BY') }}</th>
+				<th>{{ lang('MARKETPLACE_PROMOTION_TYPE') }}</th>
+				<th>{{ lang('MARKETPLACE_PROMOTION_STATUS') }}</th>
+				<th>{{ lang('MARKETPLACE_PROMOTION_DAYS') }}</th>
+				<th>{{ lang('MARKETPLACE_PACKAGE') }}</th>
+				<th>{{ lang('MARKETPLACE_PACKAGE_PRICE') }}</th>
+				<th>{{ lang('MARKETPLACE_PAYMENT') }}</th>
+				<th>{{ lang('MARKETPLACE_CREATED') }}</th>
+				<th>{{ lang('ACTIONS') }}</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for promotion in PENDING_PROMOTIONS %}
+				<tr>
+					<td>{% if promotion.U_VIEW %}<a href="{{ promotion.U_VIEW }}" target="_blank" rel="noopener">{{ promotion.ad_title }}</a>{% else %}{{ promotion.ad_title }}{% endif %}</td>
+					<td>{{ promotion.username }}</td>
+					<td><span class="mp-badge">{{ promotion.PROMOTION_TYPE_LANG }}</span></td>
+					<td>{{ promotion.PROMOTION_STATUS_LANG }}</td>
+					<td>{{ promotion.promotion_days }}</td>
+					<td>{{ promotion.PROMOTION_PACKAGE_TITLE }}</td>
+					<td>{{ promotion.PROMOTION_PRICE_DISPLAY }}</td>
+					<td>{{ promotion.PAYMENT_PROVIDER_LANG }}<br><small>{{ promotion.PAYMENT_REFERENCE_DISPLAY }}</small></td>
+					<td>{{ promotion.PROMOTION_REQUESTED_DISPLAY }}</td>
+					<td>
+						<form method="post" action="{{ U_ACTION }}" class="mp-action-form">
+							<input type="hidden" name="action" value="approve_promotion">
+							<input type="hidden" name="promotion_id" value="{{ promotion.promotion_id }}">
+							<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_APPROVE') }}" class="button-small">
+							{{ S_FORM_TOKEN }}
+						</form>
+						<form method="post" action="{{ U_ACTION }}" class="mp-action-form">
+							<input type="hidden" name="action" value="reject_promotion">
+							<input type="hidden" name="promotion_id" value="{{ promotion.promotion_id }}">
+							<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_REJECT') }}" class="button-small">
+							{{ S_FORM_TOKEN }}
+						</form>
+					</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endif %}
+
+
+{% if S_HAS_PENDING_PURCHASES %}
+<div class="mp-promotion-box">
+	<h2>{{ lang('MARKETPLACE_PENDING_PURCHASES') }}</h2>
+	<p>{{ lang('MARKETPLACE_PENDING_PURCHASES_EXPLAIN') }}</p>
+	<table class="table1 zebra-table">
+		<thead>
+			<tr>
+				<th>{{ lang('MARKETPLACE_AD') }}</th>
+				<th>{{ lang('MARKETPLACE_BUYER') }}</th>
+				<th>{{ lang('MARKETPLACE_SELLER') }}</th>
+				<th>{{ lang('MARKETPLACE_PURCHASE_STATUS') }}</th>
+				<th>{{ lang('MARKETPLACE_PACKAGE_PRICE') }}</th>
+				<th>{{ lang('MARKETPLACE_PAYMENT') }}</th>
+				<th>{{ lang('MARKETPLACE_CREATED') }}</th>
+				<th>{{ lang('ACTIONS') }}</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for purchase in PENDING_PURCHASES %}
+				<tr>
+					<td>{% if purchase.U_VIEW %}<a href="{{ purchase.U_VIEW }}" target="_blank" rel="noopener">{{ purchase.ad_title }}</a>{% else %}{{ purchase.ad_title }}{% endif %}</td>
+					<td>{{ purchase.buyer_username }}</td>
+					<td>{{ purchase.seller_username }}</td>
+					<td>{{ purchase.PURCHASE_STATUS_LANG }}</td>
+					<td>{{ purchase.PURCHASE_PRICE_DISPLAY }}</td>
+					<td>{{ purchase.PAYMENT_PROVIDER_LANG }}<br><small>{{ purchase.PAYMENT_REFERENCE_DISPLAY }}</small></td>
+					<td>{{ purchase.PURCHASE_CREATED_DISPLAY }}</td>
+					<td><small>{{ lang('MARKETPLACE_PURCHASE_SELLER_CONFIRMATION_ONLY') }}</small></td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endif %}
+
 <form method="get" action="{{ U_ACTION }}" class="marketplace-acp-toolbar">
 	<fieldset>
 		<label>{{ lang('MARKETPLACE_FILTER_STATUS') }}{{ lang('COLON') }}
@@ -219,6 +310,7 @@
 					<span class="mp-ad-title-meta">{{ ad.AD_TYPE_LANG }}{% if ad.ad_condition != 0 %} &bull; {{ ad.AD_CONDITION_LANG }}{% endif %}{% if ad.ad_location %} &bull; {{ ad.ad_location }}{% endif %}</span>
 					{% if ad.AD_PRICE_DISPLAY %}<span class="mp-ad-price">{{ ad.AD_PRICE_DISPLAY }}</span>{% endif %} <span class="mp-ad-price">{{ ad.AD_QUANTITY_LANG }}</span>
 					{% if ad.S_IS_FEATURED %}<span class="mp-ad-title-meta"><span class="mp-badge mp-badge-featured">{{ lang('MARKETPLACE_FEATURED') }}</span> {{ ad.AD_FEATURED_UNTIL_DISPLAY }}</span>{% endif %}
+					{% if ad.S_IS_BOOSTED %}<span class="mp-ad-title-meta"><span class="mp-badge mp-badge-boosted">{{ lang('MARKETPLACE_BOOSTED') }}</span> {{ ad.AD_BOOSTED_UNTIL_DISPLAY }}</span>{% endif %}
 					{% if ad.AD_LAST_BUMPED_DISPLAY %}<span class="mp-ad-title-meta">{{ lang('MARKETPLACE_LAST_BUMPED') }} {{ ad.AD_LAST_BUMPED_DISPLAY }}</span>{% endif %}
 				</td>
 				<td class="mp-col-category">{{ ad.cat_name|default('—') }}</td>
@@ -302,6 +394,13 @@
 									<input type="hidden" name="ad_id" value="{{ ad.ad_id }}">
 									{% if not ad.S_IS_FEATURED %}<input type="number" name="featured_days" value="{{ FEATURED_DAYS_DEFAULT }}" min="1" class="inputbox autowidth" size="3" title="{{ lang('MARKETPLACE_FEATURED_DAYS') }}">{% endif %}
 									<input type="submit" name="submit_action" value="{{ ad.S_IS_FEATURED ? lang('MARKETPLACE_UNFEATURE_AD') : lang('MARKETPLACE_FEATURE_AD') }}" class="button-small">
+									{{ S_FORM_TOKEN }}
+								</form>
+								<form method="post" action="{{ U_ACTION }}" class="mp-action-form">
+									<input type="hidden" name="action" value="{{ ad.S_IS_BOOSTED ? 'unboost' : 'boost' }}">
+									<input type="hidden" name="ad_id" value="{{ ad.ad_id }}">
+									{% if not ad.S_IS_BOOSTED %}<input type="number" name="boosted_days" value="{{ BOOSTED_DAYS_DEFAULT }}" min="1" class="inputbox autowidth" size="3" title="{{ lang('MARKETPLACE_BOOSTED_DAYS') }}">{% endif %}
+									<input type="submit" name="submit_action" value="{{ ad.S_IS_BOOSTED ? lang('MARKETPLACE_UNBOOST_AD') : lang('MARKETPLACE_BOOST_AD') }}" class="button-small">
 									{{ S_FORM_TOKEN }}
 								</form>
 							</div>

@@ -41,6 +41,11 @@ class main_info
 					'auth'	=> 'ext_mundophpbb/marketplace && acl_a_board',
 					'cat'	=> ['MARKETPLACE_TITLE'],
 				],
+				'packages'	=> [
+					'title'	=> 'MARKETPLACE_ACP_PACKAGES',
+					'auth'	=> 'ext_mundophpbb/marketplace && acl_a_board',
+					'cat'	=> ['MARKETPLACE_TITLE'],
+				],
 				'reports'	=> [
 					'title'	=> 'MARKETPLACE_ACP_REPORTS',
 					'auth'	=> 'ext_mundophpbb/marketplace && acl_a_board',

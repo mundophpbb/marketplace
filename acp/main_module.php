@@ -23,7 +23,7 @@ class main_module
 	 * Main ACP module entry point
 	 *
 	 * @param int    $id   Module ID
-	 * @param string $mode Mode (dashboard, settings, categories, ads, reports)
+	 * @param string $mode Mode (dashboard, settings, categories, ads, packages, reports)
 	 */
 	public function main($id, $mode)
 	{
@@ -62,6 +62,12 @@ class main_module
 				$this->tpl_name = 'acp_marketplace_ads';
 				$this->page_title = $language->lang('MARKETPLACE_ACP_ADS');
 				$acp_controller->manage_ads();
+			break;
+
+			case 'packages':
+				$this->tpl_name = 'acp_marketplace_packages';
+				$this->page_title = $language->lang('MARKETPLACE_ACP_PACKAGES');
+				$acp_controller->manage_packages();
 			break;
 
 			case 'reports':

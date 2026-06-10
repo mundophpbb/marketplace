@@ -8,7 +8,7 @@
 				<h2>{{ S_EDIT_MODE ? lang('MARKETPLACE_EDIT_AD') : lang('MARKETPLACE_POST_AD') }}</h2>
 				<p class="mp-lead">{{ lang('MARKETPLACE_POST_INTRO') }}</p>
 			</div>
-			<a href="{{ U_BACK }}" class="button mp-post-back">{{ lang('BACK') }}</a>
+			<a href="{{ U_BACK }}" class="button mp-post-back">{{ lang('MARKETPLACE_BACK') }}</a>
 		</div>
 	</div>
 
@@ -29,7 +29,7 @@
 		<div>
 			<h3>{{ S_AD_SAVED ? lang('MARKETPLACE_POST_SAVED_TITLE') : lang('MARKETPLACE_IMAGES_UPDATED_TITLE') }}</h3>
 			<p>{{ S_AD_SAVED ? lang('MARKETPLACE_POST_SAVED_EXPLAIN') : lang('MARKETPLACE_IMAGES_UPDATED_EXPLAIN') }}</p>
-			{% if U_VIEW_AD %}<p><a href="{{ U_VIEW_AD }}" class="button">{{ lang('MARKETPLACE_VIEW_AD') }}</a></p>{% endif %}
+			{% if U_VIEW_AD %}<p><a href="{{ U_VIEW_AD }}" class="button">{{ lang('MARKETPLACE_POST_PREVIEW') }}</a></p>{% endif %}
 		</div>
 	</div>
 	{% endif %}
@@ -130,6 +130,12 @@
 								<input type="text" name="ad_phone" id="ad_phone" value="{{ AD.ad_phone }}" class="inputbox" inputmode="tel" autocomplete="tel" placeholder="{{ lang('MARKETPLACE_WHATSAPP_PLACEHOLDER') }}">
 							</div>
 
+							<div class="mp-field">
+								<label for="ad_paypal_email">{{ lang('MARKETPLACE_SELLER_PAYPAL_EMAIL') ~ lang('COLON') }}</label>
+								<input type="email" name="ad_paypal_email" id="ad_paypal_email" value="{{ AD.ad_paypal_email }}" class="inputbox" autocomplete="email" placeholder="seller@example.com">
+								<p class="help">{{ lang('MARKETPLACE_SELLER_PAYPAL_EMAIL_EXPLAIN') }}</p>
+							</div>
+
 							<div class="mp-field mp-field-wide">
 								<span class="mp-field-label">{{ lang('MARKETPLACE_CONTACT_METHOD') ~ lang('COLON') }}</span>
 								<div class="mp-choice-grid">
@@ -216,6 +222,25 @@
 			</div>
 
 			<aside class="mp-post-aside">
+				<div class="panel mp-live-preview-card">
+					<div class="inner">
+						<h3>{{ lang('MARKETPLACE_LIVE_PREVIEW') }}</h3>
+						<div class="mp-preview-media">
+							{% if CURRENT_IMAGES|length %}
+								{% for img in CURRENT_IMAGES %}{% if loop.first %}<img src="{{ img.SRC }}" alt="{{ AD.ad_title }}">{% endif %}{% endfor %}
+							{% else %}
+								<span>{{ lang('MARKETPLACE_NO_IMAGE') }}</span>
+							{% endif %}
+						</div>
+						<div class="mp-preview-body">
+							<strong>{{ AD.ad_title|default(lang('MARKETPLACE_TITLE_LABEL')) }}</strong>
+							{% if S_ENABLE_PRICE %}<span class="mp-preview-price">{{ AD.AD_PRICE_DISPLAY|default('R$ 0,00') }}</span>{% endif %}
+							<small>{% if AD.ad_location %}{{ AD.ad_location }}{% else %}{{ lang('MARKETPLACE_LOCATION_LABEL') }}{% endif %}</small>
+							<p>{{ lang('MARKETPLACE_POST_INTRO') }}</p>
+						</div>
+					</div>
+				</div>
+
 				<div class="panel mp-publish-card">
 					<div class="inner">
 						<h3>{{ lang('MARKETPLACE_POST_PUBLISH_BOX') }}</h3>

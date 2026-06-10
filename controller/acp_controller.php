@@ -66,6 +66,15 @@ class acp_controller
 	/** @var string */
 	protected $table_notifications;
 
+	/** @var string */
+	protected $table_promotions;
+
+	/** @var string */
+	protected $table_promotion_packages;
+
+	/** @var string */
+	protected $table_purchases;
+
 
 	/** @var array */
 	protected $column_exists_cache = [];
@@ -88,7 +97,10 @@ class acp_controller
 		$table_cats,
 		$table_images,
 		$table_reports,
-		$table_notifications
+		$table_notifications,
+		$table_promotions,
+		$table_promotion_packages,
+		$table_purchases
 	)
 	{
 		$this->config     = $config;
@@ -107,6 +119,9 @@ class acp_controller
 		$this->table_images = $table_images;
 		$this->table_reports = $table_reports;
 		$this->table_notifications = $table_notifications;
+		$this->table_promotions = $table_promotions;
+		$this->table_promotion_packages = $table_promotion_packages;
+		$this->table_purchases = $table_purchases;
 	}
 
 	/**
@@ -141,9 +156,26 @@ class acp_controller
 				$this->config->set('marketplace_show_sold_ads', $this->request->variable('marketplace_show_sold_ads', 0));
 				$this->config->set('marketplace_sold_visible_days', max(0, $this->request->variable('marketplace_sold_visible_days', 15)));
 				$this->config->set('marketplace_allow_reports', $this->request->variable('marketplace_allow_reports', 1));
+				$this->config->set('marketplace_allow_follows', $this->request->variable('marketplace_allow_follows', 1));
 				$this->config->set('marketplace_allow_bump', $this->request->variable('marketplace_allow_bump', 1));
 				$this->config->set('marketplace_bump_interval_days', max(0, $this->request->variable('marketplace_bump_interval_days', 7)));
+				$this->config->set('marketplace_allow_featured', $this->request->variable('marketplace_allow_featured', 1));
 				$this->config->set('marketplace_featured_days', max(1, $this->request->variable('marketplace_featured_days', $this->request->variable('marketplace_featured_days_default', 14))));
+				$this->config->set('marketplace_allow_boosted', $this->request->variable('marketplace_allow_boosted', 1));
+				$this->config->set('marketplace_allow_promotion_requests', $this->request->variable('marketplace_allow_promotion_requests', 1));
+				$this->config->set('marketplace_boosted_days', max(1, $this->request->variable('marketplace_boosted_days', $this->request->variable('marketplace_boosted_days_default', 7))));
+				$this->config->set('marketplace_paypal_enabled', $this->request->variable('marketplace_paypal_enabled', 0));
+				$this->config->set('marketplace_direct_purchase_enabled', $this->request->variable('marketplace_direct_purchase_enabled', 0));
+				$this->config->set('marketplace_paypal_sandbox', $this->request->variable('marketplace_paypal_sandbox', 1));
+				$this->config->set('marketplace_paypal_business', $this->request->variable('marketplace_paypal_business', '', true));
+				$this->config->set('marketplace_paypal_sandbox_business', $this->request->variable('marketplace_paypal_sandbox_business', '', true));
+				$paypal_currency = strtoupper($this->request->variable('marketplace_paypal_currency', 'BRL'));
+				$paypal_currency_options = array_keys($this->get_common_currency_options());
+				if (!in_array($paypal_currency, $paypal_currency_options, true))
+				{
+					$paypal_currency = 'BRL';
+				}
+				$this->config->set('marketplace_paypal_currency', $paypal_currency);
 
 				$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_MARKETPLACE_SETTINGS');
 
@@ -171,11 +203,210 @@ class acp_controller
 			'MARKETPLACE_SHOW_SOLD_ADS'       => !empty($this->config['marketplace_show_sold_ads']),
 			'MARKETPLACE_SOLD_VISIBLE_DAYS'   => isset($this->config['marketplace_sold_visible_days']) ? (int) $this->config['marketplace_sold_visible_days'] : 15,
 			'MARKETPLACE_ALLOW_REPORTS'      => !empty($this->config['marketplace_allow_reports']),
+			'MARKETPLACE_ALLOW_FOLLOWS'      => !isset($this->config['marketplace_allow_follows']) || !empty($this->config['marketplace_allow_follows']),
 			'MARKETPLACE_ALLOW_BUMP'         => !empty($this->config['marketplace_allow_bump']),
 			'MARKETPLACE_BUMP_INTERVAL_DAYS' => isset($this->config['marketplace_bump_interval_days']) ? (int) $this->config['marketplace_bump_interval_days'] : 7,
+			'MARKETPLACE_ALLOW_FEATURED'     => !isset($this->config['marketplace_allow_featured']) || !empty($this->config['marketplace_allow_featured']),
 			'MARKETPLACE_FEATURED_DAYS'      => isset($this->config['marketplace_featured_days']) ? (int) $this->config['marketplace_featured_days'] : 14,
 			'MARKETPLACE_FEATURED_DAYS_DEFAULT' => isset($this->config['marketplace_featured_days']) ? (int) $this->config['marketplace_featured_days'] : 14,
+			'MARKETPLACE_ALLOW_BOOSTED'      => !isset($this->config['marketplace_allow_boosted']) || !empty($this->config['marketplace_allow_boosted']),
+			'MARKETPLACE_ALLOW_PROMOTION_REQUESTS' => !isset($this->config['marketplace_allow_promotion_requests']) || !empty($this->config['marketplace_allow_promotion_requests']),
+			'MARKETPLACE_BOOSTED_DAYS'       => isset($this->config['marketplace_boosted_days']) ? (int) $this->config['marketplace_boosted_days'] : 7,
+			'MARKETPLACE_BOOSTED_DAYS_DEFAULT' => isset($this->config['marketplace_boosted_days']) ? (int) $this->config['marketplace_boosted_days'] : 7,
+			'MARKETPLACE_PAYPAL_ENABLED' => !empty($this->config['marketplace_paypal_enabled']),
+			'MARKETPLACE_DIRECT_PURCHASE_ENABLED' => !empty($this->config['marketplace_direct_purchase_enabled']),
+			'MARKETPLACE_PAYPAL_SANDBOX' => !isset($this->config['marketplace_paypal_sandbox']) || !empty($this->config['marketplace_paypal_sandbox']),
+			'MARKETPLACE_PAYPAL_BUSINESS' => isset($this->config['marketplace_paypal_business']) ? (string) $this->config['marketplace_paypal_business'] : '',
+			'MARKETPLACE_PAYPAL_SANDBOX_BUSINESS' => isset($this->config['marketplace_paypal_sandbox_business']) ? (string) $this->config['marketplace_paypal_sandbox_business'] : '',
+			'MARKETPLACE_PAYPAL_CURRENCY' => isset($this->config['marketplace_paypal_currency']) ? (string) $this->config['marketplace_paypal_currency'] : 'BRL',
+			'PAYPAL_CURRENCY_OPTIONS' => $this->build_currency_select_options(isset($this->config['marketplace_paypal_currency']) ? (string) $this->config['marketplace_paypal_currency'] : 'BRL'),
 		]);
+	}
+
+
+	/**
+	 * Manage promotion packages.
+	 */
+	public function manage_packages()
+	{
+		$this->language->add_lang('acp', 'mundophpbb/marketplace');
+		\add_form_key('mundophpbb_marketplace_acp_packages');
+
+		$action = $this->request->variable('action', '');
+		$package_id = $this->request->variable('package_id', 0);
+
+		if ($action === 'delete' && $package_id)
+		{
+			if (!$this->request->is_set_post('submit_action') || !\check_form_key('mundophpbb_marketplace_acp_packages'))
+			{
+				\trigger_error($this->language->lang('FORM_INVALID') . \adm_back_link($this->u_action), E_USER_WARNING);
+			}
+
+			$this->db->sql_query('DELETE FROM ' . $this->table_promotion_packages . ' WHERE package_id = ' . (int) $package_id);
+			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_MARKETPLACE_PACKAGE_DELETED', false, ['package_id' => $package_id]);
+			\trigger_error($this->language->lang('MARKETPLACE_PACKAGE_DELETED') . \adm_back_link($this->u_action));
+		}
+
+		if ($action === 'toggle' && $package_id)
+		{
+			if (!$this->request->is_set_post('submit_action') || !\check_form_key('mundophpbb_marketplace_acp_packages'))
+			{
+				\trigger_error($this->language->lang('FORM_INVALID') . \adm_back_link($this->u_action), E_USER_WARNING);
+			}
+
+			$sql = 'SELECT package_enabled FROM ' . $this->table_promotion_packages . ' WHERE package_id = ' . (int) $package_id;
+			$result = $this->db->sql_query($sql);
+			$enabled = (int) $this->db->sql_fetchfield('package_enabled');
+			$this->db->sql_freeresult($result);
+
+			$this->db->sql_query('UPDATE ' . $this->table_promotion_packages . ' SET package_enabled = ' . ($enabled ? 0 : 1) . ', package_updated = ' . time() . ' WHERE package_id = ' . (int) $package_id);
+			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_MARKETPLACE_PACKAGE_TOGGLED', false, ['package_id' => $package_id]);
+			\trigger_error($this->language->lang('MARKETPLACE_PACKAGE_SAVED') . \adm_back_link($this->u_action));
+		}
+
+		if ($this->request->is_set_post('submit'))
+		{
+			if (!\check_form_key('mundophpbb_marketplace_acp_packages'))
+			{
+				\trigger_error($this->language->lang('FORM_INVALID') . \adm_back_link($this->u_action), E_USER_WARNING);
+			}
+
+			$now = time();
+			$sql_ary = [
+				'package_title'        => $this->request->variable('package_title', '', true),
+				'package_desc'         => $this->request->variable('package_desc', '', true),
+				'package_type'         => $this->request->variable('package_type', 'featured'),
+				'package_days'         => max(1, $this->request->variable('package_days', 7)),
+				'package_amount_cents' => max(0, $this->request->variable('package_amount_cents', 0)),
+				'package_currency'     => $this->normalise_package_currency($this->request->variable('package_currency', isset($this->config['marketplace_paypal_currency']) ? (string) $this->config['marketplace_paypal_currency'] : 'BRL')),
+				'package_enabled'      => $this->request->variable('package_enabled', 1),
+				'package_order'        => max(0, $this->request->variable('package_order', 0)),
+				'package_updated'      => $now,
+			];
+
+			if (!in_array($sql_ary['package_type'], ['featured', 'boosted', 'renewal'], true))
+			{
+				$sql_ary['package_type'] = 'featured';
+			}
+
+			if ((string) $sql_ary['package_title'] === '')
+			{
+				\trigger_error($this->language->lang('MARKETPLACE_PACKAGE_TITLE_REQUIRED') . \adm_back_link($this->u_action), E_USER_WARNING);
+			}
+
+			if ($package_id)
+			{
+				$this->db->sql_query('UPDATE ' . $this->table_promotion_packages . ' SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . ' WHERE package_id = ' . (int) $package_id);
+			}
+			else
+			{
+				$sql_ary['package_created'] = $now;
+				$this->db->sql_query('INSERT INTO ' . $this->table_promotion_packages . ' ' . $this->db->sql_build_array('INSERT', $sql_ary));
+			}
+
+			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_MARKETPLACE_PACKAGE_SAVED');
+			\trigger_error($this->language->lang('MARKETPLACE_PACKAGE_SAVED') . \adm_back_link($this->u_action));
+		}
+
+		$edit_package = $package_id ? $this->get_package($package_id) : [];
+		$packages = $this->get_packages();
+
+		$this->template->assign_vars([
+			'U_ACTION' => $this->u_action,
+			'PACKAGES' => $packages,
+			'EDIT_PACKAGE' => $edit_package ?: [
+				'package_id' => 0,
+				'package_title' => '',
+				'package_desc' => '',
+				'package_type' => 'featured',
+				'package_days' => 7,
+				'package_amount_cents' => 0,
+				'package_currency' => isset($this->config['marketplace_paypal_currency']) ? (string) $this->config['marketplace_paypal_currency'] : 'BRL',
+				'package_enabled' => 1,
+				'package_order' => 0,
+			],
+			'PACKAGE_CURRENCY_OPTIONS' => $this->build_currency_select_options($edit_package && !empty($edit_package['package_currency']) ? (string) $edit_package['package_currency'] : (isset($this->config['marketplace_paypal_currency']) ? (string) $this->config['marketplace_paypal_currency'] : 'BRL')),
+			'S_EDIT_PACKAGE' => !empty($edit_package),
+		]);
+	}
+
+	private function get_common_currency_options()
+	{
+		return [
+			'BRL' => 'BRL - Real brasileiro',
+			'USD' => 'USD - US Dollar',
+			'EUR' => 'EUR - Euro',
+			'GBP' => 'GBP - British Pound',
+			'CAD' => 'CAD - Canadian Dollar',
+			'AUD' => 'AUD - Australian Dollar',
+			'MXN' => 'MXN - Mexican Peso',
+			'ARS' => 'ARS - Argentine Peso',
+			'CLP' => 'CLP - Chilean Peso',
+			'COP' => 'COP - Colombian Peso',
+			'PEN' => 'PEN - Peruvian Sol',
+			'UYU' => 'UYU - Uruguayan Peso',
+			'JPY' => 'JPY - Japanese Yen',
+			'CHF' => 'CHF - Swiss Franc',
+		];
+	}
+
+	private function build_currency_select_options($selected_currency)
+	{
+		$selected_currency = strtoupper((string) $selected_currency);
+		$options = [];
+
+		foreach ($this->get_common_currency_options() as $code => $label)
+		{
+			$options[] = [
+				'CODE' => $code,
+				'LABEL' => $label,
+				'S_SELECTED' => $selected_currency === $code,
+			];
+		}
+
+		return $options;
+	}
+
+	private function normalise_package_currency($currency)
+	{
+		$currency = strtoupper((string) $currency);
+		$currency_options = array_keys($this->get_common_currency_options());
+
+		return in_array($currency, $currency_options, true) ? $currency : 'BRL';
+	}
+
+	private function get_packages()
+	{
+		$sql = 'SELECT * FROM ' . $this->table_promotion_packages . ' ORDER BY package_order ASC, package_id ASC';
+		$result = $this->db->sql_query($sql);
+		$packages = [];
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$row['PACKAGE_TYPE_LANG'] = $this->get_promotion_type_lang($row['package_type']);
+			$row['PACKAGE_PRICE_DISPLAY'] = $this->format_package_price((int) $row['package_amount_cents'], $row['package_currency']);
+			$row['U_EDIT'] = $this->u_action . '&amp;action=edit&amp;package_id=' . (int) $row['package_id'];
+			$packages[] = $row;
+		}
+		$this->db->sql_freeresult($result);
+		return $packages;
+	}
+
+	private function get_package($package_id)
+	{
+		$sql = 'SELECT * FROM ' . $this->table_promotion_packages . ' WHERE package_id = ' . (int) $package_id;
+		$result = $this->db->sql_query($sql);
+		$row = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+		return $row;
+	}
+
+	private function format_package_price($amount_cents, $currency)
+	{
+		if ((int) $amount_cents <= 0)
+		{
+			return $this->language->lang('MARKETPLACE_PACKAGE_FREE_MANUAL');
+		}
+		return trim((string) $currency . ' ' . number_format(((int) $amount_cents) / 100, 2, ',', '.'));
 	}
 
 	/**
@@ -420,6 +651,17 @@ class acp_controller
 
 		$action = $this->request->variable('action', '');
 		$ad_id  = $this->request->variable('ad_id', 0);
+		$purchase_id = $this->request->variable('purchase_id', 0);
+
+		if ($purchase_id && $action)
+		{
+			if (!$this->request->is_set_post('submit_action') || !\check_form_key('mundophpbb_marketplace_acp_ads'))
+			{
+				\trigger_error($this->language->lang('FORM_INVALID') . \adm_back_link($this->u_action), E_USER_WARNING);
+			}
+
+			$this->handle_purchase_action($action, $purchase_id);
+		}
 
 		if ($ad_id && $action)
 		{
@@ -466,9 +708,11 @@ class acp_controller
 			$row['AD_SOLD_AT_DISPLAY'] = !empty($row['ad_sold_at']) ? $this->user->format_date((int) $row['ad_sold_at']) : '';
 			$row['AD_EXPIRED_AT_DISPLAY'] = !empty($row['ad_expired_at']) ? $this->user->format_date((int) $row['ad_expired_at']) : '';
 			$row['AD_FEATURED_UNTIL_DISPLAY'] = !empty($row['ad_featured_until']) ? $this->user->format_date((int) $row['ad_featured_until']) : '';
+			$row['AD_BOOSTED_UNTIL_DISPLAY'] = !empty($row['ad_boosted_until']) ? $this->user->format_date((int) $row['ad_boosted_until']) : '';
 			$row['AD_LAST_BUMPED_DISPLAY'] = !empty($row['ad_last_bumped']) ? $this->user->format_date((int) $row['ad_last_bumped']) : '';
 			$row['AD_BUMPED_AT_DISPLAY'] = $row['AD_LAST_BUMPED_DISPLAY'];
-			$row['S_IS_FEATURED'] = !empty($row['ad_featured_until']) && (int) $row['ad_featured_until'] >= time();
+			$row['S_IS_FEATURED'] = (!isset($this->config['marketplace_allow_featured']) || !empty($this->config['marketplace_allow_featured'])) && !empty($row['ad_featured_until']) && (int) $row['ad_featured_until'] >= time();
+			$row['S_IS_BOOSTED'] = (!isset($this->config['marketplace_allow_boosted']) || !empty($this->config['marketplace_allow_boosted'])) && !empty($row['ad_boosted_until']) && (int) $row['ad_boosted_until'] >= time();
 			$row['OPEN_REPORTS'] = $this->count_open_reports((int) $row['ad_id']);
 			$row['U_VIEW'] = $this->helper->route('mundophpbb_marketplace_view', ['ad_id' => (int) $row['ad_id']]);
 			$ads[] = $row;
@@ -483,13 +727,276 @@ class acp_controller
 		$pagination_url = $this->u_action . '&amp;status=' . $filter_status;
 		$this->pagination->generate_template_pagination($pagination_url, 'pagination', 'start', $total, $limit, $start);
 
+		$pending_promotions = $this->get_pending_promotions();
+		$pending_purchases = $this->get_pending_purchases();
+
 		$this->template->assign_vars([
 			'U_ACTION'     => $this->u_action,
 			'ads'          => $ads,
 			'S_FILTER'     => $filter_status,
 			'TOTAL_ADS'    => $total,
+			'PENDING_PROMOTIONS' => $pending_promotions,
+			'S_HAS_PENDING_PROMOTIONS' => !empty($pending_promotions),
+			'PENDING_PURCHASES' => $pending_purchases,
+			'S_HAS_PENDING_PURCHASES' => !empty($pending_purchases),
 			'FEATURED_DAYS_DEFAULT' => isset($this->config['marketplace_featured_days']) ? (int) $this->config['marketplace_featured_days'] : 14,
+			'BOOSTED_DAYS_DEFAULT' => isset($this->config['marketplace_boosted_days']) ? (int) $this->config['marketplace_boosted_days'] : 7,
 		]);
+	}
+
+
+	private function get_pending_promotions()
+	{
+		$sql = 'SELECT p.*, a.ad_title, a.ad_status, u.username, u.user_colour
+			FROM ' . $this->table_promotions . ' p
+			LEFT JOIN ' . $this->table_ads . ' a ON a.ad_id = p.ad_id
+			LEFT JOIN ' . USERS_TABLE . ' u ON u.user_id = p.user_id
+			WHERE p.promotion_status IN (0, 3)
+			ORDER BY p.promotion_requested ASC';
+		$result = $this->db->sql_query_limit($sql, 25);
+
+		$promotions = [];
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$row['PROMOTION_TYPE_LANG'] = $this->get_promotion_type_lang($row['promotion_type']);
+			$row['PROMOTION_STATUS_LANG'] = $this->get_promotion_status_lang((int) $row['promotion_status']);
+			$row['PROMOTION_REQUESTED_DISPLAY'] = !empty($row['promotion_requested']) ? $this->user->format_date((int) $row['promotion_requested']) : '';
+			$row['PROMOTION_PRICE_DISPLAY'] = $this->format_package_price((int) $row['promotion_amount_cents'], $row['promotion_currency']);
+			$row['PROMOTION_PACKAGE_TITLE'] = !empty($row['promotion_note']) ? $row['promotion_note'] : '';
+			$row['PAYMENT_PROVIDER_LANG'] = !empty($row['payment_provider']) ? strtoupper($row['payment_provider']) : '-';
+			$row['PAYMENT_REFERENCE_DISPLAY'] = !empty($row['payment_reference']) ? $row['payment_reference'] : '-';
+			$row['U_VIEW'] = !empty($row['ad_id']) ? $this->helper->route('mundophpbb_marketplace_view', ['ad_id' => (int) $row['ad_id']]) : '';
+			$promotions[] = $row;
+		}
+		$this->db->sql_freeresult($result);
+
+		return $promotions;
+	}
+
+
+	private function get_pending_purchases()
+	{
+		$sql = 'SELECT p.*, a.ad_title, a.ad_status, buyer.username AS buyer_username, seller.username AS seller_username
+			FROM ' . $this->table_purchases . ' p
+			LEFT JOIN ' . $this->table_ads . ' a ON a.ad_id = p.ad_id
+			LEFT JOIN ' . USERS_TABLE . ' buyer ON buyer.user_id = p.buyer_user_id
+			LEFT JOIN ' . USERS_TABLE . ' seller ON seller.user_id = p.seller_user_id
+			WHERE p.purchase_status IN (0, 3)
+			ORDER BY p.purchase_created ASC';
+		$result = $this->db->sql_query_limit($sql, 25);
+
+		$purchases = [];
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$row['PURCHASE_STATUS_LANG'] = $this->get_purchase_status_lang((int) $row['purchase_status']);
+			$row['PURCHASE_CREATED_DISPLAY'] = !empty($row['purchase_created']) ? $this->user->format_date((int) $row['purchase_created']) : '';
+			$row['PURCHASE_PRICE_DISPLAY'] = $this->format_package_price((int) $row['purchase_amount_cents'], $row['purchase_currency']);
+			$row['PAYMENT_PROVIDER_LANG'] = !empty($row['payment_provider']) ? strtoupper($row['payment_provider']) : '-';
+			$row['PAYMENT_REFERENCE_DISPLAY'] = !empty($row['payment_reference']) ? $row['payment_reference'] : '-';
+			$row['U_VIEW'] = !empty($row['ad_id']) ? $this->helper->route('mundophpbb_marketplace_view', ['ad_id' => (int) $row['ad_id']]) : '';
+			$purchases[] = $row;
+		}
+		$this->db->sql_freeresult($result);
+
+		return $purchases;
+	}
+
+	private function handle_purchase_action($action, $purchase_id)
+	{
+		$purchase = $this->get_purchase($purchase_id);
+		if (!$purchase || !in_array((int) $purchase['purchase_status'], [0, 3], true))
+		{
+			\trigger_error($this->language->lang('MARKETPLACE_PURCHASE_NOT_FOUND') . \adm_back_link($this->u_action), E_USER_WARNING);
+		}
+
+		$ad = $this->get_ad((int) $purchase['ad_id']);
+		if (!$ad)
+		{
+			\trigger_error($this->language->lang('MARKETPLACE_AD_NOT_FOUND') . \adm_back_link($this->u_action), E_USER_WARNING);
+		}
+
+		switch ($action)
+		{
+			case 'approve_purchase':
+				$now = time();
+				$quantity = isset($ad['ad_quantity']) ? max(0, (int) $ad['ad_quantity']) : 1;
+				$quantity = max(0, $quantity - 1);
+				$sql_ary = [
+					'ad_quantity' => $quantity,
+					'ad_updated' => $now,
+				];
+				if ($quantity <= 0)
+				{
+					$sql_ary['ad_status'] = 2;
+					$sql_ary['ad_sold_at'] = $now;
+				}
+				$sql_ary = $this->filter_existing_ad_columns($sql_ary);
+				$this->db->sql_query('UPDATE ' . $this->table_ads . ' SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . ' WHERE ad_id = ' . (int) $ad['ad_id']);
+				$this->update_purchase_status($purchase_id, 1);
+				$this->add_notification((int) $purchase['buyer_user_id'], (int) $purchase['ad_id'], 'purchase_approved', $this->language->lang('MARKETPLACE_NOTIFICATION_PURCHASE_APPROVED_TITLE'), $this->language->lang('MARKETPLACE_NOTIFICATION_PURCHASE_APPROVED_MESSAGE', $ad['ad_title']));
+				$this->add_notification((int) $purchase['seller_user_id'], (int) $purchase['ad_id'], 'purchase_approved_seller', $this->language->lang('MARKETPLACE_NOTIFICATION_PURCHASE_SELLER_TITLE'), $this->language->lang('MARKETPLACE_NOTIFICATION_PURCHASE_SELLER_MESSAGE', $ad['ad_title']));
+				\trigger_error($this->language->lang('MARKETPLACE_PURCHASE_APPROVED') . \adm_back_link($this->u_action));
+			break;
+
+			case 'reject_purchase':
+				$this->update_purchase_status($purchase_id, 2);
+				$this->add_notification((int) $purchase['buyer_user_id'], (int) $purchase['ad_id'], 'purchase_rejected', $this->language->lang('MARKETPLACE_NOTIFICATION_PURCHASE_REJECTED_TITLE'), $this->language->lang('MARKETPLACE_NOTIFICATION_PURCHASE_REJECTED_MESSAGE', $ad['ad_title']));
+				\trigger_error($this->language->lang('MARKETPLACE_PURCHASE_REJECTED') . \adm_back_link($this->u_action));
+			break;
+
+			default:
+				\trigger_error($this->language->lang('MARKETPLACE_ACTION_NOT_ALLOWED') . \adm_back_link($this->u_action), E_USER_WARNING);
+			break;
+		}
+	}
+
+	private function get_purchase($purchase_id)
+	{
+		$sql = 'SELECT * FROM ' . $this->table_purchases . ' WHERE purchase_id = ' . (int) $purchase_id;
+		$result = $this->db->sql_query($sql);
+		$purchase = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+
+		return $purchase;
+	}
+
+	private function update_purchase_status($purchase_id, $status)
+	{
+		$sql_ary = [
+			'purchase_status' => (int) $status,
+			'purchase_decided' => time(),
+			'purchase_decided_by' => (int) $this->user->data['user_id'],
+		];
+		$this->db->sql_query('UPDATE ' . $this->table_purchases . ' SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . ' WHERE purchase_id = ' . (int) $purchase_id);
+	}
+
+	private function get_purchase_status_lang($status)
+	{
+		switch ((int) $status)
+		{
+			case 0:
+				return $this->language->lang('MARKETPLACE_PURCHASE_STATUS_PENDING');
+			case 1:
+				return $this->language->lang('MARKETPLACE_PURCHASE_STATUS_APPROVED');
+			case 2:
+				return $this->language->lang('MARKETPLACE_PURCHASE_STATUS_REJECTED');
+			case 3:
+				return $this->language->lang('MARKETPLACE_PURCHASE_STATUS_AWAITING_PAYMENT');
+		}
+		return $this->language->lang('MARKETPLACE_PURCHASE_STATUS_PENDING');
+	}
+
+	private function handle_promotion_action($action, $promotion_id)
+	{
+		$promotion = $this->get_promotion($promotion_id);
+		if (!$promotion || !in_array((int) $promotion['promotion_status'], [0, 3], true))
+		{
+			\trigger_error($this->language->lang('MARKETPLACE_PROMOTION_NOT_FOUND') . \adm_back_link($this->u_action), E_USER_WARNING);
+		}
+
+		$ad = $this->get_ad((int) $promotion['ad_id']);
+		if (!$ad)
+		{
+			\trigger_error($this->language->lang('MARKETPLACE_AD_NOT_FOUND') . \adm_back_link($this->u_action), E_USER_WARNING);
+		}
+
+		$now = time();
+		$days = max(1, (int) $promotion['promotion_days']);
+
+		switch ($action)
+		{
+			case 'approve_promotion':
+				if ($promotion['promotion_type'] === 'featured')
+				{
+					$sql_ary = [
+						'ad_featured_until' => $now + ($days * 86400),
+						'ad_featured_by' => (int) $this->user->data['user_id'],
+						'ad_updated' => $now,
+					];
+					$sql_ary = $this->filter_existing_ad_columns($sql_ary);
+					$this->db->sql_query('UPDATE ' . $this->table_ads . ' SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . ' WHERE ad_id = ' . (int) $ad['ad_id']);
+				}
+				else if ($promotion['promotion_type'] === 'boosted')
+				{
+					$sql_ary = [
+						'ad_boosted_until' => $now + ($days * 86400),
+						'ad_boosted_by' => (int) $this->user->data['user_id'],
+						'ad_updated' => $now,
+					];
+					$sql_ary = $this->filter_existing_ad_columns($sql_ary);
+					$this->db->sql_query('UPDATE ' . $this->table_ads . ' SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . ' WHERE ad_id = ' . (int) $ad['ad_id']);
+				}
+				else
+				{
+					\trigger_error($this->language->lang('MARKETPLACE_ACTION_NOT_ALLOWED') . \adm_back_link($this->u_action), E_USER_WARNING);
+				}
+
+				$this->update_promotion_status($promotion_id, 1);
+				$this->add_notification((int) $promotion['user_id'], (int) $promotion['ad_id'], 'promotion_approved', $this->language->lang('MARKETPLACE_NOTIFICATION_PROMOTION_APPROVED_TITLE'), $this->language->lang('MARKETPLACE_NOTIFICATION_PROMOTION_APPROVED_MESSAGE', $ad['ad_title'], $this->get_promotion_type_lang($promotion['promotion_type'])));
+				\trigger_error($this->language->lang('MARKETPLACE_PROMOTION_APPROVED') . \adm_back_link($this->u_action));
+			break;
+
+			case 'reject_promotion':
+				$this->update_promotion_status($promotion_id, 2);
+				$this->add_notification((int) $promotion['user_id'], (int) $promotion['ad_id'], 'promotion_rejected', $this->language->lang('MARKETPLACE_NOTIFICATION_PROMOTION_REJECTED_TITLE'), $this->language->lang('MARKETPLACE_NOTIFICATION_PROMOTION_REJECTED_MESSAGE', $ad['ad_title'], $this->get_promotion_type_lang($promotion['promotion_type'])));
+				\trigger_error($this->language->lang('MARKETPLACE_PROMOTION_REJECTED') . \adm_back_link($this->u_action));
+			break;
+
+			default:
+				\trigger_error($this->language->lang('MARKETPLACE_ACTION_NOT_ALLOWED') . \adm_back_link($this->u_action), E_USER_WARNING);
+			break;
+		}
+	}
+
+	private function get_promotion($promotion_id)
+	{
+		$sql = 'SELECT * FROM ' . $this->table_promotions . ' WHERE promotion_id = ' . (int) $promotion_id;
+		$result = $this->db->sql_query($sql);
+		$promotion = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+
+		return $promotion;
+	}
+
+	private function update_promotion_status($promotion_id, $status)
+	{
+		$sql_ary = [
+			'promotion_status' => (int) $status,
+			'promotion_decided' => time(),
+			'promotion_decided_by' => (int) $this->user->data['user_id'],
+		];
+		$this->db->sql_query('UPDATE ' . $this->table_promotions . ' SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . ' WHERE promotion_id = ' . (int) $promotion_id);
+	}
+
+	private function get_promotion_status_lang($status)
+	{
+		switch ((int) $status)
+		{
+			case 0:
+				return $this->language->lang('MARKETPLACE_PROMOTION_STATUS_PENDING');
+			case 1:
+				return $this->language->lang('MARKETPLACE_PROMOTION_STATUS_APPROVED');
+			case 2:
+				return $this->language->lang('MARKETPLACE_PROMOTION_STATUS_REJECTED');
+			case 3:
+				return $this->language->lang('MARKETPLACE_PROMOTION_STATUS_AWAITING_PAYMENT');
+		}
+		return $this->language->lang('MARKETPLACE_PROMOTION_STATUS_PENDING');
+	}
+
+	private function get_promotion_type_lang($type)
+	{
+		switch ((string) $type)
+		{
+			case 'featured':
+				return $this->language->lang('MARKETPLACE_FEATURED');
+			case 'boosted':
+				return $this->language->lang('MARKETPLACE_BOOSTED');
+			case 'renewal':
+				return $this->language->lang('MARKETPLACE_RENEW_AD');
+		}
+
+		return (string) $type;
 	}
 
 	private function handle_ad_action($action, $ad_id)
@@ -620,6 +1127,11 @@ class acp_controller
 			break;
 
 			case 'feature':
+				if (isset($this->config['marketplace_allow_featured']) && empty($this->config['marketplace_allow_featured']))
+				{
+					\trigger_error($this->language->lang('MARKETPLACE_FEATURED_DISABLED'));
+				}
+
 				$days = max(1, $this->request->variable('featured_days', (int) $this->config['marketplace_featured_days']));
 				$sql_ary = [
 					'ad_featured_until' => $now + ($days * 86400),
@@ -630,6 +1142,36 @@ class acp_controller
 				$this->db->sql_query('UPDATE ' . $this->table_ads . ' SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . ' WHERE ad_id = ' . $ad_id);
 				$this->add_notification((int) $ad['user_id'], $ad_id, 'featured', $this->language->lang('MARKETPLACE_NOTIFICATION_FEATURED_TITLE'), $this->language->lang('MARKETPLACE_NOTIFICATION_FEATURED_MESSAGE', $ad['ad_title']));
 				\trigger_error($this->language->lang('MARKETPLACE_AD_FEATURED') . \adm_back_link($this->u_action));
+			break;
+
+			case 'boost':
+				if (isset($this->config['marketplace_allow_boosted']) && empty($this->config['marketplace_allow_boosted']))
+				{
+					\trigger_error($this->language->lang('MARKETPLACE_BOOSTED_DISABLED'));
+				}
+
+				$days = max(1, $this->request->variable('boosted_days', (int) $this->config['marketplace_boosted_days']));
+				$sql_ary = [
+					'ad_boosted_until' => $now + ($days * 86400),
+					'ad_boosted_by'    => (int) $this->user->data['user_id'],
+					'ad_updated'       => $now,
+				];
+				$sql_ary = $this->filter_existing_ad_columns($sql_ary);
+				$this->db->sql_query('UPDATE ' . $this->table_ads . ' SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . ' WHERE ad_id = ' . $ad_id);
+				$this->add_notification((int) $ad['user_id'], $ad_id, 'boosted', $this->language->lang('MARKETPLACE_NOTIFICATION_BOOSTED_TITLE'), $this->language->lang('MARKETPLACE_NOTIFICATION_BOOSTED_MESSAGE', $ad['ad_title']));
+				\trigger_error($this->language->lang('MARKETPLACE_AD_BOOSTED') . \adm_back_link($this->u_action));
+			break;
+
+			case 'unboost':
+				$sql_ary = [
+					'ad_boosted_until' => 0,
+					'ad_boosted_by'    => 0,
+					'ad_updated'       => $now,
+				];
+				$sql_ary = $this->filter_existing_ad_columns($sql_ary);
+				$this->db->sql_query('UPDATE ' . $this->table_ads . ' SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . ' WHERE ad_id = ' . $ad_id);
+				$this->add_notification((int) $ad['user_id'], $ad_id, 'unboosted', $this->language->lang('MARKETPLACE_NOTIFICATION_UNBOOSTED_TITLE'), $this->language->lang('MARKETPLACE_NOTIFICATION_UNBOOSTED_MESSAGE', $ad['ad_title']));
+				\trigger_error($this->language->lang('MARKETPLACE_AD_UNBOOSTED') . \adm_back_link($this->u_action));
 			break;
 
 			case 'unfeature':
@@ -659,6 +1201,7 @@ class acp_controller
 			'EXPIRED_ADS'    => $this->count_ads('ad_status = 3'),
 			'HIDDEN_ADS'     => $this->count_ads('ad_status = 4'),
 			'FEATURED_ADS'   => $this->column_exists($this->table_ads, 'ad_featured_until') ? $this->count_ads('ad_featured_until >= ' . (int) time()) : 0,
+			'BOOSTED_ADS'    => $this->column_exists($this->table_ads, 'ad_boosted_until') ? $this->count_ads('ad_boosted_until >= ' . (int) time()) : 0,
 			'OPEN_REPORTS'   => $this->count_reports('report_status = 0'),
 			'TOTAL_REPORTS'  => $this->count_reports(),
 			'TOTAL_IMAGES'   => $this->count_images(),

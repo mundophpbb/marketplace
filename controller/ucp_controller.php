@@ -41,6 +41,8 @@ class ucp_controller
 	protected $table_cats;
 	protected $table_images;
 	protected $table_notifications;
+	protected $table_purchases;
+	protected $table_follows;
 	/** @var string */
 	protected $u_action;
 
@@ -59,7 +61,9 @@ class ucp_controller
 		$table_ads,
 		$table_cats,
 		$table_images,
-		$table_notifications
+		$table_notifications,
+		$table_purchases,
+		$table_follows
 	)
 	{
 		$this->config = $config;
@@ -77,6 +81,8 @@ class ucp_controller
 		$this->table_cats = $table_cats;
 		$this->table_images = $table_images;
 		$this->table_notifications = $table_notifications;
+		$this->table_purchases = $table_purchases;
+		$this->table_follows = $table_follows;
 	}
 
 	public function main()
@@ -91,15 +97,27 @@ class ucp_controller
 		\add_form_key('mundophpbb_marketplace_action');
 
 		$action = $this->request->variable('action', '');
-		if ($action === 'mark_notifications_read')
+		if (in_array($action, ['mark_notifications_read', 'approve_sale', 'reject_sale', 'unfollow_seller'], true))
 		{
 			if (!$this->request->is_set_post('submit_action') || !\check_form_key('mundophpbb_marketplace_action'))
 			{
 				\trigger_error($this->language->lang('FORM_INVALID'));
 			}
 
-			$this->mark_notifications_read((int) $this->user->data['user_id']);
-			\trigger_error($this->language->lang('MARKETPLACE_NOTIFICATIONS_MARKED_READ') . '<br /><br />' . $this->language->lang('RETURN_PAGE', '<a href="' . $this->u_action . '">', '</a>'));
+			if ($action === 'mark_notifications_read')
+			{
+				$this->mark_notifications_read((int) $this->user->data['user_id']);
+				\trigger_error($this->language->lang('MARKETPLACE_NOTIFICATIONS_MARKED_READ') . '<br /><br />' . $this->language->lang('RETURN_PAGE', '<a href="' . $this->u_action . '">', '</a>'));
+			}
+
+			if ($action === 'unfollow_seller')
+			{
+				$this->unfollow_seller($this->request->variable('seller_id', 0), (int) $this->user->data['user_id']);
+				\trigger_error($this->language->lang('MARKETPLACE_SELLER_UNFOLLOWED') . '<br /><br />' . $this->language->lang('RETURN_PAGE', '<a href="' . $this->u_action . '">', '</a>'));
+			}
+
+			$purchase_id = $this->request->variable('purchase_id', 0);
+			$this->handle_sale_purchase_action($action, $purchase_id, (int) $this->user->data['user_id']);
 		}
 
 		$start = $this->request->variable('start', 0);
@@ -108,6 +126,8 @@ class ucp_controller
 		$user_id = (int) $this->user->data['user_id'];
 		$notifications = $this->get_notifications($user_id);
 		$unread_notifications = $this->count_unread_notifications($user_id);
+		$pending_sales = $this->get_pending_sales($user_id);
+		$followed_sellers = $this->get_followed_sellers($user_id);
 
 		$sql = 'SELECT a.*, c.cat_name
 				FROM ' . $this->table_ads . ' a
@@ -148,6 +168,10 @@ class ucp_controller
 			'TOTAL_MY_ADS'  => $total,
 			'NOTIFICATIONS' => $notifications,
 			'UNREAD_NOTIFICATIONS' => $unread_notifications,
+			'PENDING_SALES' => $pending_sales,
+			'S_HAS_PENDING_SALES' => !empty($pending_sales),
+			'FOLLOWED_SELLERS' => $followed_sellers,
+			'S_HAS_FOLLOWED_SELLERS' => !empty($followed_sellers),
 			'U_POST_NEW'    => $this->helper->route('mundophpbb_marketplace_post'),
 			'S_CAN_POST'    => $this->auth->acl_get('u_marketplace_post'),
 			'U_ACTION'      => $this->u_action,
@@ -162,6 +186,51 @@ class ucp_controller
 	private function has_notifications_table()
 	{
 		return isset($this->config['marketplace_version']) && version_compare((string) $this->config['marketplace_version'], '1.3.0', '>=');
+	}
+
+
+	private function has_follows_table()
+	{
+		return isset($this->config['marketplace_version']) && version_compare((string) $this->config['marketplace_version'], '1.4.12', '>=');
+	}
+
+	private function get_followed_sellers($user_id)
+	{
+		if (!$this->has_follows_table() || (isset($this->config['marketplace_allow_follows']) && empty($this->config['marketplace_allow_follows'])))
+		{
+			return [];
+		}
+
+		$sql = 'SELECT f.*, u.username, u.user_colour, COUNT(a.ad_id) AS active_ads
+			FROM ' . $this->table_follows . ' f
+			LEFT JOIN ' . USERS_TABLE . ' u ON u.user_id = f.followed_user_id
+			LEFT JOIN ' . $this->table_ads . ' a ON a.user_id = f.followed_user_id AND a.ad_status = 1 AND (a.ad_expires = 0 OR a.ad_expires >= ' . time() . ')
+			WHERE f.follower_user_id = ' . (int) $user_id . '
+			GROUP BY f.follow_id, f.follower_user_id, f.followed_user_id, f.follow_created, u.username, u.user_colour
+			ORDER BY f.follow_created DESC';
+		$result = $this->db->sql_query_limit($sql, 20);
+		$sellers = [];
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$row['FOLLOW_CREATED_DISPLAY'] = !empty($row['follow_created']) ? $this->user->format_date((int) $row['follow_created']) : '';
+			$row['U_PROFILE'] = \append_sid("{$this->root_path}memberlist.{$this->php_ext}", ['mode' => 'viewprofile', 'u' => (int) $row['followed_user_id']]);
+			$sellers[] = $row;
+		}
+		$this->db->sql_freeresult($result);
+
+		return $sellers;
+	}
+
+	private function unfollow_seller($seller_id, $follower_id)
+	{
+		if (!$this->has_follows_table())
+		{
+			return;
+		}
+
+		$this->db->sql_query('DELETE FROM ' . $this->table_follows . '
+			WHERE follower_user_id = ' . (int) $follower_id . '
+				AND followed_user_id = ' . (int) $seller_id);
 	}
 
 	private function get_notifications($user_id)
@@ -257,10 +326,13 @@ class ucp_controller
 		$ad['AD_SOLD_AT_DISPLAY'] = '';
 		$ad['AD_EXPIRED_AT_DISPLAY'] = '';
 		$ad['AD_FEATURED_UNTIL_DISPLAY'] = '';
+		$ad['AD_BOOSTED_UNTIL_DISPLAY'] = '';
 		$ad['AD_LAST_BUMPED_DISPLAY'] = '';
+		$ad['AD_LAST_RENEWED_DISPLAY'] = '';
 		$ad['AD_BUMPED_AT_DISPLAY'] = '';
 		$ad['AD_NEXT_BUMP_DISPLAY'] = '';
 		$ad['S_IS_FEATURED'] = !empty($ad['ad_featured_until']) && (int) $ad['ad_featured_until'] >= time();
+		$ad['S_IS_BOOSTED'] = !empty($ad['ad_boosted_until']) && (int) $ad['ad_boosted_until'] >= time();
 
 		$expires = isset($ad['ad_expires']) ? (int) $ad['ad_expires'] : 0;
 		if ($expires > 0)
@@ -293,6 +365,18 @@ class ucp_controller
 		if ($featured_until > 0)
 		{
 			$ad['AD_FEATURED_UNTIL_DISPLAY'] = $this->user->format_date($featured_until);
+		}
+
+		$boosted_until = isset($ad['ad_boosted_until']) ? (int) $ad['ad_boosted_until'] : 0;
+		if ($boosted_until > 0)
+		{
+			$ad['AD_BOOSTED_UNTIL_DISPLAY'] = $this->user->format_date($boosted_until);
+		}
+
+		$last_renewed = isset($ad['ad_last_renewed']) ? (int) $ad['ad_last_renewed'] : 0;
+		if ($last_renewed > 0)
+		{
+			$ad['AD_LAST_RENEWED_DISPLAY'] = $this->user->format_date($last_renewed);
 		}
 
 		$last_bumped = isset($ad['ad_last_bumped']) ? (int) $ad['ad_last_bumped'] : 0;
@@ -408,6 +492,142 @@ class ucp_controller
 			4 => 'MARKETPLACE_STATUS_HIDDEN',
 		];
 		return $this->language->lang($map[$status] ?? 'MARKETPLACE_STATUS_UNKNOWN');
+	}
+
+
+	private function get_pending_sales($seller_user_id)
+	{
+		if (empty($this->table_purchases))
+		{
+			return [];
+		}
+
+		$sql = 'SELECT p.*, a.ad_title, a.ad_quantity, b.username AS buyer_username, b.user_colour AS buyer_user_colour
+			FROM ' . $this->table_purchases . ' p
+			LEFT JOIN ' . $this->table_ads . ' a ON a.ad_id = p.ad_id
+			LEFT JOIN ' . USERS_TABLE . ' b ON b.user_id = p.buyer_user_id
+			WHERE p.seller_user_id = ' . (int) $seller_user_id . '
+				AND p.purchase_status IN (0, 3)
+			ORDER BY p.purchase_created ASC';
+		$result = $this->db->sql_query_limit($sql, 25);
+		$sales = [];
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$row['U_VIEW'] = $this->helper->route('mundophpbb_marketplace_view', ['ad_id' => (int) $row['ad_id']]);
+			$row['PURCHASE_STATUS_LANG'] = $this->get_purchase_status_lang((int) $row['purchase_status']);
+			$row['PURCHASE_CREATED_DISPLAY'] = !empty($row['purchase_created']) ? $this->user->format_date((int) $row['purchase_created']) : '';
+			$row['PURCHASE_PRICE_DISPLAY'] = $this->format_purchase_price((int) $row['purchase_amount_cents'], $row['purchase_currency']);
+			$row['PAYMENT_REFERENCE_DISPLAY'] = isset($row['payment_reference']) ? (string) $row['payment_reference'] : '';
+			$sales[] = $row;
+		}
+		$this->db->sql_freeresult($result);
+
+		return $sales;
+	}
+
+	private function handle_sale_purchase_action($action, $purchase_id, $seller_user_id)
+	{
+		$purchase = $this->get_sale_purchase($purchase_id, $seller_user_id);
+		if (!$purchase || !in_array((int) $purchase['purchase_status'], [0, 3], true))
+		{
+			\trigger_error($this->language->lang('MARKETPLACE_PURCHASE_NOT_FOUND'));
+		}
+
+		switch ($action)
+		{
+			case 'approve_sale':
+				$this->apply_purchase_stock_change($purchase);
+				$this->update_purchase_status((int) $purchase_id, 1);
+				$this->add_notification((int) $purchase['buyer_user_id'], (int) $purchase['ad_id'], 'purchase_approved', $this->language->lang('MARKETPLACE_NOTIFICATION_PURCHASE_APPROVED_TITLE'), $this->language->lang('MARKETPLACE_NOTIFICATION_PURCHASE_APPROVED_MESSAGE', $purchase['ad_title']));
+				\trigger_error($this->language->lang('MARKETPLACE_PURCHASE_APPROVED') . '<br /><br />' . $this->language->lang('RETURN_PAGE', '<a href="' . $this->u_action . '">', '</a>'));
+			break;
+
+			case 'reject_sale':
+				$this->update_purchase_status((int) $purchase_id, 2);
+				$this->add_notification((int) $purchase['buyer_user_id'], (int) $purchase['ad_id'], 'purchase_rejected', $this->language->lang('MARKETPLACE_NOTIFICATION_PURCHASE_REJECTED_TITLE'), $this->language->lang('MARKETPLACE_NOTIFICATION_PURCHASE_REJECTED_MESSAGE', $purchase['ad_title']));
+				\trigger_error($this->language->lang('MARKETPLACE_PURCHASE_REJECTED') . '<br /><br />' . $this->language->lang('RETURN_PAGE', '<a href="' . $this->u_action . '">', '</a>'));
+			break;
+		}
+	}
+
+	private function get_sale_purchase($purchase_id, $seller_user_id)
+	{
+		$sql = 'SELECT p.*, a.ad_title, a.ad_quantity
+			FROM ' . $this->table_purchases . ' p
+			LEFT JOIN ' . $this->table_ads . ' a ON a.ad_id = p.ad_id
+			WHERE p.purchase_id = ' . (int) $purchase_id . '
+				AND p.seller_user_id = ' . (int) $seller_user_id;
+		$result = $this->db->sql_query_limit($sql, 1);
+		$purchase = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+		return $purchase;
+	}
+
+	private function apply_purchase_stock_change($purchase)
+	{
+		$quantity = isset($purchase['ad_quantity']) ? max(0, (int) $purchase['ad_quantity']) : 1;
+		$new_quantity = max(0, $quantity - 1);
+		$sql_ary = [
+			'ad_quantity' => $new_quantity,
+			'ad_updated' => time(),
+		];
+		if ($new_quantity <= 0)
+		{
+			$sql_ary['ad_status'] = 2;
+			$sql_ary['ad_sold_at'] = time();
+		}
+		$this->db->sql_query('UPDATE ' . $this->table_ads . ' SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . ' WHERE ad_id = ' . (int) $purchase['ad_id']);
+	}
+
+	private function update_purchase_status($purchase_id, $status)
+	{
+		$sql_ary = [
+			'purchase_status' => (int) $status,
+			'purchase_decided' => time(),
+			'purchase_decided_by' => (int) $this->user->data['user_id'],
+		];
+		$this->db->sql_query('UPDATE ' . $this->table_purchases . ' SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . ' WHERE purchase_id = ' . (int) $purchase_id);
+	}
+
+	private function get_purchase_status_lang($status)
+	{
+		$map = [
+			0 => 'MARKETPLACE_PURCHASE_STATUS_PENDING',
+			1 => 'MARKETPLACE_PURCHASE_STATUS_APPROVED',
+			2 => 'MARKETPLACE_PURCHASE_STATUS_REJECTED',
+			3 => 'MARKETPLACE_PURCHASE_STATUS_AWAITING_PAYMENT',
+		];
+		return $this->language->lang($map[$status] ?? 'MARKETPLACE_PURCHASE_STATUS_PENDING');
+	}
+
+	private function format_purchase_price($amount_cents, $currency)
+	{
+		$currency = preg_replace('/[^A-Z]/', '', strtoupper((string) $currency));
+		if (strlen($currency) !== 3)
+		{
+			$currency = 'BRL';
+		}
+		return $currency . ' ' . number_format(max(0, (int) $amount_cents) / 100, 2, ',', '.');
+	}
+
+	private function add_notification($user_id, $ad_id, $type, $title, $message)
+	{
+		$user_id = (int) $user_id;
+		if ($user_id <= 0 || $user_id === ANONYMOUS || !$this->has_notifications_table())
+		{
+			return;
+		}
+
+		$sql_ary = [
+			'user_id'              => $user_id,
+			'ad_id'                => (int) $ad_id,
+			'notification_type'    => substr((string) $type, 0, 50),
+			'notification_title'   => substr((string) $title, 0, 255),
+			'notification_message' => (string) $message,
+			'notification_read'    => 0,
+			'notification_time'    => time(),
+		];
+		$this->db->sql_query('INSERT INTO ' . $this->table_notifications . ' ' . $this->db->sql_build_array('INSERT', $sql_ary));
 	}
 
 	public function set_page_url($u_action)

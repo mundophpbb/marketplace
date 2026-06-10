@@ -4,3 +4,7 @@ parameters:
     tables.marketplace_images: '%core.table_prefix%marketplace_images'
     tables.marketplace_reports: '%core.table_prefix%marketplace_reports'
     tables.marketplace_notifications: '%core.table_prefix%marketplace_notifications'
+    tables.marketplace_promotions: '%core.table_prefix%marketplace_promotions'
+    tables.marketplace_promotion_packages: '%core.table_prefix%marketplace_promotion_packages'
+    tables.marketplace_purchases: '%core.table_prefix%marketplace_purchases'
+    tables.marketplace_follows: '%core.table_prefix%marketplace_follows'

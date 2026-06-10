@@ -23,6 +23,10 @@ services:
             - '%tables.marketplace_images%'
             - '%tables.marketplace_reports%'
             - '%tables.marketplace_notifications%'
+            - '%tables.marketplace_promotions%'
+            - '%tables.marketplace_promotion_packages%'
+            - '%tables.marketplace_purchases%'
+            - '%tables.marketplace_follows%'
 
     # ACP controller
     mundophpbb.marketplace.controller.acp:
@@ -43,6 +47,9 @@ services:
             - '%tables.marketplace_images%'
             - '%tables.marketplace_reports%'
             - '%tables.marketplace_notifications%'
+            - '%tables.marketplace_promotions%'
+            - '%tables.marketplace_promotion_packages%'
+            - '%tables.marketplace_purchases%'
 
     # UCP controller
     mundophpbb.marketplace.controller.ucp:
@@ -63,6 +70,8 @@ services:
             - '%tables.marketplace_categories%'
             - '%tables.marketplace_images%'
             - '%tables.marketplace_notifications%'
+            - '%tables.marketplace_purchases%'
+            - '%tables.marketplace_follows%'
 
     # Event listener
     mundophpbb.marketplace.listener:

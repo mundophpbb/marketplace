@@ -96,6 +96,14 @@
 		</dl>
 
 		<dl>
+			<dt><label for="marketplace_allow_follows">{{ lang('MARKETPLACE_ALLOW_FOLLOWS') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_ALLOW_FOLLOWS_EXPLAIN') }}</span></dt>
+			<dd>
+				<label><input type="radio" class="radio" name="marketplace_allow_follows" value="1"{% if MARKETPLACE_ALLOW_FOLLOWS %} checked{% endif %}> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="marketplace_allow_follows" value="0"{% if not MARKETPLACE_ALLOW_FOLLOWS %} checked{% endif %}> {{ lang('NO') }}</label>
+			</dd>
+		</dl>
+
+		<dl>
 			<dt><label for="marketplace_allow_bump">{{ lang('MARKETPLACE_ALLOW_BUMP') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_ALLOW_BUMP_EXPLAIN') }}</span></dt>
 			<dd>
 				<label><input type="radio" class="radio" name="marketplace_allow_bump" value="1"{% if MARKETPLACE_ALLOW_BUMP %} checked{% endif %}> {{ lang('YES') }}</label>
@@ -109,8 +117,87 @@
 		</dl>
 
 		<dl>
+			<dt><label for="marketplace_allow_featured">{{ lang('MARKETPLACE_ALLOW_FEATURED') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_ALLOW_FEATURED_EXPLAIN') }}</span></dt>
+			<dd>
+				<label><input type="radio" class="radio" name="marketplace_allow_featured" value="1"{% if MARKETPLACE_ALLOW_FEATURED %} checked{% endif %}> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="marketplace_allow_featured" value="0"{% if not MARKETPLACE_ALLOW_FEATURED %} checked{% endif %}> {{ lang('NO') }}</label>
+			</dd>
+		</dl>
+
+		<dl>
 			<dt><label for="marketplace_featured_days">{{ lang('MARKETPLACE_FEATURED_DAYS') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_FEATURED_DAYS_EXPLAIN') }}</span></dt>
 			<dd><input type="number" name="marketplace_featured_days" id="marketplace_featured_days" value="{{ MARKETPLACE_FEATURED_DAYS }}" min="1" class="inputbox autowidth"> <span>{{ lang('DAYS') }}</span></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_allow_boosted">{{ lang('MARKETPLACE_ALLOW_BOOSTED') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_ALLOW_BOOSTED_EXPLAIN') }}</span></dt>
+			<dd>
+				<label><input type="radio" class="radio" name="marketplace_allow_boosted" value="1"{% if MARKETPLACE_ALLOW_BOOSTED %} checked{% endif %}> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="marketplace_allow_boosted" value="0"{% if not MARKETPLACE_ALLOW_BOOSTED %} checked{% endif %}> {{ lang('NO') }}</label>
+			</dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_boosted_days">{{ lang('MARKETPLACE_BOOSTED_DAYS') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_BOOSTED_DAYS_EXPLAIN') }}</span></dt>
+			<dd><input type="number" name="marketplace_boosted_days" id="marketplace_boosted_days" value="{{ MARKETPLACE_BOOSTED_DAYS }}" min="1" class="inputbox autowidth"> <span>{{ lang('DAYS') }}</span></dd>
+		</dl>
+
+
+		<dl>
+			<dt><label for="marketplace_allow_promotion_requests">{{ lang('MARKETPLACE_ALLOW_PROMOTION_REQUESTS') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_ALLOW_PROMOTION_REQUESTS_EXPLAIN') }}</span></dt>
+			<dd>
+				<label><input type="radio" class="radio" name="marketplace_allow_promotion_requests" value="1"{% if MARKETPLACE_ALLOW_PROMOTION_REQUESTS %} checked{% endif %}> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="marketplace_allow_promotion_requests" value="0"{% if not MARKETPLACE_ALLOW_PROMOTION_REQUESTS %} checked{% endif %}> {{ lang('NO') }}</label>
+			</dd>
+		</dl>
+	</fieldset>
+
+	<fieldset>
+		<legend>{{ lang('MARKETPLACE_PAYMENTS') }}</legend>
+
+		<dl>
+			<dt><label for="marketplace_direct_purchase_enabled">{{ lang('MARKETPLACE_DIRECT_PURCHASE_ENABLED') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_DIRECT_PURCHASE_ENABLED_EXPLAIN') }}</span></dt>
+			<dd>
+				<label><input type="radio" class="radio" name="marketplace_direct_purchase_enabled" value="1"{% if MARKETPLACE_DIRECT_PURCHASE_ENABLED %} checked{% endif %}> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="marketplace_direct_purchase_enabled" value="0"{% if not MARKETPLACE_DIRECT_PURCHASE_ENABLED %} checked{% endif %}> {{ lang('NO') }}</label>
+			</dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_paypal_enabled">{{ lang('MARKETPLACE_PAYPAL_ENABLED') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_PAYPAL_ENABLED_EXPLAIN') }}</span></dt>
+			<dd>
+				<label><input type="radio" class="radio" name="marketplace_paypal_enabled" value="1"{% if MARKETPLACE_PAYPAL_ENABLED %} checked{% endif %}> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="marketplace_paypal_enabled" value="0"{% if not MARKETPLACE_PAYPAL_ENABLED %} checked{% endif %}> {{ lang('NO') }}</label>
+			</dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_paypal_sandbox">{{ lang('MARKETPLACE_PAYPAL_SANDBOX') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_PAYPAL_SANDBOX_EXPLAIN') }}</span></dt>
+			<dd>
+				<label><input type="radio" class="radio" name="marketplace_paypal_sandbox" value="1"{% if MARKETPLACE_PAYPAL_SANDBOX %} checked{% endif %}> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="marketplace_paypal_sandbox" value="0"{% if not MARKETPLACE_PAYPAL_SANDBOX %} checked{% endif %}> {{ lang('NO') }}</label>
+			</dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_paypal_sandbox_business">{{ lang('MARKETPLACE_PAYPAL_SANDBOX_BUSINESS') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_PAYPAL_SANDBOX_BUSINESS_EXPLAIN') }}</span></dt>
+			<dd><input type="email" name="marketplace_paypal_sandbox_business" id="marketplace_paypal_sandbox_business" value="{{ MARKETPLACE_PAYPAL_SANDBOX_BUSINESS }}" class="inputbox" size="40" placeholder="sb-merchant@example.com"></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_paypal_business">{{ lang('MARKETPLACE_PAYPAL_BUSINESS') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_PAYPAL_BUSINESS_EXPLAIN') }}</span></dt>
+			<dd><input type="email" name="marketplace_paypal_business" id="marketplace_paypal_business" value="{{ MARKETPLACE_PAYPAL_BUSINESS }}" class="inputbox" size="40" placeholder="merchant@example.com"></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="marketplace_paypal_currency">{{ lang('MARKETPLACE_PAYPAL_CURRENCY') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_PAYPAL_CURRENCY_EXPLAIN') }}</span></dt>
+			<dd>
+				<select name="marketplace_paypal_currency" id="marketplace_paypal_currency">
+					{% for currency in PAYPAL_CURRENCY_OPTIONS %}
+						<option value="{{ currency.CODE }}"{% if currency.S_SELECTED %} selected{% endif %}>{{ currency.LABEL }}</option>
+					{% endfor %}
+				</select>
+			</dd>
 		</dl>
 	</fieldset>
 

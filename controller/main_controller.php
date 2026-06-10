@@ -67,6 +67,18 @@ class main_controller
 	protected $table_notifications;
 
 	/** @var string */
+	protected $table_promotions;
+
+	/** @var string */
+	protected $table_promotion_packages;
+
+	/** @var string */
+	protected $table_purchases;
+
+	/** @var string */
+	protected $table_follows;
+
+	/** @var string */
 	protected $upload_path;
 
 	/** @var array */
@@ -92,7 +104,11 @@ class main_controller
 		$table_cats,
 		$table_images,
 		$table_reports,
-		$table_notifications
+		$table_notifications,
+		$table_promotions,
+		$table_promotion_packages,
+		$table_purchases,
+		$table_follows
 	)
 	{
 		$this->config     = $config;
@@ -112,6 +128,10 @@ class main_controller
 		$this->table_images = $table_images;
 		$this->table_reports = $table_reports;
 		$this->table_notifications = $table_notifications;
+		$this->table_promotions = $table_promotions;
+		$this->table_promotion_packages = $table_promotion_packages;
+		$this->table_purchases = $table_purchases;
+		$this->table_follows = $table_follows;
 
 		$this->upload_path = $this->root_path . 'files/marketplace/';
 	}
@@ -275,6 +295,7 @@ class main_controller
 		}
 
 		$images = $this->get_ad_images($ad_id);
+		$more_ads_from_user = $this->get_more_ads_from_user((int) $ad['user_id'], $ad_id, 6);
 
 		$ad['AD_PRICE_DISPLAY'] = $this->format_price($ad);
 		$ad['cat_name'] = $this->translate_category_text(isset($ad['cat_name']) ? $ad['cat_name'] : '');
@@ -292,7 +313,12 @@ class main_controller
 		$this->template->assign_vars([
 			'AD'               => $ad,
 			'IMAGES'           => $images,
+			'MORE_ADS_FROM_USER' => $more_ads_from_user,
+			'S_HAS_MORE_ADS_FROM_USER' => !empty($more_ads_from_user),
 			'S_CAN_CONTACT'    => ((int) $this->user->data['user_id'] !== ANONYMOUS && (int) $ad['ad_status'] === 1 && !$is_owner),
+			'S_CAN_FOLLOW_SELLER' => $this->can_follow_seller($ad),
+			'S_IS_FOLLOWING_SELLER' => $this->is_following_seller((int) $ad['user_id']),
+			'S_CAN_BUY_WITH_PAYPAL' => $this->can_buy_ad_with_paypal($ad),
 			'S_OWN_AD'         => $is_owner,
 			'S_IS_MOD'         => $is_mod,
 			'S_CAN_APPROVE'    => $this->can_approve_ad($ad),
@@ -302,8 +328,16 @@ class main_controller
 			'S_CAN_BUMP'       => $this->can_bump_ad($ad),
 			'S_CAN_FEATURE'    => $this->can_feature_ad($ad),
 			'S_CAN_UNFEATURE'  => $this->can_unfeature_ad($ad),
+			'S_CAN_BOOST'      => $this->can_boost_ad($ad),
+			'S_CAN_UNBOOST'    => $this->can_unboost_ad($ad),
+			'S_CAN_REQUEST_FEATURED' => $this->can_request_promotion($ad, 'featured'),
+			'S_CAN_REQUEST_BOOSTED'  => $this->can_request_promotion($ad, 'boosted'),
+			'FEATURED_PACKAGES'      => $this->get_available_promotion_packages('featured'),
+			'BOOSTED_PACKAGES'       => $this->get_available_promotion_packages('boosted'),
 			'S_CAN_REPORT'     => $this->can_report_ad($ad),
 			'S_SHOW_PRICE'     => (bool) $this->config['marketplace_enable_price'],
+			'FEATURED_DAYS_DEFAULT' => isset($this->config['marketplace_featured_days']) ? (int) $this->config['marketplace_featured_days'] : 14,
+			'BOOSTED_DAYS_DEFAULT' => isset($this->config['marketplace_boosted_days']) ? (int) $this->config['marketplace_boosted_days'] : 7,
 		]);
 
 		return $this->helper->render('@mundophpbb_marketplace/marketplace_view.html', $ad['ad_title']);
@@ -459,6 +493,8 @@ class main_controller
 			$ad_price   = $this->request->variable('ad_price', '', true);
 			$ad_location= $this->request->variable('ad_location', '', true);
 			$ad_phone   = $this->request->variable('ad_phone', '', true);
+			$ad_paypal_email_raw = $this->request->variable('ad_paypal_email', '', true);
+			$ad_paypal_email = $this->sanitize_paypal_email($ad_paypal_email_raw);
 			$contact_method = $this->request->variable('contact_method', 1);
 			$ad_type = $this->sanitize_ad_type($this->request->variable('ad_type', 1));
 			$ad_condition = $this->sanitize_ad_condition($this->request->variable('ad_condition', 0));
@@ -508,6 +544,11 @@ class main_controller
 				$errors[] = $this->language->lang('MARKETPLACE_WHATSAPP_REQUIRED');
 			}
 
+			if (trim((string) $ad_paypal_email_raw) !== '' && $ad_paypal_email === '')
+			{
+				$errors[] = $this->language->lang('MARKETPLACE_SELLER_PAYPAL_EMAIL_INVALID');
+			}
+
 			// Check max ads for new ads.
 			if (!$is_edit && !$this->auth->acl_get('m_marketplace_edit'))
 			{
@@ -555,6 +596,7 @@ class main_controller
 					'ad_currency'       => $this->config['marketplace_currency_default'],
 					'ad_location'       => $ad_location,
 					'ad_phone'          => $ad_phone,
+				'ad_paypal_email'   => $ad_paypal_email,
 					'ad_contact_method' => $contact_method,
 					'ad_updated'        => $now,
 				];
@@ -624,10 +666,16 @@ class main_controller
 						'ad_last_bumped'     => 0,
 						'ad_featured_until'  => 0,
 						'ad_featured_by'     => 0,
+						'ad_boosted_until'   => 0,
+						'ad_boosted_by'      => 0,
 					]);
 					$sql = 'INSERT INTO ' . $this->table_ads . ' ' . $this->db->sql_build_array('INSERT', $data);
 					$this->db->sql_query($sql);
 					$ad_id = (int) $this->db->sql_nextid();
+					if ($new_status === 1)
+					{
+						$this->notify_followers_new_ad($ad_id, (int) $this->user->data['user_id'], $ad_title);
+					}
 				}
 
 				if (!empty($uploaded_images) && $ad_id)
@@ -676,6 +724,7 @@ class main_controller
 				'ad_quantity'     => $this->sanitize_quantity($this->request->variable('ad_quantity', 1)),
 				'ad_location'     => $this->request->variable('ad_location', '', true),
 				'ad_phone'        => $this->request->variable('ad_phone', '', true),
+				'ad_paypal_email' => $this->sanitize_paypal_email($this->request->variable('ad_paypal_email', '', true)),
 				'ad_contact_method' => $this->request->variable('contact_method', 1),
 			]);
 		}
@@ -691,6 +740,7 @@ class main_controller
 			'ad_quantity'       => 1,
 			'ad_location'       => '',
 			'ad_phone'          => '',
+			'ad_paypal_email'   => '',
 			'ad_contact_method' => 1,
 		], $ad ?: []);
 
@@ -970,9 +1020,14 @@ class main_controller
 		$now = (int) time();
 		$order_prefix = '';
 
-		if ($this->column_exists($this->table_ads, 'ad_featured_until'))
+		if ((!isset($this->config['marketplace_allow_featured']) || !empty($this->config['marketplace_allow_featured'])) && $this->column_exists($this->table_ads, 'ad_featured_until'))
 		{
-			$order_prefix = 'CASE WHEN a.ad_featured_until >= ' . $now . ' THEN 1 ELSE 0 END DESC, ';
+			$order_prefix .= 'CASE WHEN a.ad_featured_until >= ' . $now . ' THEN 1 ELSE 0 END DESC, ';
+		}
+
+		if ((!isset($this->config['marketplace_allow_boosted']) || !empty($this->config['marketplace_allow_boosted'])) && $this->column_exists($this->table_ads, 'ad_boosted_until'))
+		{
+			$order_prefix .= 'CASE WHEN a.ad_boosted_until >= ' . $now . ' THEN 1 ELSE 0 END DESC, ';
 		}
 
 		$bumped = $this->column_exists($this->table_ads, 'ad_last_bumped')
@@ -1142,10 +1197,13 @@ class main_controller
 		$ad['AD_APPROVED_AT_DISPLAY'] = '';
 		$ad['AD_HIDDEN_AT_DISPLAY'] = '';
 		$ad['AD_FEATURED_UNTIL_DISPLAY'] = '';
+		$ad['AD_BOOSTED_UNTIL_DISPLAY'] = '';
 		$ad['AD_LAST_BUMPED_DISPLAY'] = '';
+		$ad['AD_LAST_RENEWED_DISPLAY'] = '';
 		$ad['AD_BUMPED_AT_DISPLAY'] = '';
 		$ad['AD_NEXT_BUMP_DISPLAY'] = '';
-		$ad['S_IS_FEATURED'] = !empty($ad['ad_featured_until']) && (int) $ad['ad_featured_until'] >= time();
+		$ad['S_IS_FEATURED'] = (!isset($this->config['marketplace_allow_featured']) || !empty($this->config['marketplace_allow_featured'])) && !empty($ad['ad_featured_until']) && (int) $ad['ad_featured_until'] >= time();
+		$ad['S_IS_BOOSTED'] = (!isset($this->config['marketplace_allow_boosted']) || !empty($this->config['marketplace_allow_boosted'])) && !empty($ad['ad_boosted_until']) && (int) $ad['ad_boosted_until'] >= time();
 
 		$expires = isset($ad['ad_expires']) ? (int) $ad['ad_expires'] : 0;
 		if ($expires > 0)
@@ -1190,6 +1248,18 @@ class main_controller
 		if ($featured_until > 0)
 		{
 			$ad['AD_FEATURED_UNTIL_DISPLAY'] = $this->user->format_date($featured_until);
+		}
+
+		$boosted_until = isset($ad['ad_boosted_until']) ? (int) $ad['ad_boosted_until'] : 0;
+		if ($boosted_until > 0)
+		{
+			$ad['AD_BOOSTED_UNTIL_DISPLAY'] = $this->user->format_date($boosted_until);
+		}
+
+		$last_renewed = isset($ad['ad_last_renewed']) ? (int) $ad['ad_last_renewed'] : 0;
+		if ($last_renewed > 0)
+		{
+			$ad['AD_LAST_RENEWED_DISPLAY'] = $this->user->format_date($last_renewed);
 		}
 
 		$last_bumped = isset($ad['ad_last_bumped']) ? (int) $ad['ad_last_bumped'] : 0;
@@ -1552,6 +1622,43 @@ class main_controller
 		$this->db->sql_freeresult($result);
 
 		return $image_id ? $this->get_image_url($image_id) : '';
+	}
+
+
+	private function get_more_ads_from_user($user_id, $current_ad_id, $limit = 6)
+	{
+		$user_id = (int) $user_id;
+		$current_ad_id = (int) $current_ad_id;
+		$limit = max(1, min(12, (int) $limit));
+
+		if ($user_id <= 0)
+		{
+			return [];
+		}
+
+		$sql = 'SELECT a.*, u.username, u.user_colour, c.cat_name
+				FROM ' . $this->table_ads . ' a
+				LEFT JOIN ' . USERS_TABLE . ' u ON u.user_id = a.user_id
+				LEFT JOIN ' . $this->table_cats . ' c ON c.cat_id = a.cat_id
+				WHERE a.user_id = ' . $user_id . '
+					AND a.ad_id <> ' . $current_ad_id . '
+					AND ' . $this->public_ads_where('a') . '
+				ORDER BY a.ad_last_bumped DESC, a.ad_created DESC';
+		$result = $this->db->sql_query_limit($sql, $limit);
+
+		$ads = [];
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$row['U_VIEW'] = $this->helper->route('mundophpbb_marketplace_view', ['ad_id' => (int) $row['ad_id']]);
+			$row['U_POSTER'] = \append_sid("{$this->root_path}memberlist.{$this->php_ext}", ['mode' => 'viewprofile', 'u' => (int) $row['user_id']]);
+			$row['AD_PRICE_DISPLAY'] = $this->format_price($row);
+			$row['MAIN_IMAGE'] = $this->get_main_image((int) $row['ad_id']);
+			$this->prepare_ad_for_display($row);
+			$ads[] = $row;
+		}
+		$this->db->sql_freeresult($result);
+
+		return $ads;
 	}
 
 	private function get_ad_images($ad_id)
@@ -2047,12 +2154,352 @@ class main_controller
 
 	private function can_feature_ad($ad)
 	{
-		return (int) $ad['ad_status'] === 1 && ($this->auth->acl_get('m_marketplace_feature') || $this->auth->acl_get('m_marketplace_edit')) && (empty($ad['ad_featured_until']) || (int) $ad['ad_featured_until'] < time());
+		return (!isset($this->config['marketplace_allow_featured']) || !empty($this->config['marketplace_allow_featured'])) && (int) $ad['ad_status'] === 1 && ($this->auth->acl_get('m_marketplace_feature') || $this->auth->acl_get('m_marketplace_edit')) && (empty($ad['ad_featured_until']) || (int) $ad['ad_featured_until'] < time());
 	}
 
 	private function can_unfeature_ad($ad)
 	{
-		return ($this->auth->acl_get('m_marketplace_feature') || $this->auth->acl_get('m_marketplace_edit')) && !empty($ad['ad_featured_until']) && (int) $ad['ad_featured_until'] >= time();
+		return (!isset($this->config['marketplace_allow_featured']) || !empty($this->config['marketplace_allow_featured'])) && ($this->auth->acl_get('m_marketplace_feature') || $this->auth->acl_get('m_marketplace_edit')) && !empty($ad['ad_featured_until']) && (int) $ad['ad_featured_until'] >= time();
+	}
+
+	private function can_boost_ad($ad)
+	{
+		return (!isset($this->config['marketplace_allow_boosted']) || !empty($this->config['marketplace_allow_boosted'])) && (int) $ad['ad_status'] === 1 && ($this->auth->acl_get('m_marketplace_feature') || $this->auth->acl_get('m_marketplace_edit')) && (empty($ad['ad_boosted_until']) || (int) $ad['ad_boosted_until'] < time());
+	}
+
+	private function can_unboost_ad($ad)
+	{
+		return (!isset($this->config['marketplace_allow_boosted']) || !empty($this->config['marketplace_allow_boosted'])) && ($this->auth->acl_get('m_marketplace_feature') || $this->auth->acl_get('m_marketplace_edit')) && !empty($ad['ad_boosted_until']) && (int) $ad['ad_boosted_until'] >= time();
+	}
+
+
+	private function can_request_promotion($ad, $type)
+	{
+		if (empty($this->config['marketplace_allow_promotion_requests']) || (int) $this->user->data['user_id'] === ANONYMOUS)
+		{
+			return false;
+		}
+
+		if ((int) $ad['ad_status'] !== 1 || (int) $ad['user_id'] !== (int) $this->user->data['user_id'])
+		{
+			return false;
+		}
+
+		if ($type === 'featured')
+		{
+			if (isset($this->config['marketplace_allow_featured']) && empty($this->config['marketplace_allow_featured']))
+			{
+				return false;
+			}
+			if (!empty($ad['ad_featured_until']) && (int) $ad['ad_featured_until'] >= time())
+			{
+				return false;
+			}
+		}
+		else if ($type === 'boosted')
+		{
+			if (isset($this->config['marketplace_allow_boosted']) && empty($this->config['marketplace_allow_boosted']))
+			{
+				return false;
+			}
+			if (!empty($ad['ad_boosted_until']) && (int) $ad['ad_boosted_until'] >= time())
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+
+		return !$this->has_pending_promotion((int) $ad['ad_id'], $type);
+	}
+
+	private function has_pending_promotion($ad_id, $type)
+	{
+		$sql = 'SELECT promotion_id
+			FROM ' . $this->table_promotions . "
+			WHERE ad_id = " . (int) $ad_id . "
+				AND promotion_type = '" . $this->db->sql_escape($type) . "'
+				AND promotion_status IN (0, 3)";
+		$result = $this->db->sql_query_limit($sql, 1);
+		$promotion_id = (int) $this->db->sql_fetchfield('promotion_id');
+		$this->db->sql_freeresult($result);
+
+		return $promotion_id > 0;
+	}
+
+
+	private function get_available_promotion_packages($type)
+	{
+		$sql = 'SELECT * FROM ' . $this->table_promotion_packages . "
+			WHERE package_enabled = 1
+				AND package_type = '" . $this->db->sql_escape($type) . "'
+			ORDER BY package_order ASC, package_days ASC, package_id ASC";
+		$result = $this->db->sql_query($sql);
+		$packages = [];
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$row['PACKAGE_PRICE_DISPLAY'] = $this->format_package_price((int) $row['package_amount_cents'], $row['package_currency']);
+			$packages[] = $row;
+		}
+		$this->db->sql_freeresult($result);
+		return $packages;
+	}
+
+	private function get_requested_promotion_package($type)
+	{
+		$package_id = $this->request->variable('package_id', 0);
+		if (!$package_id)
+		{
+			return null;
+		}
+
+		$sql = 'SELECT * FROM ' . $this->table_promotion_packages . "
+			WHERE package_id = " . (int) $package_id . "
+				AND package_enabled = 1
+				AND package_type = '" . $this->db->sql_escape($type) . "'";
+		$result = $this->db->sql_query_limit($sql, 1);
+		$package = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+		return $package ?: null;
+	}
+
+	private function format_package_price($amount_cents, $currency)
+	{
+		if ((int) $amount_cents <= 0)
+		{
+			return $this->language->lang('MARKETPLACE_PACKAGE_FREE_MANUAL');
+		}
+		return trim((string) $currency . ' ' . number_format(((int) $amount_cents) / 100, 2, ',', '.'));
+	}
+
+	private function create_promotion_request($ad, $type, $days, $package = null)
+	{
+		$sql_ary = [
+			'ad_id' => (int) $ad['ad_id'],
+			'user_id' => (int) $this->user->data['user_id'],
+			'promotion_type' => (string) $type,
+			'package_id' => $package ? (int) $package['package_id'] : 0,
+			'promotion_status' => $this->should_create_paypal_payment($package) ? 3 : 0,
+			'promotion_days' => max(1, (int) $days),
+			'promotion_amount_cents' => $package ? (int) $package['package_amount_cents'] : 0,
+			'promotion_currency' => $package ? (string) $package['package_currency'] : (isset($ad['ad_currency']) ? (string) $ad['ad_currency'] : ''),
+			'payment_provider' => $this->should_create_paypal_payment($package) ? 'paypal' : 'manual',
+			'payment_reference' => $this->should_create_paypal_payment($package) ? $this->generate_payment_reference((int) $ad['ad_id'], $type) : '',
+			'promotion_requested' => time(),
+			'promotion_decided' => 0,
+			'promotion_decided_by' => 0,
+			'promotion_note' => $package ? (string) $package['package_title'] : '',
+		];
+		$this->db->sql_query('INSERT INTO ' . $this->table_promotions . ' ' . $this->db->sql_build_array('INSERT', $sql_ary));
+		return (int) $this->db->sql_nextid();
+	}
+
+	private function should_create_paypal_payment($package)
+	{
+		return $package && !empty($this->config['marketplace_paypal_enabled']) && $this->get_paypal_business_account() !== '' && (int) $package['package_amount_cents'] > 0;
+	}
+
+	private function generate_payment_reference($ad_id, $type)
+	{
+		return 'MP-' . (int) $ad_id . '-' . preg_replace('/[^A-Z0-9]/i', '', (string) $type) . '-' . time() . '-' . mt_rand(1000, 9999);
+	}
+
+
+	private function sanitize_paypal_email($email)
+	{
+		$email = trim((string) $email);
+		$email = str_replace(["\r", "\n", "\t"], '', $email);
+		if ($email === '')
+		{
+			return '';
+		}
+
+		return filter_var($email, FILTER_VALIDATE_EMAIL) ? substr($email, 0, 255) : '';
+	}
+
+	private function get_seller_paypal_account($ad)
+	{
+		return isset($ad['ad_paypal_email']) ? $this->sanitize_paypal_email($ad['ad_paypal_email']) : '';
+	}
+
+	private function get_paypal_business_account()
+	{
+		if (!empty($this->config['marketplace_paypal_sandbox']))
+		{
+			return isset($this->config['marketplace_paypal_sandbox_business']) ? trim((string) $this->config['marketplace_paypal_sandbox_business']) : '';
+		}
+
+		return isset($this->config['marketplace_paypal_business']) ? trim((string) $this->config['marketplace_paypal_business']) : '';
+	}
+
+	private function build_paypal_payment_url($promotion_id)
+	{
+		$sql = 'SELECT p.*, a.ad_title
+			FROM ' . $this->table_promotions . ' p
+			LEFT JOIN ' . $this->table_ads . ' a ON a.ad_id = p.ad_id
+			WHERE p.promotion_id = ' . (int) $promotion_id;
+		$result = $this->db->sql_query_limit($sql, 1);
+		$promotion = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+
+		if (!$promotion || $promotion['payment_provider'] !== 'paypal' || (int) $promotion['promotion_amount_cents'] <= 0)
+		{
+			return '';
+		}
+
+		$business = $this->get_paypal_business_account();
+		if ($business === '')
+		{
+			return '';
+		}
+
+		$amount = number_format(((int) $promotion['promotion_amount_cents']) / 100, 2, '.', '');
+		$currency = !empty($promotion['promotion_currency']) ? strtoupper((string) $promotion['promotion_currency']) : (isset($this->config['marketplace_paypal_currency']) ? strtoupper((string) $this->config['marketplace_paypal_currency']) : 'BRL');
+		$currency = preg_replace('/[^A-Z]/', '', $currency);
+		if (strlen($currency) !== 3)
+		{
+			$currency = 'BRL';
+		}
+
+		$item = $this->language->lang('MARKETPLACE_PAYPAL_ITEM_NAME', (string) $promotion['promotion_note'], (string) $promotion['ad_title']);
+		$return_url = $this->helper->route('mundophpbb_marketplace_view', ['ad_id' => (int) $promotion['ad_id']], true);
+		$base = !empty($this->config['marketplace_paypal_sandbox']) ? 'https://www.sandbox.paypal.com/cgi-bin/webscr' : 'https://www.paypal.com/cgi-bin/webscr';
+
+		$params = [
+			'cmd' => '_xclick',
+			'business' => $business,
+			'item_name' => $item,
+			'amount' => $amount,
+			'currency_code' => $currency,
+			'custom' => (string) $promotion['payment_reference'],
+			'return' => $return_url,
+			'cancel_return' => $return_url,
+			'no_shipping' => '1',
+			'no_note' => '1',
+		];
+
+		return $base . '?' . http_build_query($params, '', '&');
+	}
+
+
+	private function can_buy_ad_with_paypal($ad)
+	{
+		if (empty($this->config['marketplace_direct_purchase_enabled']) || empty($this->config['marketplace_paypal_enabled']) || $this->get_seller_paypal_account($ad) === '')
+		{
+			return false;
+		}
+
+		if ((int) $this->user->data['user_id'] === ANONYMOUS || (int) $ad['user_id'] === (int) $this->user->data['user_id'])
+		{
+			return false;
+		}
+
+		if ((int) $ad['ad_status'] !== 1 || (isset($ad['ad_quantity']) && (int) $ad['ad_quantity'] <= 0))
+		{
+			return false;
+		}
+
+		$price_type = isset($ad['ad_price_type']) ? (int) $ad['ad_price_type'] : 2;
+		$amount = isset($ad['ad_price_cents']) ? (int) $ad['ad_price_cents'] : $this->parse_price_amount(isset($ad['ad_price']) ? $ad['ad_price'] : '');
+
+		return $amount > 0 && in_array($price_type, [1, 2], true) && !$this->has_pending_purchase((int) $ad['ad_id'], (int) $this->user->data['user_id']);
+	}
+
+	private function has_pending_purchase($ad_id, $buyer_user_id)
+	{
+		$sql = 'SELECT purchase_id
+			FROM ' . $this->table_purchases . '
+			WHERE ad_id = ' . (int) $ad_id . '
+				AND buyer_user_id = ' . (int) $buyer_user_id . '
+				AND purchase_status IN (0, 3)';
+		$result = $this->db->sql_query_limit($sql, 1);
+		$purchase_id = (int) $this->db->sql_fetchfield('purchase_id');
+		$this->db->sql_freeresult($result);
+
+		return $purchase_id > 0;
+	}
+
+	private function create_purchase_request($ad)
+	{
+		$amount = isset($ad['ad_price_cents']) ? (int) $ad['ad_price_cents'] : $this->parse_price_amount(isset($ad['ad_price']) ? $ad['ad_price'] : '');
+		$currency = !empty($ad['ad_currency']) ? strtoupper((string) $ad['ad_currency']) : (isset($this->config['marketplace_paypal_currency']) ? strtoupper((string) $this->config['marketplace_paypal_currency']) : 'BRL');
+		$currency = preg_replace('/[^A-Z]/', '', $currency);
+		if (strlen($currency) !== 3)
+		{
+			$currency = isset($this->config['marketplace_paypal_currency']) ? strtoupper((string) $this->config['marketplace_paypal_currency']) : 'BRL';
+		}
+
+		$sql_ary = [
+			'ad_id' => (int) $ad['ad_id'],
+			'buyer_user_id' => (int) $this->user->data['user_id'],
+			'seller_user_id' => (int) $ad['user_id'],
+			'purchase_status' => 3,
+			'purchase_amount_cents' => max(0, $amount),
+			'purchase_currency' => $currency,
+			'payment_provider' => 'paypal',
+			'payment_reference' => $this->generate_payment_reference((int) $ad['ad_id'], 'buy'),
+			'purchase_created' => time(),
+			'purchase_decided' => 0,
+			'purchase_decided_by' => 0,
+			'purchase_note' => '',
+		];
+		$this->db->sql_query('INSERT INTO ' . $this->table_purchases . ' ' . $this->db->sql_build_array('INSERT', $sql_ary));
+		$purchase_id = (int) $this->db->sql_nextid();
+
+		$this->add_notification((int) $ad['user_id'], (int) $ad['ad_id'], 'purchase_pending_seller', $this->language->lang('MARKETPLACE_NOTIFICATION_PURCHASE_PENDING_SELLER_TITLE'), $this->language->lang('MARKETPLACE_NOTIFICATION_PURCHASE_PENDING_SELLER_MESSAGE', $ad['ad_title']));
+
+		return $purchase_id;
+	}
+
+	private function build_paypal_purchase_url($purchase_id)
+	{
+		$sql = 'SELECT p.*, a.ad_title, a.ad_paypal_email
+			FROM ' . $this->table_purchases . ' p
+			LEFT JOIN ' . $this->table_ads . ' a ON a.ad_id = p.ad_id
+			WHERE p.purchase_id = ' . (int) $purchase_id;
+		$result = $this->db->sql_query_limit($sql, 1);
+		$purchase = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+
+		if (!$purchase || $purchase['payment_provider'] !== 'paypal' || (int) $purchase['purchase_amount_cents'] <= 0)
+		{
+			return '';
+		}
+
+		$business = $this->get_seller_paypal_account($purchase);
+		if ($business === '')
+		{
+			return '';
+		}
+
+		$amount = number_format(((int) $purchase['purchase_amount_cents']) / 100, 2, '.', '');
+		$currency = !empty($purchase['purchase_currency']) ? strtoupper((string) $purchase['purchase_currency']) : (isset($this->config['marketplace_paypal_currency']) ? strtoupper((string) $this->config['marketplace_paypal_currency']) : 'BRL');
+		$currency = preg_replace('/[^A-Z]/', '', $currency);
+		if (strlen($currency) !== 3)
+		{
+			$currency = 'BRL';
+		}
+
+		$item = $this->language->lang('MARKETPLACE_PAYPAL_PURCHASE_ITEM_NAME', (string) $purchase['ad_title']);
+		$return_url = $this->helper->route('mundophpbb_marketplace_view', ['ad_id' => (int) $purchase['ad_id']], true);
+		$base = !empty($this->config['marketplace_paypal_sandbox']) ? 'https://www.sandbox.paypal.com/cgi-bin/webscr' : 'https://www.paypal.com/cgi-bin/webscr';
+
+		$params = [
+			'cmd' => '_xclick',
+			'business' => $business,
+			'item_name' => $item,
+			'amount' => $amount,
+			'currency_code' => $currency,
+			'custom' => (string) $purchase['payment_reference'],
+			'return' => $return_url,
+			'cancel_return' => $return_url,
+			'no_shipping' => '1',
+			'no_note' => '1',
+		];
+
+		return $base . '?' . http_build_query($params, '', '&');
 	}
 
 	private function can_report_ad($ad)
@@ -2108,6 +2555,96 @@ class main_controller
 		return $report_id > 0;
 	}
 
+
+	private function has_follows_table()
+	{
+		return isset($this->config['marketplace_version']) && version_compare((string) $this->config['marketplace_version'], '1.4.12', '>=');
+	}
+
+	private function can_follow_seller($ad)
+	{
+		if ((isset($this->config['marketplace_allow_follows']) && empty($this->config['marketplace_allow_follows'])) || !$this->has_follows_table())
+		{
+			return false;
+		}
+
+		$user_id = (int) $this->user->data['user_id'];
+		$seller_id = isset($ad['user_id']) ? (int) $ad['user_id'] : 0;
+		return $user_id !== ANONYMOUS && $seller_id > 0 && $seller_id !== $user_id && (int) $ad['ad_status'] === 1;
+	}
+
+	private function is_following_seller($seller_id)
+	{
+		$user_id = (int) $this->user->data['user_id'];
+		$seller_id = (int) $seller_id;
+		if ($user_id === ANONYMOUS || $seller_id <= 0 || !$this->has_follows_table())
+		{
+			return false;
+		}
+
+		$sql = 'SELECT follow_id FROM ' . $this->table_follows . '
+			WHERE follower_user_id = ' . $user_id . '
+				AND followed_user_id = ' . $seller_id;
+		$result = $this->db->sql_query_limit($sql, 1);
+		$follow_id = (int) $this->db->sql_fetchfield('follow_id');
+		$this->db->sql_freeresult($result);
+
+		return $follow_id > 0;
+	}
+
+	private function follow_seller($seller_id)
+	{
+		$user_id = (int) $this->user->data['user_id'];
+		$seller_id = (int) $seller_id;
+		if ($user_id === ANONYMOUS || $seller_id <= 0 || $seller_id === $user_id || !$this->has_follows_table() || $this->is_following_seller($seller_id))
+		{
+			return;
+		}
+
+		$sql_ary = [
+			'follower_user_id' => $user_id,
+			'followed_user_id' => $seller_id,
+			'follow_created'   => time(),
+		];
+		$this->db->sql_query('INSERT INTO ' . $this->table_follows . ' ' . $this->db->sql_build_array('INSERT', $sql_ary));
+	}
+
+	private function unfollow_seller($seller_id)
+	{
+		$user_id = (int) $this->user->data['user_id'];
+		$seller_id = (int) $seller_id;
+		if ($user_id === ANONYMOUS || $seller_id <= 0 || !$this->has_follows_table())
+		{
+			return;
+		}
+
+		$this->db->sql_query('DELETE FROM ' . $this->table_follows . '
+			WHERE follower_user_id = ' . $user_id . '
+				AND followed_user_id = ' . $seller_id);
+	}
+
+	private function notify_followers_new_ad($ad_id, $seller_id, $ad_title)
+	{
+		if ((isset($this->config['marketplace_allow_follows']) && empty($this->config['marketplace_allow_follows'])) || !$this->has_follows_table())
+		{
+			return;
+		}
+
+		$seller_id = (int) $seller_id;
+		$sql = 'SELECT follower_user_id FROM ' . $this->table_follows . '
+			WHERE followed_user_id = ' . $seller_id;
+		$result = $this->db->sql_query($sql);
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$follower_id = (int) $row['follower_user_id'];
+			if ($follower_id > 0 && $follower_id !== $seller_id)
+			{
+				$this->add_notification($follower_id, (int) $ad_id, 'seller_new_ad', $this->language->lang('MARKETPLACE_NOTIFICATION_FOLLOW_NEW_AD_TITLE'), $this->language->lang('MARKETPLACE_NOTIFICATION_FOLLOW_NEW_AD_MESSAGE', $ad_title));
+			}
+		}
+		$this->db->sql_freeresult($result);
+	}
+
 	private function add_notification($user_id, $ad_id, $type, $title, $message)
 	{
 		$user_id = (int) $user_id;
@@ -2141,6 +2678,28 @@ class main_controller
 
 		switch ($action)
 		{
+			case 'follow_seller':
+				if (!$this->can_follow_seller($ad))
+				{
+					\trigger_error($this->language->lang('MARKETPLACE_NO_PERMISSION'));
+				}
+
+				$this->follow_seller((int) $ad['user_id']);
+				\meta_refresh(2, $redirect);
+				\trigger_error($this->language->lang('MARKETPLACE_SELLER_FOLLOWED') . '<br /><br />' . $this->language->lang('RETURN_PAGE', '<a href="' . $redirect . '">', '</a>'));
+			break;
+
+			case 'unfollow_seller':
+				if ((int) $this->user->data['user_id'] === ANONYMOUS)
+				{
+					\trigger_error($this->language->lang('MARKETPLACE_NO_PERMISSION'));
+				}
+
+				$this->unfollow_seller((int) $ad['user_id']);
+				\meta_refresh(2, $redirect);
+				\trigger_error($this->language->lang('MARKETPLACE_SELLER_UNFOLLOWED') . '<br /><br />' . $this->language->lang('RETURN_PAGE', '<a href="' . $redirect . '">', '</a>'));
+			break;
+
 			case 'approve':
 				if (!$this->can_approve_ad($ad))
 				{
@@ -2161,6 +2720,7 @@ class main_controller
 				$sql_ary = $this->filter_existing_ad_columns($sql_ary);
 				$this->db->sql_query('UPDATE ' . $this->table_ads . ' SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . ' WHERE ad_id = ' . $ad_id);
 				$this->add_notification((int) $ad['user_id'], $ad_id, 'approved', $this->language->lang('MARKETPLACE_NOTIFICATION_APPROVED_TITLE'), $this->language->lang('MARKETPLACE_NOTIFICATION_APPROVED_MESSAGE', $ad['ad_title']));
+				$this->notify_followers_new_ad($ad_id, (int) $ad['user_id'], $ad['ad_title']);
 				\meta_refresh(2, $redirect);
 				\trigger_error($this->language->lang('MARKETPLACE_AD_APPROVED') . '<br /><br />' . $this->language->lang('RETURN_PAGE', '<a href="' . $redirect . '">', '</a>'));
 			break;
@@ -2273,6 +2833,11 @@ class main_controller
 			break;
 
 			case 'feature':
+				if (isset($this->config['marketplace_allow_featured']) && empty($this->config['marketplace_allow_featured']))
+				{
+					\trigger_error($this->language->lang('MARKETPLACE_FEATURED_DISABLED'));
+				}
+
 				if (!$this->can_feature_ad($ad))
 				{
 					\trigger_error($this->language->lang('MARKETPLACE_NO_PERMISSION'));
@@ -2291,6 +2856,48 @@ class main_controller
 				\trigger_error($this->language->lang('MARKETPLACE_AD_FEATURED') . '<br /><br />' . $this->language->lang('RETURN_PAGE', '<a href="' . $redirect . '">', '</a>'));
 			break;
 
+			case 'boost':
+				if (isset($this->config['marketplace_allow_boosted']) && empty($this->config['marketplace_allow_boosted']))
+				{
+					\trigger_error($this->language->lang('MARKETPLACE_BOOSTED_DISABLED'));
+				}
+
+				if (!$this->can_boost_ad($ad))
+				{
+					\trigger_error($this->language->lang('MARKETPLACE_NO_PERMISSION'));
+				}
+
+				$days = max(1, $this->request->variable('boosted_days', (int) $this->config['marketplace_boosted_days']));
+				$sql_ary = [
+					'ad_boosted_until' => $now + ($days * 86400),
+					'ad_boosted_by'    => (int) $this->user->data['user_id'],
+					'ad_updated'       => $now,
+				];
+				$sql_ary = $this->filter_existing_ad_columns($sql_ary);
+				$this->db->sql_query('UPDATE ' . $this->table_ads . ' SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . ' WHERE ad_id = ' . $ad_id);
+				$this->add_notification((int) $ad['user_id'], $ad_id, 'boosted', $this->language->lang('MARKETPLACE_NOTIFICATION_BOOSTED_TITLE'), $this->language->lang('MARKETPLACE_NOTIFICATION_BOOSTED_MESSAGE', $ad['ad_title']));
+				\meta_refresh(2, $redirect);
+				\trigger_error($this->language->lang('MARKETPLACE_AD_BOOSTED') . '<br /><br />' . $this->language->lang('RETURN_PAGE', '<a href="' . $redirect . '">', '</a>'));
+			break;
+
+			case 'unboost':
+				if (!$this->can_unboost_ad($ad))
+				{
+					\trigger_error($this->language->lang('MARKETPLACE_NO_PERMISSION'));
+				}
+
+				$sql_ary = [
+					'ad_boosted_until' => 0,
+					'ad_boosted_by'    => 0,
+					'ad_updated'       => $now,
+				];
+				$sql_ary = $this->filter_existing_ad_columns($sql_ary);
+				$this->db->sql_query('UPDATE ' . $this->table_ads . ' SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . ' WHERE ad_id = ' . $ad_id);
+				$this->add_notification((int) $ad['user_id'], $ad_id, 'unboosted', $this->language->lang('MARKETPLACE_NOTIFICATION_UNBOOSTED_TITLE'), $this->language->lang('MARKETPLACE_NOTIFICATION_UNBOOSTED_MESSAGE', $ad['ad_title']));
+				\meta_refresh(2, $redirect);
+				\trigger_error($this->language->lang('MARKETPLACE_AD_UNBOOSTED') . '<br /><br />' . $this->language->lang('RETURN_PAGE', '<a href="' . $redirect . '">', '</a>'));
+			break;
+
 			case 'unfeature':
 				if (!$this->can_unfeature_ad($ad))
 				{
@@ -2307,6 +2914,65 @@ class main_controller
 				$this->add_notification((int) $ad['user_id'], $ad_id, 'unfeatured', $this->language->lang('MARKETPLACE_NOTIFICATION_UNFEATURED_TITLE'), $this->language->lang('MARKETPLACE_NOTIFICATION_UNFEATURED_MESSAGE', $ad['ad_title']));
 				\meta_refresh(2, $redirect);
 				\trigger_error($this->language->lang('MARKETPLACE_AD_UNFEATURED') . '<br /><br />' . $this->language->lang('RETURN_PAGE', '<a href="' . $redirect . '">', '</a>'));
+			break;
+
+
+			case 'request_featured':
+				if (!$this->can_request_promotion($ad, 'featured'))
+				{
+					\trigger_error($this->language->lang('MARKETPLACE_NO_PERMISSION'));
+				}
+
+				$package = $this->get_requested_promotion_package('featured');
+				$days = $package ? (int) $package['package_days'] : max(1, $this->request->variable('featured_days', isset($this->config['marketplace_featured_days']) ? (int) $this->config['marketplace_featured_days'] : 14));
+				$promotion_id = $this->create_promotion_request($ad, 'featured', $days, $package);
+				$paypal_url = $this->build_paypal_payment_url($promotion_id);
+				if ($paypal_url)
+				{
+					// External PayPal redirects must bypass phpBB's local redirect check.
+					\redirect($paypal_url, false, true);
+				}
+
+				\meta_refresh(2, $redirect);
+				\trigger_error($this->language->lang('MARKETPLACE_PROMOTION_REQUEST_SENT') . '<br /><br />' . $this->language->lang('RETURN_PAGE', '<a href="' . $redirect . '">', '</a>'));
+			break;
+
+			case 'request_boosted':
+				if (!$this->can_request_promotion($ad, 'boosted'))
+				{
+					\trigger_error($this->language->lang('MARKETPLACE_NO_PERMISSION'));
+				}
+
+				$package = $this->get_requested_promotion_package('boosted');
+				$days = $package ? (int) $package['package_days'] : max(1, $this->request->variable('boosted_days', isset($this->config['marketplace_boosted_days']) ? (int) $this->config['marketplace_boosted_days'] : 7));
+				$promotion_id = $this->create_promotion_request($ad, 'boosted', $days, $package);
+				$paypal_url = $this->build_paypal_payment_url($promotion_id);
+				if ($paypal_url)
+				{
+					// External PayPal redirects must bypass phpBB's local redirect check.
+					\redirect($paypal_url, false, true);
+				}
+
+				\meta_refresh(2, $redirect);
+				\trigger_error($this->language->lang('MARKETPLACE_PROMOTION_REQUEST_SENT') . '<br /><br />' . $this->language->lang('RETURN_PAGE', '<a href="' . $redirect . '">', '</a>'));
+			break;
+
+
+			case 'buy_paypal':
+				if (!$this->can_buy_ad_with_paypal($ad))
+				{
+					\trigger_error($this->language->lang('MARKETPLACE_NO_PERMISSION'));
+				}
+
+				$purchase_id = $this->create_purchase_request($ad);
+				$paypal_url = $this->build_paypal_purchase_url($purchase_id);
+				if (!$paypal_url)
+				{
+					\trigger_error($this->language->lang('MARKETPLACE_PAYPAL_NOT_CONFIGURED'));
+				}
+
+				// External PayPal redirects must bypass phpBB's local redirect check.
+				\redirect($paypal_url, false, true);
 			break;
 
 			case 'report':

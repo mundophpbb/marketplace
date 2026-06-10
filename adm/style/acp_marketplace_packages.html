@@ -1,0 +1,118 @@
+{% include 'overall_header.html' %}
+
+<h1>{{ lang('MARKETPLACE_ACP_PACKAGES') }}</h1>
+<p>{{ lang('MARKETPLACE_ACP_PACKAGES_EXPLAIN') }}</p>
+
+<form method="post" action="{{ U_ACTION }}">
+	<fieldset>
+		<legend>{{ S_EDIT_PACKAGE ? lang('MARKETPLACE_EDIT_PACKAGE') : lang('MARKETPLACE_ADD_PACKAGE') }}</legend>
+
+		<dl>
+			<dt><label for="package_title">{{ lang('MARKETPLACE_PACKAGE_TITLE') ~ lang('COLON') }}</label></dt>
+			<dd><input type="text" id="package_title" name="package_title" value="{{ EDIT_PACKAGE.package_title }}" class="inputbox autowidth" required></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="package_desc">{{ lang('MARKETPLACE_PACKAGE_DESC') ~ lang('COLON') }}</label></dt>
+			<dd><textarea id="package_desc" name="package_desc" rows="3" class="inputbox">{{ EDIT_PACKAGE.package_desc }}</textarea></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="package_type">{{ lang('MARKETPLACE_PACKAGE_TYPE') ~ lang('COLON') }}</label></dt>
+			<dd>
+				<select id="package_type" name="package_type">
+					<option value="featured"{% if EDIT_PACKAGE.package_type == 'featured' %} selected{% endif %}>{{ lang('MARKETPLACE_FEATURED') }}</option>
+					<option value="boosted"{% if EDIT_PACKAGE.package_type == 'boosted' %} selected{% endif %}>{{ lang('MARKETPLACE_BOOSTED') }}</option>
+					<option value="renewal"{% if EDIT_PACKAGE.package_type == 'renewal' %} selected{% endif %}>{{ lang('MARKETPLACE_RENEW_AD') }}</option>
+				</select>
+			</dd>
+		</dl>
+
+		<dl>
+			<dt><label for="package_days">{{ lang('MARKETPLACE_PACKAGE_DAYS') ~ lang('COLON') }}</label></dt>
+			<dd><input type="number" id="package_days" name="package_days" value="{{ EDIT_PACKAGE.package_days }}" min="1" class="inputbox autowidth"> {{ lang('DAYS') }}</dd>
+		</dl>
+
+		<dl>
+			<dt><label for="package_amount_cents">{{ lang('MARKETPLACE_PACKAGE_AMOUNT_CENTS') ~ lang('COLON') }}</label><br><span>{{ lang('MARKETPLACE_PACKAGE_AMOUNT_CENTS_EXPLAIN') }}</span></dt>
+			<dd><input type="number" id="package_amount_cents" name="package_amount_cents" value="{{ EDIT_PACKAGE.package_amount_cents }}" min="0" class="inputbox autowidth"></dd>
+		</dl>
+
+		<dl>
+			<dt><label for="package_currency">{{ lang('MARKETPLACE_PACKAGE_CURRENCY') ~ lang('COLON') }}</label></dt>
+			<dd>
+				<select id="package_currency" name="package_currency">
+					{% for currency in PACKAGE_CURRENCY_OPTIONS %}
+						<option value="{{ currency.CODE }}"{% if currency.S_SELECTED %} selected{% endif %}>{{ currency.LABEL }}</option>
+					{% endfor %}
+				</select>
+			</dd>
+		</dl>
+
+		<dl>
+			<dt><label for="package_order">{{ lang('MARKETPLACE_PACKAGE_ORDER') ~ lang('COLON') }}</label></dt>
+			<dd><input type="number" id="package_order" name="package_order" value="{{ EDIT_PACKAGE.package_order }}" min="0" class="inputbox autowidth"></dd>
+		</dl>
+
+		<dl>
+			<dt><label>{{ lang('MARKETPLACE_PACKAGE_ENABLED') ~ lang('COLON') }}</label></dt>
+			<dd>
+				<label><input type="radio" class="radio" name="package_enabled" value="1"{% if EDIT_PACKAGE.package_enabled %} checked{% endif %}> {{ lang('YES') }}</label>
+				<label><input type="radio" class="radio" name="package_enabled" value="0"{% if not EDIT_PACKAGE.package_enabled %} checked{% endif %}> {{ lang('NO') }}</label>
+			</dd>
+		</dl>
+
+		<p class="submit-buttons">
+			{% if S_EDIT_PACKAGE %}<input type="hidden" name="package_id" value="{{ EDIT_PACKAGE.package_id }}">{% endif %}
+			<input class="button1" type="submit" name="submit" value="{{ lang('SUBMIT') }}">
+			{% if S_EDIT_PACKAGE %}<a href="{{ U_ACTION }}" class="button2">{{ lang('CANCEL') }}</a>{% endif %}
+		</p>
+		{{ S_FORM_TOKEN }}
+	</fieldset>
+</form>
+
+<fieldset>
+	<legend>{{ lang('MARKETPLACE_PACKAGES') }}</legend>
+	<table class="table1 zebra-table">
+		<thead>
+			<tr>
+				<th>{{ lang('MARKETPLACE_PACKAGE_TITLE') }}</th>
+				<th>{{ lang('MARKETPLACE_PACKAGE_TYPE') }}</th>
+				<th>{{ lang('MARKETPLACE_PACKAGE_DAYS') }}</th>
+				<th>{{ lang('MARKETPLACE_PACKAGE_PRICE') }}</th>
+				<th>{{ lang('MARKETPLACE_PACKAGE_ENABLED') }}</th>
+				<th>{{ lang('ACTION') }}</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for package in PACKAGES %}
+			<tr>
+				<td><strong>{{ package.package_title }}</strong>{% if package.package_desc %}<br><span>{{ package.package_desc }}</span>{% endif %}</td>
+				<td>{{ package.PACKAGE_TYPE_LANG }}</td>
+				<td>{{ package.package_days }}</td>
+				<td>{{ package.PACKAGE_PRICE_DISPLAY }}</td>
+				<td>{{ package.package_enabled ? lang('YES') : lang('NO') }}</td>
+				<td>
+					<a href="{{ package.U_EDIT }}">{{ lang('EDIT') }}</a>
+					<form method="post" action="{{ U_ACTION }}" style="display:inline">
+						<input type="hidden" name="action" value="toggle">
+						<input type="hidden" name="package_id" value="{{ package.package_id }}">
+						<input type="submit" name="submit_action" value="{{ package.package_enabled ? lang('DISABLE') : lang('ENABLE') }}" class="button2">
+						{{ S_FORM_TOKEN }}
+					</form>
+					<form method="post" action="{{ U_ACTION }}" style="display:inline">
+						<input type="hidden" name="action" value="delete">
+						<input type="hidden" name="package_id" value="{{ package.package_id }}">
+						<input type="submit" name="submit_action" value="{{ lang('DELETE') }}" class="button2">
+						{{ S_FORM_TOKEN }}
+					</form>
+				</td>
+			</tr>
+		{% else %}
+			<tr><td colspan="6">{{ lang('MARKETPLACE_NO_PACKAGES') }}</td></tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</fieldset>
+
+{% include 'overall_footer.html' %}

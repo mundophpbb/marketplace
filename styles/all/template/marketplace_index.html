@@ -124,57 +124,7 @@
 			{% if ADS|length %}
 				<div class="mp-grid">
 					{% for ad in ADS %}
-						<article class="mp-card{% if ad.ad_status != 1 %} mp-card-muted{% endif %}">
-							<a href="{{ ad.U_VIEW }}" class="mp-card-media" aria-label="{{ ad.ad_title }}">
-								{% if ad.MAIN_IMAGE %}
-									<img src="{{ ad.MAIN_IMAGE }}" alt="{{ ad.ad_title }}" loading="lazy">
-								{% else %}
-									<span class="mp-no-image">{{ lang('MARKETPLACE_NO_IMAGE') }}</span>
-								{% endif %}
-								<span class="mp-media-shade"></span>
-
-								{% if S_SHOW_PRICE and ad.AD_PRICE_DISPLAY %}
-									<span class="mp-price-overlay">{{ ad.AD_PRICE_DISPLAY }}</span>
-								{% endif %}
-
-								<span class="mp-card-badges">
-									<span>
-										{% if ad.S_IS_FEATURED %}<span class="status-badge status-featured">{{ lang('MARKETPLACE_FEATURED') }}</span>{% endif %}
-										{% if ad.ad_status != 1 %}<span class="status-badge status-{{ ad.ad_status }}">{{ ad.STATUS_LANG }}</span>{% endif %}
-									</span>
-									<span>
-										{% if ad.ad_condition != 0 %}<span class="status-badge mp-condition-badge">{{ ad.AD_CONDITION_LANG }}</span>{% endif %}
-									</span>
-								</span>
-							</a>
-
-							<div class="mp-card-body">
-								<div class="mp-card-topline">
-									{% if ad.cat_name %}<span class="mp-category-pill">{{ ad.cat_name }}</span>{% endif %}
-									{% if ad.AD_TYPE_LANG %}<span class="mp-type-pill">{{ ad.AD_TYPE_LANG }}</span>{% endif %}
-								</div>
-
-								{% if S_SHOW_PRICE %}<div class="mp-price">{{ ad.AD_PRICE_DISPLAY }}</div>{% endif %}
-
-								<h4><a href="{{ ad.U_VIEW }}">{{ ad.ad_title }}</a></h4>
-
-								<div class="mp-card-meta">
-									{% if ad.ad_location %}<span>{{ ad.ad_location }}</span>{% endif %}
-									<span>{{ ad.AD_QUANTITY_LANG }}</span>
-									{% if ad.ad_condition != 0 %}<span>{{ ad.AD_CONDITION_LANG }}</span>{% endif %}
-								</div>
-
-								<div class="mp-card-footer">
-									<span class="mp-seller">{{ lang('MARKETPLACE_POSTED_BY') }} <a href="{{ ad.U_POSTER|default('#') }}"{% if ad.user_colour %} style="color: #{{ ad.user_colour }};"{% endif %}>{{ ad.username }}</a></span>
-									<a href="{{ ad.U_VIEW }}" class="mp-card-link">{{ lang('MARKETPLACE_VIEW_AD') }}</a>
-								</div>
-
-								<div class="mp-card-stats">
-									<span>{{ ad.ad_views }} {{ lang('MARKETPLACE_VIEWS') }}</span>
-									{% if ad.AD_EXPIRES_IN_LANG %}<span>{{ ad.AD_EXPIRES_IN_LANG }}</span>{% endif %}
-								</div>
-							</div>
-						</article>
+						{% INCLUDE 'marketplace_ad_card.html' %}
 					{% endfor %}
 				</div>
 			{% else %}

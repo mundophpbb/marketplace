@@ -204,7 +204,7 @@ Before publishing a release, test at least:
 
 ## Version
 
-Current extension version: `1.4.3`
+Current extension version: `1.5.0-rc1`
 
 ## License
 
@@ -215,3 +215,33 @@ GPL-2.0-only
 Developed by **Mundo phpBB** for the phpBB community.
 
 Website: <https://www.mundophpbb.com.br>
+
+
+## Release Candidate 1.5.0-rc1
+
+This package is a release candidate for Marketplace / Classificados. It consolidates the current feature set and the online migration repair without adding new database changes beyond the existing 1.4.12 migration chain.
+
+### Highlights
+
+- More ads from the same seller.
+- Expired ad renewal/republication flow.
+- Featured ads and boosted ads.
+- Configurable promotion packages.
+- PayPal flow for paid promotion packages.
+- Direct PayPal purchase flow paid to the seller, not to the forum administrator.
+- Seller-side sale confirmation in UCP.
+- Follow seller feature with notifications.
+- Public, posting and UCP visual refresh.
+- Migration chain reviewed for cleaner installation and online repair scenarios.
+
+### Recommended test checklist
+
+- Clean installation.
+- Incremental update from the previous package.
+- Extension disable/enable cycle.
+- Data purge test on a non-production copy.
+- Public listing, ad view and ad posting form.
+- UCP ad management and seller confirmation.
+- ACP category, settings, packages and pending requests.
+- PayPal sandbox for promotion payments and seller direct payments.
+
