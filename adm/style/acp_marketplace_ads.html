@@ -182,6 +182,42 @@
 
 <p>{{ lang('MARKETPLACE_ACP_ADS_EXPLAIN') }}</p>
 
+
+{% if S_HAS_PROMOTION_SUBSCRIBERS %}
+<div class="mp-promotion-box">
+	<h2>{{ lang('MARKETPLACE_PROMOTION_SUBSCRIBERS') }}</h2>
+	<p>{{ lang('MARKETPLACE_PROMOTION_SUBSCRIBERS_EXPLAIN') }}</p>
+	<table class="table1 zebra-table">
+		<thead>
+			<tr>
+				<th>{{ lang('MARKETPLACE_POSTED_BY') }}</th>
+				<th>{{ lang('MARKETPLACE_AD') }}</th>
+				<th>{{ lang('MARKETPLACE_PROMOTION_TYPE') }}</th>
+				<th>{{ lang('MARKETPLACE_PROMOTION_STATUS') }}</th>
+				<th>{{ lang('MARKETPLACE_PACKAGE') }}</th>
+				<th>{{ lang('MARKETPLACE_PACKAGE_PRICE') }}</th>
+				<th>{{ lang('MARKETPLACE_PAYMENT') }}</th>
+				<th>{{ lang('MARKETPLACE_VALID_UNTIL') }}</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for promotion in PROMOTION_SUBSCRIBERS %}
+				<tr>
+					<td>{{ promotion.username|default('-') }}</td>
+					<td>{% if promotion.U_VIEW %}<a href="{{ promotion.U_VIEW }}" target="_blank" rel="noopener">{{ promotion.ad_title }}</a>{% else %}{{ promotion.ad_title|default('-') }}{% endif %}<br><small>{{ lang('MARKETPLACE_CREATED') }}{{ lang('COLON') }} {{ promotion.PROMOTION_REQUESTED_DISPLAY }}</small></td>
+					<td><span class="mp-badge">{{ promotion.PROMOTION_TYPE_LANG }}</span></td>
+					<td>{{ promotion.PROMOTION_STATUS_LANG }}{% if promotion.S_PROMOTION_ACTIVE %}<br><small><strong>{{ lang('MARKETPLACE_ACTIVE') }}</strong></small>{% endif %}</td>
+					<td>{{ promotion.PROMOTION_PACKAGE_TITLE }}</td>
+					<td>{{ promotion.PROMOTION_PRICE_DISPLAY }}</td>
+					<td>{{ promotion.PAYMENT_PROVIDER_LANG }}<br><small>{{ promotion.PAYMENT_REFERENCE_DISPLAY }}</small>{% if promotion.PAYMENT_LAST_STATUS_DISPLAY %}<br><small><strong>{{ lang('MARKETPLACE_LAST_IPN') }}:</strong> {{ promotion.PAYMENT_LAST_STATUS_DISPLAY }}</small>{% endif %}</td>
+					<td>{{ promotion.PROMOTION_UNTIL_DISPLAY }}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endif %}
+
 {% if S_HAS_PENDING_PROMOTIONS %}
 <div class="mp-promotion-box">
 	<h2>{{ lang('MARKETPLACE_PENDING_PROMOTIONS') }}</h2>
@@ -211,7 +247,7 @@
 					<td>{{ promotion.promotion_days }}</td>
 					<td>{{ promotion.PROMOTION_PACKAGE_TITLE }}</td>
 					<td>{{ promotion.PROMOTION_PRICE_DISPLAY }}</td>
-					<td>{{ promotion.PAYMENT_PROVIDER_LANG }}<br><small>{{ promotion.PAYMENT_REFERENCE_DISPLAY }}</small></td>
+					<td>{{ promotion.PAYMENT_PROVIDER_LANG }}<br><small>{{ promotion.PAYMENT_REFERENCE_DISPLAY }}</small>{% if promotion.PAYMENT_LAST_STATUS_DISPLAY %}<br><small><strong>{{ lang('MARKETPLACE_LAST_IPN') }}:</strong> {{ promotion.PAYMENT_LAST_STATUS_DISPLAY }}</small>{% endif %}</td>
 					<td>{{ promotion.PROMOTION_REQUESTED_DISPLAY }}</td>
 					<td>
 						<form method="post" action="{{ U_ACTION }}" class="mp-action-form">
@@ -227,6 +263,41 @@
 							{{ S_FORM_TOKEN }}
 						</form>
 					</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endif %}
+
+{% if S_HAS_PAYMENT_LOGS %}
+<div class="mp-promotion-box">
+	<h2>{{ lang('MARKETPLACE_PAYMENT_LOGS') }}</h2>
+	<p>{{ lang('MARKETPLACE_PAYMENT_LOGS_EXPLAIN') }}</p>
+	<table class="table1 zebra-table">
+		<thead>
+			<tr>
+				<th>{{ lang('MARKETPLACE_CREATED') }}</th>
+				<th>{{ lang('MARKETPLACE_AD') }}</th>
+				<th>{{ lang('MARKETPLACE_POSTED_BY') }}</th>
+				<th>{{ lang('MARKETPLACE_PROMOTION_TYPE') }}</th>
+				<th>{{ lang('MARKETPLACE_PAYMENT') }}</th>
+				<th>{{ lang('MARKETPLACE_PACKAGE_PRICE') }}</th>
+				<th>{{ lang('MARKETPLACE_PAYMENT_VERIFICATION') }}</th>
+				<th>{{ lang('MARKETPLACE_PAYMENT_RESULT') }}</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for payment in PAYMENT_LOGS %}
+				<tr>
+					<td>{{ payment.PAYMENT_CREATED_DISPLAY }}</td>
+					<td>{{ payment.ad_title|default('-') }}<br><small>{{ payment.PROMOTION_STATUS_LANG }}</small></td>
+					<td>{{ payment.username|default('-') }}</td>
+					<td>{{ payment.PROMOTION_TYPE_LANG }}</td>
+					<td>{{ payment.PAYMENT_PROVIDER_LANG }}<br><small>{{ payment.PAYMENT_REFERENCE_DISPLAY }}</small><br><small>TXN: {{ payment.PAYMENT_TRANSACTION_DISPLAY }}</small></td>
+					<td>{{ payment.PAYMENT_AMOUNT_DISPLAY }}<br><small>{{ payment.PAYMENT_RECEIVER_DISPLAY }}</small></td>
+					<td>{{ payment.PAYMENT_VERIFICATION_STATUS_LANG }}<br><small>{{ payment.payment_status }}</small></td>
+					<td><strong>{{ payment.PAYMENT_VALIDATION_STATUS_LANG }}</strong></td>
 				</tr>
 			{% endfor %}
 		</tbody>

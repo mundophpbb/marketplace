@@ -195,7 +195,7 @@ $lang = array_merge($lang, [
 	'MARKETPLACE_ALLOW_PROMOTION_REQUESTS' => 'Allow promotion requests',
 	'MARKETPLACE_ALLOW_PROMOTION_REQUESTS_EXPLAIN' => 'Allows ad owners to request featured or boosted placement from the frontend. Administrators approve requests manually in the ACP.',
 	'MARKETPLACE_PENDING_PROMOTIONS' => 'Pending promotion requests',
-	'MARKETPLACE_PENDING_PROMOTIONS_EXPLAIN' => 'Requests created by users to feature or boost ads. This step is manual and does not use a payment gateway yet.',
+	'MARKETPLACE_PENDING_PROMOTIONS_EXPLAIN' => 'Requests created by users to feature or boost ads. Paid PayPal packages can be approved automatically by IPN; manual/free packages still require administrator approval.',
 	'MARKETPLACE_PROMOTION_APPROVED' => 'Promotion approved successfully.',
 	'MARKETPLACE_PROMOTION_REJECTED' => 'Promotion rejected successfully.',
 	'MARKETPLACE_PROMOTION_NOT_FOUND' => 'Promotion request not found.',
@@ -230,7 +230,7 @@ $lang = array_merge($lang, [
 	// Package v148 - PayPal payment handoff
 	'MARKETPLACE_PAYMENTS' => 'Payments',
 	'MARKETPLACE_PAYPAL_ENABLED' => 'Enable PayPal for paid packages',
-	'MARKETPLACE_PAYPAL_ENABLED_EXPLAIN' => 'When enabled, packages with an amount greater than zero create an awaiting-payment request and send the user to PayPal. Approval remains manual in the ACP.',
+	'MARKETPLACE_PAYPAL_ENABLED_EXPLAIN' => 'When enabled, packages with an amount greater than zero create an awaiting-payment request, send the user to PayPal, and can be approved automatically by IPN when the payment is confirmed.',
 	'MARKETPLACE_PAYPAL_SANDBOX' => 'Use PayPal Sandbox',
 	'MARKETPLACE_PAYPAL_SANDBOX_EXPLAIN' => 'Use Yes for testing. Use No only in production.',
 	'MARKETPLACE_PAYPAL_SANDBOX_BUSINESS' => 'PayPal Sandbox Business email',
@@ -238,6 +238,8 @@ $lang = array_merge($lang, [
 	'MARKETPLACE_PAYPAL_BUSINESS' => 'Live PayPal Business email',
 	'MARKETPLACE_PAYPAL_BUSINESS_EXPLAIN' => 'Real PayPal account that will receive payments when Sandbox is set to No.',
 	'MARKETPLACE_PAYPAL_CURRENCY' => 'PayPal currency',
+	'MARKETPLACE_PAYPAL_IPN_URL' => 'PayPal IPN URL',
+	'MARKETPLACE_PAYPAL_IPN_URL_EXPLAIN' => 'Enter this URL in your PayPal IPN settings. The extension also sends this URL automatically in the payment button.',
 	'MARKETPLACE_PAYPAL_CURRENCY_EXPLAIN' => 'Select the currency used when sending the payment to PayPal. It is recommended to use the same currency in paid packages and direct-purchase ads.',
 	'MARKETPLACE_PROMOTION_STATUS' => 'Status',
 	'MARKETPLACE_PAYMENT' => 'Payment',
@@ -265,6 +267,30 @@ $lang = array_merge($lang, [
 
 	'MARKETPLACE_PURCHASE_SELLER_CONFIRMATION_ONLY' => 'The seller confirms this sale in the UCP.',
 
+
+	'MARKETPLACE_PROMOTION_SUBSCRIBERS' => 'Users with promotion requests',
+	'MARKETPLACE_PROMOTION_SUBSCRIBERS_EXPLAIN' => 'Quick list of users who requested, are awaiting payment, or already had featured/boosted promotion approved. Use this area to track promotion buyers without relying only on the IPN history.',
+	'MARKETPLACE_VALID_UNTIL' => 'Valid until',
+	'MARKETPLACE_ACTIVE' => 'Active',
+
+	// Package v1413 - PayPal IPN audit log
+	'MARKETPLACE_LAST_IPN' => 'Last IPN',
+	'MARKETPLACE_PAYMENT_LOGS' => 'PayPal / IPN payment history',
+	'MARKETPLACE_PAYMENT_LOGS_EXPLAIN' => 'Shows the latest PayPal notifications received for paid featured and boosted packages. Use this area to audit automatic approvals and validation failures.',
+	'MARKETPLACE_PAYMENT_VERIFICATION' => 'PayPal verification',
+	'MARKETPLACE_PAYMENT_RESULT' => 'Result',
+	'MARKETPLACE_PAYMENT_VERIFIED' => 'Verified by PayPal',
+	'MARKETPLACE_PAYMENT_INVALID' => 'Invalid / not verified',
+	'MARKETPLACE_PAYMENT_APPROVED_AUTOMATICALLY' => 'Payment confirmed and promotion approved automatically',
+	'MARKETPLACE_PAYMENT_MISMATCH' => 'Payment received, but data did not match',
+	'MARKETPLACE_PAYMENT_PROMOTION_NOT_FOUND' => 'Promotion not found for the reference',
+	'MARKETPLACE_PAYMENT_ALREADY_APPROVED' => 'Promotion was already approved',
+	'MARKETPLACE_PAYMENT_AD_NOT_ACTIVE' => 'Payment received, but ad is not active',
+	'MARKETPLACE_PAYMENT_IGNORED_STATUS' => 'IPN ignored: payment status is not Completed',
+	'MARKETPLACE_PAYMENT_PAYPAL_NOT_VERIFIED' => 'PayPal did not verify the IPN',
+	'MARKETPLACE_PAYMENT_MISSING_REFERENCE' => 'Payment reference missing',
+	'MARKETPLACE_PAYMENT_NOT_AWAITING' => 'Promotion was not awaiting payment',
+	'MARKETPLACE_PAYMENT_EMPTY' => 'Empty IPN',
 
 	// Package v1412 - seller follows
 	'MARKETPLACE_ALLOW_FOLLOWS' => 'Allow following sellers',

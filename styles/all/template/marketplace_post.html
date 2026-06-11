@@ -2,13 +2,15 @@
 
 <div class="mp-shell mp-post-shell">
 	<div class="mp-post-hero panel">
-		<div class="inner">
-			<div>
+		<div class="inner mp-post-hero-layout">
+			<div class="mp-post-hero-copy">
 				<p class="mp-eyebrow">{{ lang('MARKETPLACE') }}</p>
 				<h2>{{ S_EDIT_MODE ? lang('MARKETPLACE_EDIT_AD') : lang('MARKETPLACE_POST_AD') }}</h2>
 				<p class="mp-lead">{{ lang('MARKETPLACE_POST_INTRO') }}</p>
 			</div>
-			<a href="{{ U_BACK }}" class="button mp-post-back">{{ lang('MARKETPLACE_BACK') }}</a>
+			<div class="mp-post-hero-actions">
+				<a href="{{ U_BACK }}" class="button mp-post-back">{{ lang('MARKETPLACE_BACK') }}</a>
+			</div>
 		</div>
 	</div>
 
@@ -29,7 +31,7 @@
 		<div>
 			<h3>{{ S_AD_SAVED ? lang('MARKETPLACE_POST_SAVED_TITLE') : lang('MARKETPLACE_IMAGES_UPDATED_TITLE') }}</h3>
 			<p>{{ S_AD_SAVED ? lang('MARKETPLACE_POST_SAVED_EXPLAIN') : lang('MARKETPLACE_IMAGES_UPDATED_EXPLAIN') }}</p>
-			{% if U_VIEW_AD %}<p><a href="{{ U_VIEW_AD }}" class="button">{{ lang('MARKETPLACE_POST_PREVIEW') }}</a></p>{% endif %}
+			{% if U_VIEW_AD %}<p><a href="{{ U_VIEW_AD }}" class="button">{{ lang('MARKETPLACE_VIEW_AD') }}</a></p>{% endif %}
 		</div>
 	</div>
 	{% endif %}

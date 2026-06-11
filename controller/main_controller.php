@@ -79,6 +79,9 @@ class main_controller
 	protected $table_follows;
 
 	/** @var string */
+	protected $table_payment_logs;
+
+	/** @var string */
 	protected $upload_path;
 
 	/** @var array */
@@ -108,7 +111,8 @@ class main_controller
 		$table_promotions,
 		$table_promotion_packages,
 		$table_purchases,
-		$table_follows
+		$table_follows,
+		$table_payment_logs
 	)
 	{
 		$this->config     = $config;
@@ -132,6 +136,7 @@ class main_controller
 		$this->table_promotion_packages = $table_promotion_packages;
 		$this->table_purchases = $table_purchases;
 		$this->table_follows = $table_follows;
+		$this->table_payment_logs = $table_payment_logs;
 
 		$this->upload_path = $this->root_path . 'files/marketplace/';
 	}
@@ -346,6 +351,41 @@ class main_controller
 	/**
 	 * Serve an uploaded marketplace image through phpBB routing.
 	 */
+
+	/**
+	 * PayPal IPN endpoint.
+	 *
+	 * PayPal posts Instant Payment Notification data to this route. The payload is
+	 * verified with PayPal before any local promotion is approved.
+	 */
+	public function paypal_ipn()
+	{
+		if (empty($this->config['marketplace_paypal_enabled']))
+		{
+			return new \Symfony\Component\HttpFoundation\Response('DISABLED', 200, ['Content-Type' => 'text/plain']);
+		}
+
+		$raw_post = file_get_contents('php://input');
+		if ($raw_post === false || trim($raw_post) === '')
+		{
+			$this->log_payment_ipn([], 'invalid', 'EMPTY', 0, 'paypal');
+			return new \Symfony\Component\HttpFoundation\Response('EMPTY', 400, ['Content-Type' => 'text/plain']);
+		}
+
+		$ipn_data = [];
+		parse_str($raw_post, $ipn_data);
+
+		if (!$this->verify_paypal_ipn($raw_post))
+		{
+			$this->log_payment_ipn($ipn_data, 'invalid', 'PAYPAL_NOT_VERIFIED', 0, 'paypal');
+			return new \Symfony\Component\HttpFoundation\Response('INVALID', 200, ['Content-Type' => 'text/plain']);
+		}
+
+		$result = $this->process_paypal_ipn($ipn_data);
+
+		return new \Symfony\Component\HttpFoundation\Response($result, 200, ['Content-Type' => 'text/plain']);
+	}
+
 	public function image($image_id)
 	{
 		if (!$this->can_view_marketplace())
@@ -2376,11 +2416,196 @@ class main_controller
 			'custom' => (string) $promotion['payment_reference'],
 			'return' => $return_url,
 			'cancel_return' => $return_url,
+			'notify_url' => $this->helper->route('mundophpbb_marketplace_paypal_ipn', [], true),
 			'no_shipping' => '1',
 			'no_note' => '1',
 		];
 
 		return $base . '?' . http_build_query($params, '', '&');
+	}
+
+
+	private function verify_paypal_ipn($raw_post)
+	{
+		$endpoint = !empty($this->config['marketplace_paypal_sandbox']) ? 'https://ipnpb.sandbox.paypal.com/cgi-bin/webscr' : 'https://ipnpb.paypal.com/cgi-bin/webscr';
+		$payload = 'cmd=_notify-validate&' . $raw_post;
+
+		$context = stream_context_create([
+			'http' => [
+				'method' => 'POST',
+				'header' => "Content-Type: application/x-www-form-urlencoded\r\n" .
+					"Content-Length: " . strlen($payload) . "\r\n" .
+					"Connection: close\r\n",
+				'content' => $payload,
+				'timeout' => 30,
+			],
+		]);
+
+		$response = @file_get_contents($endpoint, false, $context);
+
+		return trim((string) $response) === 'VERIFIED';
+	}
+
+	private function process_paypal_ipn(array $ipn_data)
+	{
+		$payment_status = isset($ipn_data['payment_status']) ? strtolower(trim((string) $ipn_data['payment_status'])) : '';
+		if ($payment_status !== 'completed')
+		{
+			$this->log_payment_ipn($ipn_data, 'verified', 'IGNORED_STATUS', 0, 'paypal');
+			return 'IGNORED_STATUS';
+		}
+
+		$reference = isset($ipn_data['custom']) ? trim((string) $ipn_data['custom']) : '';
+		if ($reference === '')
+		{
+			$this->log_payment_ipn($ipn_data, 'verified', 'MISSING_REFERENCE', 0, 'paypal');
+			return 'MISSING_REFERENCE';
+		}
+
+		$sql = 'SELECT p.*, a.ad_title, a.ad_status
+			FROM ' . $this->table_promotions . ' p
+			LEFT JOIN ' . $this->table_ads . " a ON a.ad_id = p.ad_id
+			WHERE p.payment_reference = '" . $this->db->sql_escape($reference) . "'
+				AND p.payment_provider = 'paypal'";
+		$result = $this->db->sql_query_limit($sql, 1);
+		$promotion = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+
+		if (!$promotion)
+		{
+			$this->log_payment_ipn($ipn_data, 'verified', 'PROMOTION_NOT_FOUND', 0, 'paypal');
+			return 'PROMOTION_NOT_FOUND';
+		}
+
+		if ((int) $promotion['promotion_status'] === 1)
+		{
+			$this->log_payment_ipn($ipn_data, 'verified', 'ALREADY_APPROVED', (int) $promotion['promotion_id'], 'paypal');
+			return 'ALREADY_APPROVED';
+		}
+
+		if ((int) $promotion['promotion_status'] !== 3)
+		{
+			$this->log_payment_ipn($ipn_data, 'verified', 'PROMOTION_NOT_AWAITING_PAYMENT', (int) $promotion['promotion_id'], 'paypal');
+			return 'PROMOTION_NOT_AWAITING_PAYMENT';
+		}
+
+		if (!$this->validate_paypal_promotion_payment($promotion, $ipn_data))
+		{
+			$this->log_payment_ipn($ipn_data, 'verified', 'PAYMENT_MISMATCH', (int) $promotion['promotion_id'], 'paypal');
+			return 'PAYMENT_MISMATCH';
+		}
+
+		if ((int) $promotion['ad_status'] !== 1)
+		{
+			$this->log_payment_ipn($ipn_data, 'verified', 'AD_NOT_ACTIVE', (int) $promotion['promotion_id'], 'paypal');
+			return 'AD_NOT_ACTIVE';
+		}
+
+		$this->approve_paid_promotion($promotion, isset($ipn_data['txn_id']) ? (string) $ipn_data['txn_id'] : '');
+		$this->log_payment_ipn($ipn_data, 'verified', 'OK', (int) $promotion['promotion_id'], 'paypal');
+
+		return 'OK';
+	}
+
+	private function log_payment_ipn(array $ipn_data, $verification_status, $validation_status, $promotion_id = 0, $provider = 'paypal')
+	{
+		$reference = isset($ipn_data['custom']) ? substr(trim((string) $ipn_data['custom']), 0, 255) : '';
+		$transaction_id = isset($ipn_data['txn_id']) ? substr(preg_replace('/[^A-Z0-9._-]/i', '', (string) $ipn_data['txn_id']), 0, 255) : '';
+		$payment_status = isset($ipn_data['payment_status']) ? substr(trim((string) $ipn_data['payment_status']), 0, 50) : '';
+		$currency = isset($ipn_data['mc_currency']) ? strtoupper(substr(preg_replace('/[^A-Z]/', '', (string) $ipn_data['mc_currency']), 0, 10)) : '';
+		$gross = isset($ipn_data['mc_gross']) ? (float) str_replace(',', '.', (string) $ipn_data['mc_gross']) : 0.0;
+		$receiver = isset($ipn_data['receiver_email']) ? $this->sanitize_paypal_email($ipn_data['receiver_email']) : '';
+		if ($receiver === '' && isset($ipn_data['business']))
+		{
+			$receiver = $this->sanitize_paypal_email($ipn_data['business']);
+		}
+
+		$sql_ary = [
+			'promotion_id' => (int) $promotion_id,
+			'payment_provider' => substr((string) $provider, 0, 50),
+			'payment_reference' => $reference,
+			'payment_transaction_id' => $transaction_id,
+			'payment_status' => $payment_status,
+			'payment_verification_status' => substr((string) $verification_status, 0, 50),
+			'payment_validation_status' => substr((string) $validation_status, 0, 100),
+			'payment_amount_cents' => (int) round($gross * 100),
+			'payment_currency' => $currency,
+			'payment_receiver' => $receiver,
+			'payment_raw' => json_encode($ipn_data),
+			'payment_created' => time(),
+		];
+
+		$this->db->sql_query('INSERT INTO ' . $this->table_payment_logs . ' ' . $this->db->sql_build_array('INSERT', $sql_ary));
+	}
+
+	private function validate_paypal_promotion_payment(array $promotion, array $ipn_data)
+	{
+		$receiver_email = isset($ipn_data['receiver_email']) ? $this->sanitize_paypal_email($ipn_data['receiver_email']) : '';
+		$business = isset($ipn_data['business']) ? $this->sanitize_paypal_email($ipn_data['business']) : '';
+		$expected_business = $this->sanitize_paypal_email($this->get_paypal_business_account());
+
+		if ($expected_business === '' || ($receiver_email !== $expected_business && $business !== $expected_business))
+		{
+			return false;
+		}
+
+		$gross = isset($ipn_data['mc_gross']) ? (float) str_replace(',', '.', (string) $ipn_data['mc_gross']) : 0.0;
+		$expected_gross = ((int) $promotion['promotion_amount_cents']) / 100;
+		if (abs($gross - $expected_gross) > 0.009)
+		{
+			return false;
+		}
+
+		$currency = isset($ipn_data['mc_currency']) ? strtoupper(preg_replace('/[^A-Z]/', '', (string) $ipn_data['mc_currency'])) : '';
+		$expected_currency = !empty($promotion['promotion_currency']) ? strtoupper(preg_replace('/[^A-Z]/', '', (string) $promotion['promotion_currency'])) : (isset($this->config['marketplace_paypal_currency']) ? strtoupper(preg_replace('/[^A-Z]/', '', (string) $this->config['marketplace_paypal_currency'])) : 'BRL');
+
+		return $currency !== '' && $currency === $expected_currency;
+	}
+
+	private function approve_paid_promotion(array $promotion, $transaction_id = '')
+	{
+		$now = time();
+		$days = max(1, (int) $promotion['promotion_days']);
+
+		if ($promotion['promotion_type'] === 'featured')
+		{
+			$sql_ary = [
+				'ad_featured_until' => $now + ($days * 86400),
+				'ad_featured_by' => 0,
+				'ad_updated' => $now,
+			];
+		}
+		else if ($promotion['promotion_type'] === 'boosted')
+		{
+			$sql_ary = [
+				'ad_boosted_until' => $now + ($days * 86400),
+				'ad_boosted_by' => 0,
+				'ad_updated' => $now,
+			];
+		}
+		else
+		{
+			return;
+		}
+
+		$sql_ary = $this->filter_existing_ad_columns($sql_ary);
+		$this->db->sql_query('UPDATE ' . $this->table_ads . ' SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . ' WHERE ad_id = ' . (int) $promotion['ad_id']);
+
+		$promotion_note = (string) $promotion['promotion_note'];
+		if ($transaction_id !== '' && strpos($promotion_note, $transaction_id) === false)
+		{
+			$promotion_note = trim($promotion_note . ' | PayPal TXN: ' . preg_replace('/[^A-Z0-9]/i', '', $transaction_id));
+		}
+
+		$update_ary = [
+			'promotion_status' => 1,
+			'promotion_decided' => $now,
+			'promotion_decided_by' => 0,
+			'promotion_note' => $promotion_note,
+		];
+		$this->db->sql_query('UPDATE ' . $this->table_promotions . ' SET ' . $this->db->sql_build_array('UPDATE', $update_ary) . ' WHERE promotion_id = ' . (int) $promotion['promotion_id']);
+
+		$this->add_notification((int) $promotion['user_id'], (int) $promotion['ad_id'], 'promotion_approved', $this->language->lang('MARKETPLACE_NOTIFICATION_PROMOTION_APPROVED_TITLE'), $this->language->lang('MARKETPLACE_NOTIFICATION_PROMOTION_APPROVED_MESSAGE', $promotion['ad_title'], $this->get_promotion_type_lang($promotion['promotion_type'])));
 	}
 
 

@@ -320,6 +320,7 @@ $lang = array_merge($lang, [
 	'MARKETPLACE_SELECTED_IMAGES' => 'Selected images',
 	'MARKETPLACE_SELECTED_IMAGES_EXPLAIN' => 'These images have not been uploaded yet. Click publish/update once to save the ad and photos.',
 	'MARKETPLACE_POST_SAVED_TITLE' => 'Ad saved with images',
+	'MARKETPLACE_POST_PREVIEW' => 'Preview ad',
 	'MARKETPLACE_POST_SAVED_EXPLAIN' => 'Your ad has been saved and the images have already been processed. You do not need to publish again.',
 	'MARKETPLACE_IMAGES_UPDATED_TITLE' => 'Images updated',
 	'MARKETPLACE_IMAGE_ORDER_EXPLAIN' => 'Drag photos or use the arrows to reorder them. The first photo is used as the cover when no main image is selected.',

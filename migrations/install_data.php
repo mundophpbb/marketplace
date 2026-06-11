@@ -44,7 +44,7 @@ class install_data extends \phpbb\db\migration\migration
 			['config.add', ['marketplace_featured_days', 14]],
 			['config.add', ['marketplace_allow_boosted', 1]],
 			['config.add', ['marketplace_boosted_days', 7]],
-			['config.add', ['marketplace_version', '1.4.12']],
+			['config.add', ['marketplace_version', '1.4.13']],
 			['config.add', ['marketplace_allow_follows', 1]],
 			['config.add', ['marketplace_paypal_enabled', 0]],
 			['config.add', ['marketplace_direct_purchase_enabled', 0]],

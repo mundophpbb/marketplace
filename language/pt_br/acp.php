@@ -195,7 +195,7 @@ $lang = array_merge($lang, [
 	'MARKETPLACE_ALLOW_PROMOTION_REQUESTS' => 'Permitir solicitações de promoção',
 	'MARKETPLACE_ALLOW_PROMOTION_REQUESTS_EXPLAIN' => 'Permite que o autor solicite destaque ou impulsionamento pelo frontend. O administrador aprova manualmente no ACP.',
 	'MARKETPLACE_PENDING_PROMOTIONS' => 'Solicitações de promoção pendentes',
-	'MARKETPLACE_PENDING_PROMOTIONS_EXPLAIN' => 'Solicitações criadas pelos usuários para destacar ou impulsionar anúncios. Nesta etapa o processo é manual, sem gateway de pagamento.',
+	'MARKETPLACE_PENDING_PROMOTIONS_EXPLAIN' => 'Solicitações criadas pelos usuários para destacar ou impulsionar anúncios. Pacotes pagos via PayPal podem ser aprovados automaticamente por IPN; pacotes manuais/gratuitos continuam dependendo do administrador.',
 	'MARKETPLACE_PROMOTION_APPROVED' => 'Promoção aprovada com sucesso.',
 	'MARKETPLACE_PROMOTION_REJECTED' => 'Promoção recusada com sucesso.',
 	'MARKETPLACE_PROMOTION_NOT_FOUND' => 'Solicitação de promoção não encontrada.',
@@ -230,7 +230,7 @@ $lang = array_merge($lang, [
 	// Package v148 - PayPal payment handoff
 	'MARKETPLACE_PAYMENTS' => 'Pagamentos',
 	'MARKETPLACE_PAYPAL_ENABLED' => 'Ativar PayPal para pacotes pagos',
-	'MARKETPLACE_PAYPAL_ENABLED_EXPLAIN' => 'Quando ativado, pacotes com valor maior que zero geram uma solicitação aguardando pagamento e enviam o usuário para o PayPal. A aprovação continua manual no ACP.',
+	'MARKETPLACE_PAYPAL_ENABLED_EXPLAIN' => 'Quando ativado, pacotes com valor maior que zero criam uma solicitação aguardando pagamento, enviam o usuário ao PayPal e podem ser aprovados automaticamente por IPN quando o pagamento for confirmado.',
 	'MARKETPLACE_PAYPAL_SANDBOX' => 'Usar PayPal Sandbox',
 	'MARKETPLACE_PAYPAL_SANDBOX_EXPLAIN' => 'Use Sim para testes. Use Não somente em produção.',
 	'MARKETPLACE_PAYPAL_SANDBOX_BUSINESS' => 'E-mail PayPal Sandbox Business',
@@ -238,6 +238,8 @@ $lang = array_merge($lang, [
 	'MARKETPLACE_PAYPAL_BUSINESS' => 'E-mail PayPal Business de produção',
 	'MARKETPLACE_PAYPAL_BUSINESS_EXPLAIN' => 'Conta PayPal real que receberá os pagamentos quando Sandbox estiver definido como Não.',
 	'MARKETPLACE_PAYPAL_CURRENCY' => 'Moeda PayPal',
+	'MARKETPLACE_PAYPAL_IPN_URL' => 'URL de IPN do PayPal',
+	'MARKETPLACE_PAYPAL_IPN_URL_EXPLAIN' => 'Informe esta URL nas configurações de IPN da sua conta PayPal. A extensão também envia esta URL automaticamente no botão de pagamento.',
 	'MARKETPLACE_PAYPAL_CURRENCY_EXPLAIN' => 'Selecione a moeda usada no envio ao PayPal. Recomenda-se usar a mesma moeda nos pacotes pagos e nos anúncios com compra direta.',
 	'MARKETPLACE_PROMOTION_STATUS' => 'Estado',
 	'MARKETPLACE_PAYMENT' => 'Pagamento',
@@ -265,6 +267,30 @@ $lang = array_merge($lang, [
 
 	'MARKETPLACE_PURCHASE_SELLER_CONFIRMATION_ONLY' => 'O vendedor confirma esta venda no UCP.',
 
+
+	'MARKETPLACE_PROMOTION_SUBSCRIBERS' => 'Usuários com promoções contratadas',
+	'MARKETPLACE_PROMOTION_SUBSCRIBERS_EXPLAIN' => 'Lista rápida dos usuários que solicitaram, aguardam pagamento ou já tiveram destaque/impulsionamento aprovado. Use esta área para acompanhar quem contratou promoção sem depender apenas do histórico de IPN.',
+	'MARKETPLACE_VALID_UNTIL' => 'Válido até',
+	'MARKETPLACE_ACTIVE' => 'Ativo',
+
+	// Package v1413 - PayPal IPN audit log
+	'MARKETPLACE_LAST_IPN' => 'Último IPN',
+	'MARKETPLACE_PAYMENT_LOGS' => 'Histórico de pagamentos PayPal / IPN',
+	'MARKETPLACE_PAYMENT_LOGS_EXPLAIN' => 'Mostra as últimas notificações recebidas do PayPal para pacotes pagos de destaque e impulsionamento. Use esta área para auditar aprovações automáticas e falhas de validação.',
+	'MARKETPLACE_PAYMENT_VERIFICATION' => 'Verificação PayPal',
+	'MARKETPLACE_PAYMENT_RESULT' => 'Resultado',
+	'MARKETPLACE_PAYMENT_VERIFIED' => 'Verificado pelo PayPal',
+	'MARKETPLACE_PAYMENT_INVALID' => 'Inválido / não verificado',
+	'MARKETPLACE_PAYMENT_APPROVED_AUTOMATICALLY' => 'Pagamento confirmado e promoção aprovada automaticamente',
+	'MARKETPLACE_PAYMENT_MISMATCH' => 'Pagamento recebido, mas dados não conferem',
+	'MARKETPLACE_PAYMENT_PROMOTION_NOT_FOUND' => 'Promoção não encontrada para a referência',
+	'MARKETPLACE_PAYMENT_ALREADY_APPROVED' => 'Promoção já estava aprovada',
+	'MARKETPLACE_PAYMENT_AD_NOT_ACTIVE' => 'Pagamento recebido, mas anúncio não está ativo',
+	'MARKETPLACE_PAYMENT_IGNORED_STATUS' => 'IPN ignorado: status do pagamento não é Completed',
+	'MARKETPLACE_PAYMENT_PAYPAL_NOT_VERIFIED' => 'PayPal não confirmou a validade do IPN',
+	'MARKETPLACE_PAYMENT_MISSING_REFERENCE' => 'Referência de pagamento ausente',
+	'MARKETPLACE_PAYMENT_NOT_AWAITING' => 'Promoção não estava aguardando pagamento',
+	'MARKETPLACE_PAYMENT_EMPTY' => 'IPN vazio',
 
 	// Package v1412 - seller follows
 	'MARKETPLACE_ALLOW_FOLLOWS' => 'Permitir seguir vendedores',

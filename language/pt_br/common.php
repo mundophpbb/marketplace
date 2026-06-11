@@ -320,6 +320,7 @@ $lang = array_merge($lang, [
 	'MARKETPLACE_SELECTED_IMAGES' => 'Imagens selecionadas',
 	'MARKETPLACE_SELECTED_IMAGES_EXPLAIN' => 'Estas imagens ainda não foram enviadas. Clique em publicar/atualizar uma única vez para salvar o anúncio e as fotos.',
 	'MARKETPLACE_POST_SAVED_TITLE' => 'Anúncio salvo com imagens',
+	'MARKETPLACE_POST_PREVIEW' => 'Visualizar anúncio',
 	'MARKETPLACE_POST_SAVED_EXPLAIN' => 'Seu anúncio foi salvo e as imagens já foram processadas. Você não precisa publicar novamente.',
 	'MARKETPLACE_IMAGES_UPDATED_TITLE' => 'Imagens atualizadas',
 	'MARKETPLACE_IMAGE_ORDER_EXPLAIN' => 'Arraste as fotos ou use as setas para ordenar. A primeira foto é usada como destaque quando nenhuma principal for definida.',

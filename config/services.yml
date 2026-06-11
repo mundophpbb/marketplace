@@ -27,6 +27,7 @@ services:
             - '%tables.marketplace_promotion_packages%'
             - '%tables.marketplace_purchases%'
             - '%tables.marketplace_follows%'
+            - '%tables.marketplace_payment_logs%'
 
     # ACP controller
     mundophpbb.marketplace.controller.acp:
@@ -50,6 +51,7 @@ services:
             - '%tables.marketplace_promotions%'
             - '%tables.marketplace_promotion_packages%'
             - '%tables.marketplace_purchases%'
+            - '%tables.marketplace_payment_logs%'
 
     # UCP controller
     mundophpbb.marketplace.controller.ucp:

@@ -8,3 +8,4 @@ parameters:
     tables.marketplace_promotion_packages: '%core.table_prefix%marketplace_promotion_packages'
     tables.marketplace_purchases: '%core.table_prefix%marketplace_purchases'
     tables.marketplace_follows: '%core.table_prefix%marketplace_follows'
+    tables.marketplace_payment_logs: '%core.table_prefix%marketplace_payment_logs'

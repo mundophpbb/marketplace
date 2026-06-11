@@ -196,6 +196,31 @@ class install_schema extends \phpbb\db\migration\migration
 						'package_order' => ['INDEX', 'package_order'],
 					],
 				],
+				$this->table_prefix . 'marketplace_payment_logs' => [
+					'COLUMNS' => [
+						'payment_log_id' => ['UINT', null, 'auto_increment'],
+						'promotion_id' => ['UINT', 0],
+						'payment_provider' => ['VCHAR:50', 'paypal'],
+						'payment_reference' => ['VCHAR:255', ''],
+						'payment_transaction_id' => ['VCHAR:255', ''],
+						'payment_status' => ['VCHAR:50', ''],
+						'payment_verification_status' => ['VCHAR:50', ''],
+						'payment_validation_status' => ['VCHAR:100', ''],
+						'payment_amount_cents' => ['BINT', 0],
+						'payment_currency' => ['VCHAR:10', ''],
+						'payment_receiver' => ['VCHAR:255', ''],
+						'payment_raw' => ['MTEXT_UNI', ''],
+						'payment_created' => ['TIMESTAMP', 0],
+					],
+					'PRIMARY_KEY' => 'payment_log_id',
+					'KEYS' => [
+						'promotion_id' => ['INDEX', 'promotion_id'],
+						'payment_reference' => ['INDEX', 'payment_reference'],
+						'payment_transaction_id' => ['INDEX', 'payment_transaction_id'],
+						'payment_created' => ['INDEX', 'payment_created'],
+					],
+				],
+
 				$this->table_prefix . 'marketplace_purchases' => [
 					'COLUMNS' => [
 						'purchase_id'           => ['UINT', null, 'auto_increment'],
@@ -263,6 +288,7 @@ class install_schema extends \phpbb\db\migration\migration
 				$this->table_prefix . 'marketplace_notifications',
 				$this->table_prefix . 'marketplace_promotions',
 				$this->table_prefix . 'marketplace_promotion_packages',
+				$this->table_prefix . 'marketplace_payment_logs',
 				$this->table_prefix . 'marketplace_purchases',
 				$this->table_prefix . 'marketplace_follows',
 			],

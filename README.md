@@ -245,3 +245,15 @@ This package is a release candidate for Marketplace / Classificados. It consolid
 - ACP category, settings, packages and pending requests.
 - PayPal sandbox for promotion payments and seller direct payments.
 
+
+### PayPal IPN for promotion packages
+
+Paid promotion packages now send a `notify_url` to PayPal and expose an IPN endpoint at:
+
+```text
+/marketplace/paypal/ipn
+```
+
+When PayPal posts a verified `Completed` payment notification, the extension checks the payment reference, receiver account, amount and currency. If all values match a promotion with status `awaiting payment`, the promotion is approved automatically and the ad is marked as featured or boosted for the package duration.
+
+For extra reliability, copy the IPN URL shown in ACP > Marketplace > Settings > Payments into the PayPal account IPN settings. Sandbox mode validates against PayPal Sandbox; live mode validates against PayPal production.

@@ -75,6 +75,9 @@ class acp_controller
 	/** @var string */
 	protected $table_purchases;
 
+	/** @var string */
+	protected $table_payment_logs;
+
 
 	/** @var array */
 	protected $column_exists_cache = [];
@@ -100,7 +103,8 @@ class acp_controller
 		$table_notifications,
 		$table_promotions,
 		$table_promotion_packages,
-		$table_purchases
+		$table_purchases,
+		$table_payment_logs
 	)
 	{
 		$this->config     = $config;
@@ -122,6 +126,7 @@ class acp_controller
 		$this->table_promotions = $table_promotions;
 		$this->table_promotion_packages = $table_promotion_packages;
 		$this->table_purchases = $table_purchases;
+		$this->table_payment_logs = $table_payment_logs;
 	}
 
 	/**
@@ -220,6 +225,7 @@ class acp_controller
 			'MARKETPLACE_PAYPAL_SANDBOX_BUSINESS' => isset($this->config['marketplace_paypal_sandbox_business']) ? (string) $this->config['marketplace_paypal_sandbox_business'] : '',
 			'MARKETPLACE_PAYPAL_CURRENCY' => isset($this->config['marketplace_paypal_currency']) ? (string) $this->config['marketplace_paypal_currency'] : 'BRL',
 			'PAYPAL_CURRENCY_OPTIONS' => $this->build_currency_select_options(isset($this->config['marketplace_paypal_currency']) ? (string) $this->config['marketplace_paypal_currency'] : 'BRL'),
+			'MARKETPLACE_PAYPAL_IPN_URL' => $this->helper->route('mundophpbb_marketplace_paypal_ipn', [], true),
 		]);
 	}
 
@@ -729,6 +735,8 @@ class acp_controller
 
 		$pending_promotions = $this->get_pending_promotions();
 		$pending_purchases = $this->get_pending_purchases();
+		$payment_logs = $this->get_payment_logs();
+		$promotion_subscribers = $this->get_promotion_subscribers();
 
 		$this->template->assign_vars([
 			'U_ACTION'     => $this->u_action,
@@ -739,6 +747,10 @@ class acp_controller
 			'S_HAS_PENDING_PROMOTIONS' => !empty($pending_promotions),
 			'PENDING_PURCHASES' => $pending_purchases,
 			'S_HAS_PENDING_PURCHASES' => !empty($pending_purchases),
+			'PAYMENT_LOGS' => $payment_logs,
+			'S_HAS_PAYMENT_LOGS' => !empty($payment_logs),
+			'PROMOTION_SUBSCRIBERS' => $promotion_subscribers,
+			'S_HAS_PROMOTION_SUBSCRIBERS' => !empty($promotion_subscribers),
 			'FEATURED_DAYS_DEFAULT' => isset($this->config['marketplace_featured_days']) ? (int) $this->config['marketplace_featured_days'] : 14,
 			'BOOSTED_DAYS_DEFAULT' => isset($this->config['marketplace_boosted_days']) ? (int) $this->config['marketplace_boosted_days'] : 7,
 		]);
@@ -765,6 +777,7 @@ class acp_controller
 			$row['PROMOTION_PACKAGE_TITLE'] = !empty($row['promotion_note']) ? $row['promotion_note'] : '';
 			$row['PAYMENT_PROVIDER_LANG'] = !empty($row['payment_provider']) ? strtoupper($row['payment_provider']) : '-';
 			$row['PAYMENT_REFERENCE_DISPLAY'] = !empty($row['payment_reference']) ? $row['payment_reference'] : '-';
+			$row['PAYMENT_LAST_STATUS_DISPLAY'] = $this->get_latest_payment_log_status((int) $row['promotion_id']);
 			$row['U_VIEW'] = !empty($row['ad_id']) ? $this->helper->route('mundophpbb_marketplace_view', ['ad_id' => (int) $row['ad_id']]) : '';
 			$promotions[] = $row;
 		}
@@ -773,6 +786,143 @@ class acp_controller
 		return $promotions;
 	}
 
+
+	private function get_promotion_subscribers()
+	{
+		$sql = 'SELECT p.*, a.ad_title, a.ad_status, a.ad_featured_until, a.ad_boosted_until, u.username, u.user_colour
+			FROM ' . $this->table_promotions . ' p
+			LEFT JOIN ' . $this->table_ads . ' a ON a.ad_id = p.ad_id
+			LEFT JOIN ' . USERS_TABLE . ' u ON u.user_id = p.user_id
+			WHERE p.promotion_status IN (0, 1, 3)
+			ORDER BY p.promotion_requested DESC, p.promotion_id DESC';
+		$result = $this->db->sql_query_limit($sql, 50);
+
+		$subscribers = [];
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$row['PROMOTION_TYPE_LANG'] = $this->get_promotion_type_lang($row['promotion_type']);
+			$row['PROMOTION_STATUS_LANG'] = $this->get_promotion_status_lang((int) $row['promotion_status']);
+			$row['PROMOTION_REQUESTED_DISPLAY'] = !empty($row['promotion_requested']) ? $this->user->format_date((int) $row['promotion_requested']) : '';
+			$row['PROMOTION_PRICE_DISPLAY'] = $this->format_package_price((int) $row['promotion_amount_cents'], $row['promotion_currency']);
+			$row['PROMOTION_PACKAGE_TITLE'] = !empty($row['promotion_note']) ? $row['promotion_note'] : '-';
+			$row['PAYMENT_PROVIDER_LANG'] = !empty($row['payment_provider']) ? strtoupper($row['payment_provider']) : '-';
+			$row['PAYMENT_REFERENCE_DISPLAY'] = !empty($row['payment_reference']) ? $row['payment_reference'] : '-';
+			$row['PAYMENT_LAST_STATUS_DISPLAY'] = $this->get_latest_payment_log_status((int) $row['promotion_id']);
+			$row['U_VIEW'] = !empty($row['ad_id']) ? $this->helper->route('mundophpbb_marketplace_view', ['ad_id' => (int) $row['ad_id']]) : '';
+			$until = ($row['promotion_type'] === 'featured') ? (int) $row['ad_featured_until'] : (int) $row['ad_boosted_until'];
+			$row['PROMOTION_UNTIL_DISPLAY'] = $until > 0 ? $this->user->format_date($until) : '-';
+			$row['S_PROMOTION_ACTIVE'] = ((int) $row['promotion_status'] === 1 && $until >= time());
+			$subscribers[] = $row;
+		}
+		$this->db->sql_freeresult($result);
+
+		return $subscribers;
+	}
+
+
+	private function get_latest_payment_log_status($promotion_id)
+	{
+		$sql = 'SELECT payment_validation_status, payment_transaction_id, payment_created
+			FROM ' . $this->table_payment_logs . '
+			WHERE promotion_id = ' . (int) $promotion_id . '
+			ORDER BY payment_created DESC, payment_log_id DESC';
+		$result = $this->db->sql_query_limit($sql, 1);
+		$row = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+
+		if (!$row)
+		{
+			return '';
+		}
+
+		$parts = [$this->get_payment_validation_status_lang($row['payment_validation_status'])];
+		if (!empty($row['payment_transaction_id']))
+		{
+			$parts[] = 'TXN: ' . $row['payment_transaction_id'];
+		}
+		if (!empty($row['payment_created']))
+		{
+			$parts[] = $this->user->format_date((int) $row['payment_created']);
+		}
+
+		return implode(' | ', $parts);
+	}
+
+	private function get_payment_logs()
+	{
+		$sql = 'SELECT l.*, p.promotion_type, p.promotion_status, a.ad_title, u.username
+			FROM ' . $this->table_payment_logs . ' l
+			LEFT JOIN ' . $this->table_promotions . ' p ON p.promotion_id = l.promotion_id
+			LEFT JOIN ' . $this->table_ads . ' a ON a.ad_id = p.ad_id
+			LEFT JOIN ' . USERS_TABLE . ' u ON u.user_id = p.user_id
+			ORDER BY l.payment_created DESC, l.payment_log_id DESC';
+		$result = $this->db->sql_query_limit($sql, 25);
+
+		$logs = [];
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$row['PAYMENT_CREATED_DISPLAY'] = !empty($row['payment_created']) ? $this->user->format_date((int) $row['payment_created']) : '';
+			$row['PAYMENT_PROVIDER_LANG'] = !empty($row['payment_provider']) ? strtoupper($row['payment_provider']) : '-';
+			$row['PAYMENT_AMOUNT_DISPLAY'] = $this->format_package_price((int) $row['payment_amount_cents'], $row['payment_currency']);
+			$row['PAYMENT_VERIFICATION_STATUS_LANG'] = $this->get_payment_verification_status_lang($row['payment_verification_status']);
+			$row['PAYMENT_VALIDATION_STATUS_LANG'] = $this->get_payment_validation_status_lang($row['payment_validation_status']);
+			$row['PROMOTION_TYPE_LANG'] = !empty($row['promotion_type']) ? $this->get_promotion_type_lang($row['promotion_type']) : '-';
+			$row['PROMOTION_STATUS_LANG'] = isset($row['promotion_status']) ? $this->get_promotion_status_lang((int) $row['promotion_status']) : '-';
+			$row['PAYMENT_REFERENCE_DISPLAY'] = !empty($row['payment_reference']) ? $row['payment_reference'] : '-';
+			$row['PAYMENT_TRANSACTION_DISPLAY'] = !empty($row['payment_transaction_id']) ? $row['payment_transaction_id'] : '-';
+			$row['PAYMENT_RECEIVER_DISPLAY'] = !empty($row['payment_receiver']) ? $row['payment_receiver'] : '-';
+			$logs[] = $row;
+		}
+		$this->db->sql_freeresult($result);
+
+		return $logs;
+	}
+
+	private function get_payment_verification_status_lang($status)
+	{
+		$status = strtolower(trim((string) $status));
+
+		switch ($status)
+		{
+			case 'verified':
+				return $this->language->lang('MARKETPLACE_PAYMENT_VERIFIED');
+			case 'invalid':
+				return $this->language->lang('MARKETPLACE_PAYMENT_INVALID');
+			default:
+				return $status !== '' ? strtoupper($status) : '-';
+		}
+	}
+
+	private function get_payment_validation_status_lang($status)
+	{
+		$status = strtoupper(trim((string) $status));
+
+		switch ($status)
+		{
+			case 'OK':
+				return $this->language->lang('MARKETPLACE_PAYMENT_APPROVED_AUTOMATICALLY');
+			case 'PAYMENT_MISMATCH':
+				return $this->language->lang('MARKETPLACE_PAYMENT_MISMATCH');
+			case 'PROMOTION_NOT_FOUND':
+				return $this->language->lang('MARKETPLACE_PAYMENT_PROMOTION_NOT_FOUND');
+			case 'ALREADY_APPROVED':
+				return $this->language->lang('MARKETPLACE_PAYMENT_ALREADY_APPROVED');
+			case 'AD_NOT_ACTIVE':
+				return $this->language->lang('MARKETPLACE_PAYMENT_AD_NOT_ACTIVE');
+			case 'IGNORED_STATUS':
+				return $this->language->lang('MARKETPLACE_PAYMENT_IGNORED_STATUS');
+			case 'PAYPAL_NOT_VERIFIED':
+				return $this->language->lang('MARKETPLACE_PAYMENT_PAYPAL_NOT_VERIFIED');
+			case 'MISSING_REFERENCE':
+				return $this->language->lang('MARKETPLACE_PAYMENT_MISSING_REFERENCE');
+			case 'PROMOTION_NOT_AWAITING_PAYMENT':
+				return $this->language->lang('MARKETPLACE_PAYMENT_NOT_AWAITING');
+			case 'EMPTY':
+				return $this->language->lang('MARKETPLACE_PAYMENT_EMPTY');
+			default:
+				return $status !== '' ? $status : '-';
+		}
+	}
 
 	private function get_pending_purchases()
 	{
@@ -793,6 +943,7 @@ class acp_controller
 			$row['PURCHASE_PRICE_DISPLAY'] = $this->format_package_price((int) $row['purchase_amount_cents'], $row['purchase_currency']);
 			$row['PAYMENT_PROVIDER_LANG'] = !empty($row['payment_provider']) ? strtoupper($row['payment_provider']) : '-';
 			$row['PAYMENT_REFERENCE_DISPLAY'] = !empty($row['payment_reference']) ? $row['payment_reference'] : '-';
+			$row['PAYMENT_LAST_STATUS_DISPLAY'] = $this->get_latest_payment_log_status((int) $row['promotion_id']);
 			$row['U_VIEW'] = !empty($row['ad_id']) ? $this->helper->route('mundophpbb_marketplace_view', ['ad_id' => (int) $row['ad_id']]) : '';
 			$purchases[] = $row;
 		}
