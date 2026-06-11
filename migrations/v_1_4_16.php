@@ -1,6 +1,6 @@
 <?php
 /**
- * Marketplace 1.4.16 - Register ACP Marketplace notifications module.
+ * Marketplace 1.4.16 - ACP Marketplace notifications module version marker.
  */
 namespace mundophpbb\marketplace\migrations;
 
@@ -19,14 +19,8 @@ class v_1_4_16 extends \phpbb\db\migration\migration
 	public function update_data()
 	{
 		return [
-			['module.add', [
-				'acp',
-				'MARKETPLACE_TITLE',
-				[
-					'module_basename' => '\mundophpbb\marketplace\acp\main_module',
-					'modes' => ['notifications'],
-				],
-			]],
+			// The notifications ACP mode is already registered by install_data.php in this package.
+			// Keeping another module.add here makes fresh installs fail with "module already exists".
 			['config.update', ['marketplace_version', '1.4.16']],
 		];
 	}
