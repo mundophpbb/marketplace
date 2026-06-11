@@ -8,7 +8,10 @@ class v_1_4_15 extends \phpbb\db\migration\migration
 {
 	public static function depends_on()
 	{
-		return ['\mundophpbb\marketplace\migrations\v_1_4_14'];
+		return [
+			'\\mundophpbb\\marketplace\\migrations\\v_1_4_14',
+			'\\mundophpbb\\marketplace\\migrations\\install_ucp_module',
+		];
 	}
 
 	public function effectively_installed()
