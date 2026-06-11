@@ -43,6 +43,8 @@ class ucp_controller
 	protected $table_notifications;
 	protected $table_purchases;
 	protected $table_follows;
+	protected $table_promotions;
+	protected $table_payment_logs;
 	/** @var string */
 	protected $u_action;
 
@@ -63,7 +65,9 @@ class ucp_controller
 		$table_images,
 		$table_notifications,
 		$table_purchases,
-		$table_follows
+		$table_follows,
+		$table_promotions,
+		$table_payment_logs
 	)
 	{
 		$this->config = $config;
@@ -83,6 +87,8 @@ class ucp_controller
 		$this->table_notifications = $table_notifications;
 		$this->table_purchases = $table_purchases;
 		$this->table_follows = $table_follows;
+		$this->table_promotions = $table_promotions;
+		$this->table_payment_logs = $table_payment_logs;
 	}
 
 	public function main()
@@ -124,10 +130,7 @@ class ucp_controller
 		$per_page = 10;
 
 		$user_id = (int) $this->user->data['user_id'];
-		$notifications = $this->get_notifications($user_id);
 		$unread_notifications = $this->count_unread_notifications($user_id);
-		$pending_sales = $this->get_pending_sales($user_id);
-		$followed_sellers = $this->get_followed_sellers($user_id);
 
 		$sql = 'SELECT a.*, c.cat_name
 				FROM ' . $this->table_ads . ' a
@@ -166,15 +169,66 @@ class ucp_controller
 		$this->template->assign_vars([
 			'MY_ADS'        => $my_ads,
 			'TOTAL_MY_ADS'  => $total,
+			'UNREAD_NOTIFICATIONS' => $unread_notifications,
+			'U_POST_NEW'    => $this->helper->route('mundophpbb_marketplace_post'),
+			'S_CAN_POST'    => $this->auth->acl_get('u_marketplace_post'),
+			'U_ACTION'      => $this->u_action,
+		]);
+	}
+
+
+	public function notifications()
+	{
+		$this->language->add_lang(['common', 'ucp'], 'mundophpbb/marketplace');
+
+		if (!$this->can_view_marketplace())
+		{
+			\trigger_error($this->language->lang('MARKETPLACE_NO_PERMISSION'));
+		}
+
+		\add_form_key('mundophpbb_marketplace_action');
+
+		$action = $this->request->variable('action', '');
+		if (in_array($action, ['mark_notifications_read', 'approve_sale', 'reject_sale', 'unfollow_seller'], true))
+		{
+			if (!$this->request->is_set_post('submit_action') || !\check_form_key('mundophpbb_marketplace_action'))
+			{
+				\trigger_error($this->language->lang('FORM_INVALID'));
+			}
+
+			if ($action === 'mark_notifications_read')
+			{
+				$this->mark_notifications_read((int) $this->user->data['user_id']);
+				\trigger_error($this->language->lang('MARKETPLACE_NOTIFICATIONS_MARKED_READ') . '<br /><br />' . $this->language->lang('RETURN_PAGE', '<a href="' . $this->u_action . '">', '</a>'));
+			}
+
+			if ($action === 'unfollow_seller')
+			{
+				$this->unfollow_seller($this->request->variable('seller_id', 0), (int) $this->user->data['user_id']);
+				\trigger_error($this->language->lang('MARKETPLACE_SELLER_UNFOLLOWED') . '<br /><br />' . $this->language->lang('RETURN_PAGE', '<a href="' . $this->u_action . '">', '</a>'));
+			}
+
+			$purchase_id = $this->request->variable('purchase_id', 0);
+			$this->handle_sale_purchase_action($action, $purchase_id, (int) $this->user->data['user_id']);
+		}
+
+		$user_id = (int) $this->user->data['user_id'];
+		$notifications = $this->get_notifications($user_id, 50);
+		$unread_notifications = $this->count_unread_notifications($user_id);
+		$pending_sales = $this->get_pending_sales($user_id);
+		$followed_sellers = $this->get_followed_sellers($user_id);
+		$user_promotions = $this->get_user_promotions($user_id);
+
+		$this->template->assign_vars([
 			'NOTIFICATIONS' => $notifications,
 			'UNREAD_NOTIFICATIONS' => $unread_notifications,
 			'PENDING_SALES' => $pending_sales,
 			'S_HAS_PENDING_SALES' => !empty($pending_sales),
 			'FOLLOWED_SELLERS' => $followed_sellers,
 			'S_HAS_FOLLOWED_SELLERS' => !empty($followed_sellers),
-			'U_POST_NEW'    => $this->helper->route('mundophpbb_marketplace_post'),
-			'S_CAN_POST'    => $this->auth->acl_get('u_marketplace_post'),
-			'U_ACTION'      => $this->u_action,
+			'USER_PROMOTIONS' => $user_promotions,
+			'S_HAS_USER_PROMOTIONS' => !empty($user_promotions),
+			'U_ACTION' => $this->u_action,
 		]);
 	}
 
@@ -192,6 +246,146 @@ class ucp_controller
 	private function has_follows_table()
 	{
 		return isset($this->config['marketplace_version']) && version_compare((string) $this->config['marketplace_version'], '1.4.12', '>=');
+	}
+
+
+	private function has_promotions_table()
+	{
+		return !empty($this->table_promotions) && isset($this->config['marketplace_version']) && version_compare((string) $this->config['marketplace_version'], '1.4.6', '>=');
+	}
+
+	private function has_payment_logs_table()
+	{
+		return !empty($this->table_payment_logs) && isset($this->config['marketplace_version']) && version_compare((string) $this->config['marketplace_version'], '1.4.13', '>=');
+	}
+
+	private function get_user_promotions($user_id)
+	{
+		if (!$this->has_promotions_table())
+		{
+			return [];
+		}
+
+		$sql = 'SELECT p.*, a.ad_title, a.ad_featured_until, a.ad_boosted_until
+			FROM ' . $this->table_promotions . ' p
+			LEFT JOIN ' . $this->table_ads . ' a ON a.ad_id = p.ad_id
+			WHERE p.user_id = ' . (int) $user_id . '
+			ORDER BY p.promotion_requested DESC, p.promotion_id DESC';
+		$result = $this->db->sql_query_limit($sql, 50);
+		$promotions = [];
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$row['PROMOTION_TYPE_LANG'] = $this->get_promotion_type_lang($row['promotion_type']);
+			$row['PROMOTION_STATUS_LANG'] = $this->get_promotion_status_lang((int) $row['promotion_status']);
+			$row['PROMOTION_REQUESTED_DISPLAY'] = !empty($row['promotion_requested']) ? $this->user->format_date((int) $row['promotion_requested']) : '';
+			$row['PROMOTION_PRICE_DISPLAY'] = $this->format_purchase_price((int) $row['promotion_amount_cents'], $row['promotion_currency']);
+			$row['PAYMENT_PROVIDER_LANG'] = !empty($row['payment_provider']) ? strtoupper($row['payment_provider']) : '-';
+			$row['PAYMENT_REFERENCE_DISPLAY'] = !empty($row['payment_reference']) ? $row['payment_reference'] : '-';
+			$row['PAYMENT_LAST_STATUS_DISPLAY'] = $this->get_latest_payment_log_status((int) $row['promotion_id']);
+			$row['U_VIEW'] = !empty($row['ad_id']) ? $this->helper->route('mundophpbb_marketplace_view', ['ad_id' => (int) $row['ad_id']]) : '';
+			$until = ($row['promotion_type'] === 'featured') ? (int) $row['ad_featured_until'] : (int) $row['ad_boosted_until'];
+			$row['PROMOTION_UNTIL_DISPLAY'] = $until > 0 ? $this->user->format_date($until) : '-';
+			$row['S_PROMOTION_ACTIVE'] = ((int) $row['promotion_status'] === 1 && $until >= time());
+			$promotions[] = $row;
+		}
+		$this->db->sql_freeresult($result);
+
+		return $promotions;
+	}
+
+	private function get_latest_payment_log_status($promotion_id)
+	{
+		if (!$this->has_payment_logs_table())
+		{
+			return '';
+		}
+
+		$sql = 'SELECT payment_validation_status, payment_transaction_id, payment_created
+			FROM ' . $this->table_payment_logs . '
+			WHERE promotion_id = ' . (int) $promotion_id . '
+			ORDER BY payment_created DESC, payment_log_id DESC';
+		$result = $this->db->sql_query_limit($sql, 1);
+		$row = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+
+		if (!$row)
+		{
+			return '';
+		}
+
+		$parts = [$this->get_payment_validation_status_lang($row['payment_validation_status'])];
+		if (!empty($row['payment_transaction_id']))
+		{
+			$parts[] = 'TXN: ' . $row['payment_transaction_id'];
+		}
+		if (!empty($row['payment_created']))
+		{
+			$parts[] = $this->user->format_date((int) $row['payment_created']);
+		}
+
+		return implode(' | ', $parts);
+	}
+
+	private function get_payment_validation_status_lang($status)
+	{
+		$status = strtoupper(trim((string) $status));
+
+		switch ($status)
+		{
+			case 'OK':
+				return $this->language->lang('MARKETPLACE_PAYMENT_APPROVED_AUTOMATICALLY');
+			case 'PAYMENT_MISMATCH':
+				return $this->language->lang('MARKETPLACE_PAYMENT_MISMATCH');
+			case 'PROMOTION_NOT_FOUND':
+				return $this->language->lang('MARKETPLACE_PAYMENT_PROMOTION_NOT_FOUND');
+			case 'ALREADY_APPROVED':
+				return $this->language->lang('MARKETPLACE_PAYMENT_ALREADY_APPROVED');
+			case 'AD_NOT_ACTIVE':
+				return $this->language->lang('MARKETPLACE_PAYMENT_AD_NOT_ACTIVE');
+			case 'IGNORED_STATUS':
+				return $this->language->lang('MARKETPLACE_PAYMENT_IGNORED_STATUS');
+			case 'PAYPAL_NOT_VERIFIED':
+				return $this->language->lang('MARKETPLACE_PAYMENT_PAYPAL_NOT_VERIFIED');
+			case 'MISSING_REFERENCE':
+				return $this->language->lang('MARKETPLACE_PAYMENT_MISSING_REFERENCE');
+			case 'PROMOTION_NOT_AWAITING_PAYMENT':
+				return $this->language->lang('MARKETPLACE_PAYMENT_NOT_AWAITING');
+			case 'EMPTY':
+				return $this->language->lang('MARKETPLACE_PAYMENT_EMPTY');
+			default:
+				return $status !== '' ? $status : '-';
+		}
+	}
+
+	private function get_promotion_status_lang($status)
+	{
+		switch ((int) $status)
+		{
+			case 0:
+				return $this->language->lang('MARKETPLACE_PROMOTION_STATUS_PENDING');
+			case 1:
+				return $this->language->lang('MARKETPLACE_PROMOTION_STATUS_APPROVED');
+			case 2:
+				return $this->language->lang('MARKETPLACE_PROMOTION_STATUS_REJECTED');
+			case 3:
+				return $this->language->lang('MARKETPLACE_PROMOTION_STATUS_AWAITING_PAYMENT');
+		}
+		return $this->language->lang('MARKETPLACE_PROMOTION_STATUS_PENDING');
+	}
+
+	private function get_promotion_type_lang($type)
+	{
+		switch ((string) $type)
+		{
+			case 'featured':
+				return $this->language->lang('MARKETPLACE_FEATURED');
+			case 'boosted':
+				return $this->language->lang('MARKETPLACE_BOOSTED');
+			case 'renewal':
+				return $this->language->lang('MARKETPLACE_RENEW_AD');
+		}
+
+		return (string) $type;
 	}
 
 	private function get_followed_sellers($user_id)
@@ -233,7 +427,7 @@ class ucp_controller
 				AND followed_user_id = ' . (int) $seller_id);
 	}
 
-	private function get_notifications($user_id)
+	private function get_notifications($user_id, $limit = 10)
 	{
 		if (!$this->has_notifications_table())
 		{
@@ -245,7 +439,7 @@ class ucp_controller
 			LEFT JOIN ' . $this->table_ads . ' a ON a.ad_id = n.ad_id
 			WHERE n.user_id = ' . (int) $user_id . '
 			ORDER BY n.notification_time DESC';
-		$result = $this->db->sql_query_limit($sql, 10);
+		$result = $this->db->sql_query_limit($sql, (int) $limit);
 		$notifications = [];
 		while ($row = $this->db->sql_fetchrow($result))
 		{

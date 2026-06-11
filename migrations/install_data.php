@@ -71,7 +71,7 @@ class install_data extends \phpbb\db\migration\migration
 				'MARKETPLACE_TITLE',
 				[
 					'module_basename'	=> '\mundophpbb\marketplace\acp\main_module',
-					'modes'				=> ['dashboard', 'settings', 'categories', 'ads', 'packages', 'reports'],
+					'modes'				=> ['dashboard', 'settings', 'categories', 'ads', 'notifications', 'packages', 'reports'],
 				],
 			]],
 

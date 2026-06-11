@@ -26,6 +26,11 @@ class main_info
 					'auth'	=> 'ext_mundophpbb/marketplace && acl_u_marketplace_view',
 					'cat'	=> ['UCP_MARKETPLACE_TITLE'],
 				],
+				'notifications'	=> [
+					'title'	=> 'UCP_MARKETPLACE_NOTIFICATIONS',
+					'auth'	=> 'ext_mundophpbb/marketplace && acl_u_marketplace_view',
+					'cat'	=> ['UCP_MARKETPLACE_TITLE'],
+				],
 			],
 		];
 	}

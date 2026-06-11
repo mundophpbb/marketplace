@@ -30,10 +30,22 @@ class main_module
 		/** @var \mundophpbb\marketplace\controller\ucp_controller $ucp_controller */
 		$ucp_controller = $phpbb_container->get('mundophpbb.marketplace.controller.ucp');
 
-		$this->tpl_name = 'ucp_marketplace_overview';
-		$this->page_title = $language->lang('UCP_MARKETPLACE_TITLE');
-
 		$ucp_controller->set_page_url($this->u_action);
-		$ucp_controller->main();
+
+		switch ($mode)
+		{
+			case 'notifications':
+				$this->tpl_name = 'ucp_marketplace_notifications';
+				$this->page_title = $language->lang('UCP_MARKETPLACE_NOTIFICATIONS');
+				$ucp_controller->notifications();
+			break;
+
+			case 'overview':
+			default:
+				$this->tpl_name = 'ucp_marketplace_overview';
+				$this->page_title = $language->lang('UCP_MARKETPLACE_TITLE');
+				$ucp_controller->main();
+			break;
+		}
 	}
 }

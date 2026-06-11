@@ -296,4 +296,6 @@ $lang = array_merge($lang, [
 	'MARKETPLACE_ALLOW_FOLLOWS' => 'Allow following sellers',
 	'MARKETPLACE_ALLOW_FOLLOWS_EXPLAIN' => 'Allows users to follow sellers and receive notifications when they publish new public ads.',
 
+	'MARKETPLACE_ACP_NOTIFICATIONS' => 'Marketplace notifications',
+	'MARKETPLACE_ACP_NOTIFICATIONS_EXPLAIN' => 'Centralize promotion requests, users with promotion requests, PayPal/IPN history, and pending purchases here. The ads page remains focused on ad management only.',
 ]);

@@ -296,4 +296,6 @@ $lang = array_merge($lang, [
 	'MARKETPLACE_ALLOW_FOLLOWS' => 'Permitir seguir vendedores',
 	'MARKETPLACE_ALLOW_FOLLOWS_EXPLAIN' => 'Permite que usuários sigam vendedores e recebam notificações quando eles publicarem novos anúncios públicos.',
 
+	'MARKETPLACE_ACP_NOTIFICATIONS' => 'Notificações do Marketplace',
+	'MARKETPLACE_ACP_NOTIFICATIONS_EXPLAIN' => 'Centralize aqui pedidos de promoção, usuários com promoções contratadas, histórico PayPal/IPN e compras pendentes. A tela de anúncios fica reservada apenas para gerenciar anúncios.',
 ]);

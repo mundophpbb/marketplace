@@ -64,6 +64,12 @@ class main_module
 				$acp_controller->manage_ads();
 			break;
 
+			case 'notifications':
+				$this->tpl_name = 'acp_marketplace_notifications';
+				$this->page_title = $language->lang('MARKETPLACE_ACP_NOTIFICATIONS');
+				$acp_controller->display_notifications();
+			break;
+
 			case 'packages':
 				$this->tpl_name = 'acp_marketplace_packages';
 				$this->page_title = $language->lang('MARKETPLACE_ACP_PACKAGES');

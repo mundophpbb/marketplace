@@ -757,6 +757,54 @@ class acp_controller
 	}
 
 
+
+	public function display_notifications()
+	{
+		$this->language->add_lang(['acp', 'common'], 'mundophpbb/marketplace');
+		\add_form_key('mundophpbb_marketplace_acp_ads');
+
+		$action = $this->request->variable('action', '');
+		$purchase_id = $this->request->variable('purchase_id', 0);
+		$promotion_id = $this->request->variable('promotion_id', 0);
+
+		if (($purchase_id || $promotion_id) && $action)
+		{
+			if (!$this->request->is_set_post('submit_action') || !\check_form_key('mundophpbb_marketplace_acp_ads'))
+			{
+				\trigger_error($this->language->lang('FORM_INVALID') . \adm_back_link($this->u_action), E_USER_WARNING);
+			}
+
+			if ($purchase_id)
+			{
+				$this->handle_purchase_action($action, $purchase_id);
+			}
+
+			if ($promotion_id)
+			{
+				$this->handle_promotion_action($action, $promotion_id);
+			}
+		}
+
+		$pending_promotions = $this->get_pending_promotions();
+		$pending_purchases = $this->get_pending_purchases();
+		$payment_logs = $this->get_payment_logs();
+		$promotion_subscribers = $this->get_promotion_subscribers();
+
+		$this->template->assign_vars([
+			'U_ACTION' => $this->u_action,
+			'PENDING_PROMOTIONS' => $pending_promotions,
+			'S_HAS_PENDING_PROMOTIONS' => !empty($pending_promotions),
+			'PENDING_PURCHASES' => $pending_purchases,
+			'S_HAS_PENDING_PURCHASES' => !empty($pending_purchases),
+			'PAYMENT_LOGS' => $payment_logs,
+			'S_HAS_PAYMENT_LOGS' => !empty($payment_logs),
+			'PROMOTION_SUBSCRIBERS' => $promotion_subscribers,
+			'S_HAS_PROMOTION_SUBSCRIBERS' => !empty($promotion_subscribers),
+		]);
+	}
+
+
+
 	private function get_pending_promotions()
 	{
 		$sql = 'SELECT p.*, a.ad_title, a.ad_status, u.username, u.user_colour
