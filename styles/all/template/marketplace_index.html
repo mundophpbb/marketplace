@@ -32,8 +32,8 @@
 					</select>
 				</div>
 				<div class="mp-search-field">
-					<label for="mp-location">{{ lang('MARKETPLACE_LOCATION') }}</label>
-					<input id="mp-location" type="text" name="location" value="{{ FILTER_LOCATION }}" class="inputbox" placeholder="{{ lang('MARKETPLACE_LOCATION_PLACEHOLDER') }}">
+					<label for="mp-city">{{ lang('MARKETPLACE_CITY') }}</label>
+					<input id="mp-city" type="text" name="city" value="{{ FILTER_CITY }}" class="inputbox" placeholder="{{ lang('MARKETPLACE_CITY') }}">
 				</div>
 				<div class="mp-search-submit">
 					<input type="submit" class="button button-primary" value="{{ lang('MARKETPLACE_FILTER_APPLY') }}">
@@ -87,6 +87,9 @@
 						</select>
 					</label>
 
+					<label>{{ lang('MARKETPLACE_CITY') }}<input type="text" name="city" value="{{ FILTER_CITY }}" class="inputbox"></label>
+					<label>{{ lang('MARKETPLACE_REGION') }}<input type="text" name="region" value="{{ FILTER_REGION }}" class="inputbox"></label>
+					<label>{{ lang('MARKETPLACE_COUNTRY') }}<input type="text" name="country" value="{{ FILTER_COUNTRY }}" class="inputbox"></label>
 					<div class="mp-price-row">
 						<label>{{ lang('MARKETPLACE_PRICE_MIN') }}<input type="text" name="price_min" value="{{ FILTER_PRICE_MIN }}" class="inputbox"></label>
 						<label>{{ lang('MARKETPLACE_PRICE_MAX') }}<input type="text" name="price_max" value="{{ FILTER_PRICE_MAX }}" class="inputbox"></label>
@@ -114,7 +117,10 @@
 					<p class="mp-results-label">{{ lang('MARKETPLACE') }}</p>
 					<h3>{{ lang('MARKETPLACE_TOTAL_ADS', TOTAL_ADS) }}</h3>
 				</div>
-				{% if S_CAN_POST %}<a href="{{ U_POST_NEW }}" class="button mp-secondary-post">{{ lang('MARKETPLACE_POST_AD') }}</a>{% endif %}
+				<div class="mp-results-actions">
+					<a href="{{ U_COMPARE_PAGE }}" class="button">{{ lang('MARKETPLACE_COMPARE') }}</a>
+					{% if S_CAN_POST %}<a href="{{ U_POST_NEW }}" class="button mp-secondary-post">{{ lang('MARKETPLACE_POST_AD') }}</a>{% endif %}
+				</div>
 			</div>
 
 			{% if pagination|length %}

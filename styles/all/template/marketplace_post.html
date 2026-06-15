@@ -122,9 +122,54 @@
 							</div>
 							{% endif %}
 
-							<div class="mp-field">
+							<div class="mp-field mp-field-wide">
 								<label for="ad_location">{{ lang('MARKETPLACE_LOCATION_LABEL') ~ lang('COLON') }}</label>
 								<input type="text" name="ad_location" id="ad_location" value="{{ AD.ad_location }}" class="inputbox" placeholder="{{ lang('MARKETPLACE_LOCATION_LABEL') }}">
+								<p class="help">{{ lang('MARKETPLACE_LOCATION_LEGACY_EXPLAIN') }}</p>
+							</div>
+
+							<div class="mp-field">
+								<label for="ad_city">{{ lang('MARKETPLACE_CITY') ~ lang('COLON') }}</label>
+								<input type="text" name="ad_city" id="ad_city" value="{{ AD.ad_city }}" class="inputbox" autocomplete="address-level2">
+							</div>
+
+							<div class="mp-field">
+								<label for="ad_region">{{ lang('MARKETPLACE_REGION') ~ lang('COLON') }}</label>
+								<input type="text" name="ad_region" id="ad_region" value="{{ AD.ad_region }}" class="inputbox" autocomplete="address-level1">
+							</div>
+
+							<div class="mp-field">
+								<label for="ad_country">{{ lang('MARKETPLACE_COUNTRY') ~ lang('COLON') }}</label>
+								<input type="text" name="ad_country" id="ad_country" value="{{ AD.ad_country }}" class="inputbox" autocomplete="country-name">
+							</div>
+
+							<div class="mp-field">
+								<label for="ad_postal_code">{{ lang('MARKETPLACE_POSTAL_CODE') ~ lang('COLON') }}</label>
+								<input type="text" name="ad_postal_code" id="ad_postal_code" value="{{ AD.ad_postal_code }}" class="inputbox" autocomplete="postal-code">
+							</div>
+
+							<div class="mp-field">
+								<label for="ad_conservation">{{ lang('MARKETPLACE_CONSERVATION_STATE') ~ lang('COLON') }}</label>
+								<input type="text" name="ad_conservation" id="ad_conservation" value="{{ AD.ad_conservation }}" class="inputbox" placeholder="{{ lang('MARKETPLACE_CONSERVATION_PLACEHOLDER') }}">
+							</div>
+
+							<div class="mp-field mp-field-wide">
+								<span class="mp-field-label">{{ lang('MARKETPLACE_DELIVERY_OPTIONS') ~ lang('COLON') }}</span>
+								<div class="mp-choice-grid">
+									{% for option in DELIVERY_OPTIONS %}<label><input type="checkbox" name="ad_delivery_options[]" value="{{ option.VALUE }}"{% if option.CHECKED %} checked{% endif %}> <span>{{ option.LABEL }}</span></label>{% endfor %}
+								</div>
+							</div>
+
+							<div class="mp-field">
+								<label><input type="checkbox" name="ad_location_approx" value="1"{% if AD.ad_location_approx %} checked{% endif %}> {{ lang('MARKETPLACE_LOCATION_APPROXIMATE') }}</label>
+								<p class="help">{{ lang('MARKETPLACE_LOCATION_APPROXIMATE_EXPLAIN') }}</p>
+							</div>
+
+							<div class="mp-field mp-field-wide mp-location-tools">
+								<input type="hidden" name="ad_latitude" id="ad_latitude" value="{{ AD.ad_latitude }}">
+								<input type="hidden" name="ad_longitude" id="ad_longitude" value="{{ AD.ad_longitude }}">
+								<button type="button" class="button mp-use-location-button" id="mp-use-my-location">{{ lang('MARKETPLACE_USE_MY_LOCATION') }}</button>
+								<span class="mp-location-status" id="mp-location-status">{% if AD.ad_latitude and AD.ad_longitude %}{{ lang('MARKETPLACE_LOCATION_COORDS_SAVED') }}{% else %}{{ lang('MARKETPLACE_USE_MY_LOCATION_EXPLAIN') }}{% endif %}</span>
 							</div>
 
 							<div class="mp-field">
@@ -166,6 +211,33 @@
 						</div>
 					</div>
 				</section>
+
+				{% if CATEGORY_FIELD_GROUPS|length %}
+				<section class="mp-form-card panel">
+					<div class="inner">
+						<div class="mp-form-section-head">
+							<span class="mp-step-badge">4</span>
+							<div>
+								<h3>{{ lang('MARKETPLACE_CUSTOM_FIELDS') }}</h3>
+								<p>{{ lang('MARKETPLACE_CUSTOM_FIELDS_EXPLAIN') }}</p>
+							</div>
+						</div>
+						{% for group in CATEGORY_FIELD_GROUPS %}
+							<div class="mp-custom-field-group" data-category-fields="{{ group.CAT_ID }}"{% if not group.S_ACTIVE %} hidden{% endif %}>
+								<h4>{{ group.CAT_NAME }}</h4>
+								<div class="mp-form-grid mp-form-grid-2">
+								{% for field in group.FIELDS %}
+									<div class="mp-field">
+										<label for="custom_field_{{ field.field_id }}">{{ field.field_label }}{% if field.S_REQUIRED %} *{% endif %}</label>
+										<input type="text" name="custom_fields[{{ field.field_id }}]" id="custom_field_{{ field.field_id }}" value="{{ field.FIELD_VALUE }}" class="inputbox"{% if field.S_REQUIRED %} required{% endif %}>
+									</div>
+								{% endfor %}
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+				</section>
+				{% endif %}
 
 				{% if S_ALLOW_IMAGES %}
 				<section class="mp-form-card panel">
@@ -315,6 +387,44 @@
 	updateHints();
 }());
 
+
+(function () {
+	'use strict';
+	var button = document.getElementById('mp-use-my-location');
+	var status = document.getElementById('mp-location-status');
+	var lat = document.getElementById('ad_latitude');
+	var lng = document.getElementById('ad_longitude');
+	if (!button || !status || !lat || !lng) { return; }
+
+	function setStatus(text) {
+		status.textContent = text;
+	}
+
+	button.addEventListener('click', function () {
+		if (!navigator.geolocation) {
+			setStatus('{{ lang('MARKETPLACE_GEOLOCATION_UNSUPPORTED')|e('js') }}');
+			return;
+		}
+
+		button.disabled = true;
+		setStatus('{{ lang('MARKETPLACE_GEOLOCATION_WAIT')|e('js') }}');
+
+		navigator.geolocation.getCurrentPosition(function (position) {
+			lat.value = Number(position.coords.latitude).toFixed(6);
+			lng.value = Number(position.coords.longitude).toFixed(6);
+			setStatus('{{ lang('MARKETPLACE_LOCATION_COORDS_SAVED')|e('js') }}');
+			button.disabled = false;
+		}, function () {
+			setStatus('{{ lang('MARKETPLACE_GEOLOCATION_DENIED')|e('js') }}');
+			button.disabled = false;
+		}, {
+			enableHighAccuracy: false,
+			timeout: 10000,
+			maximumAge: 300000
+		});
+	});
+})();
+
 (function () {
 	var input = document.getElementById('images');
 	var wrap = document.getElementById('mp-selected-images');
@@ -426,6 +536,31 @@
 		markTouched();
 	});
 }());
+</script>
+
+<script>
+(function () {
+	'use strict';
+	var catSelect = document.getElementById('cat_id');
+	if (!catSelect) { return; }
+	function syncMarketplaceCategoryFields() {
+		var selected = catSelect.value;
+		document.querySelectorAll('[data-category-fields]').forEach(function (group) {
+			var active = group.getAttribute('data-category-fields') === selected;
+			group.hidden = !active;
+			group.querySelectorAll('input, select, textarea').forEach(function (input) {
+				if (input.hasAttribute('data-required-original')) {
+					input.required = active && input.getAttribute('data-required-original') === '1';
+				} else if (input.required) {
+					input.setAttribute('data-required-original', '1');
+					input.required = active;
+				}
+			});
+		});
+	}
+	catSelect.addEventListener('change', syncMarketplaceCategoryFields);
+	syncMarketplaceCategoryFields();
+})();
 </script>
 
 {% include 'overall_footer.html' %}

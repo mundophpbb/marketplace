@@ -1,36 +1,30 @@
 <?php
 /**
- *
- * Marketplace / Classificados Extension for phpBB.
- *
- * @copyright (c) 2026, Mundo phpBB
- * @license GNU General Public License, version 2 (GPL-2.0)
- *
+ * Marketplace v1.4.26 - organized UCP sections.
  */
-
 namespace mundophpbb\marketplace\migrations;
 
-class install_ucp_module extends \phpbb\db\migration\migration
+class v_1_4_26 extends \phpbb\db\migration\migration
 {
-	public function effectively_installed()
-	{
-		return isset($this->config['marketplace_ucp_module_installed']);
-	}
-
 	public static function depends_on()
 	{
-		return ['\mundophpbb\marketplace\migrations\install_data'];
+		return ['\\mundophpbb\\marketplace\\migrations\\v_1_4_25'];
+	}
+
+	public function effectively_installed()
+	{
+		return isset($this->config['marketplace_version']) && version_compare($this->config['marketplace_version'], '1.4.26', '>=');
 	}
 
 	public function update_data()
 	{
 		return [
-			['custom', [[$this, 'install_ucp_modules_safely']]],
-			['config.add', ['marketplace_ucp_module_installed', 1]],
+			['custom', [[$this, 'install_ucp_modes_safely']]],
+			['config.update', ['marketplace_version', '1.4.26']],
 		];
 	}
 
-	public function install_ucp_modules_safely()
+	public function install_ucp_modes_safely()
 	{
 		global $phpbb_container;
 
@@ -58,7 +52,7 @@ class install_ucp_module extends \phpbb\db\migration\migration
 		if (!empty($modes))
 		{
 			$module_tool->add('ucp', 'UCP_MARKETPLACE_TITLE', [
-				'module_basename' => '\mundophpbb\marketplace\ucp\main_module',
+				'module_basename' => '\\mundophpbb\\marketplace\\ucp\\main_module',
 				'modes' => $modes,
 			]);
 		}
@@ -66,34 +60,20 @@ class install_ucp_module extends \phpbb\db\migration\migration
 
 	protected function ucp_module_langname_exists($langname)
 	{
-		$sql = 'SELECT module_id
-			FROM ' . MODULES_TABLE . "
-			WHERE module_class = 'ucp'
-				AND module_langname = '" . $this->db->sql_escape($langname) . "'";
+		$sql = 'SELECT module_id FROM ' . MODULES_TABLE . " WHERE module_class = 'ucp' AND module_langname = '" . $this->db->sql_escape($langname) . "'";
 		$result = $this->db->sql_query_limit($sql, 1);
 		$module_id = (int) $this->db->sql_fetchfield('module_id');
 		$this->db->sql_freeresult($result);
-
 		return $module_id > 0;
 	}
 
 	protected function ucp_marketplace_mode_exists($mode)
 	{
-		$basename = '\mundophpbb\marketplace\ucp\main_module';
-		$sql = 'SELECT module_id
-			FROM ' . MODULES_TABLE . "
-			WHERE module_class = 'ucp'
-				AND module_basename = '" . $this->db->sql_escape($basename) . "'
-				AND module_mode = '" . $this->db->sql_escape($mode) . "'";
+		$basename = '\\mundophpbb\\marketplace\\ucp\\main_module';
+		$sql = 'SELECT module_id FROM ' . MODULES_TABLE . " WHERE module_class = 'ucp' AND module_basename = '" . $this->db->sql_escape($basename) . "' AND module_mode = '" . $this->db->sql_escape($mode) . "'";
 		$result = $this->db->sql_query_limit($sql, 1);
 		$module_id = (int) $this->db->sql_fetchfield('module_id');
 		$this->db->sql_freeresult($result);
-
 		return $module_id > 0;
-	}
-
-	public function revert_data()
-	{
-		return [];
 	}
 }

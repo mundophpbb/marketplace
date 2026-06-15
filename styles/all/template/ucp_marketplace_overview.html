@@ -1,38 +1,30 @@
 {% include 'ucp_header.html' %}
 
-<h2>{{ lang('UCP_MARKETPLACE_TITLE') }}</h2>
+<h2>{{ lang('UCP_MARKETPLACE_OVERVIEW') }}</h2>
 
-<div class="mp-ucp-shell">
-
-<div class="panel marketplace-myads-panel mp-ucp-section">
-	<div class="inner">
-		<div class="mp-ucp-section-head">
-			<div>
-				<h3>{{ lang('MARKETPLACE_MY_ADS') }}</h3>
-				<p>{{ lang('MARKETPLACE_UCP_MY_ADS_EXPLAIN') }}</p>
+<div class="mp-ucp-shell mp-ucp-dashboard">
+	<div class="panel mp-ucp-section">
+		<div class="inner">
+			<div class="mp-ucp-section-head">
+				<div>
+					<h3>{{ lang('MARKETPLACE_UCP_DASHBOARD_TITLE') }}</h3>
+					<p>{{ lang('MARKETPLACE_UCP_DASHBOARD_EXPLAIN') }}</p>
+				</div>
+				{% if S_CAN_POST %}<a href="{{ U_POST_NEW }}" class="button button-primary mp-ucp-post-button">{{ lang('MARKETPLACE_POST_AD') }}</a>{% endif %}
 			</div>
-			{% if S_CAN_POST %}<a href="{{ U_POST_NEW }}" class="button button-primary mp-ucp-post-button">{{ lang('MARKETPLACE_POST_AD') }}</a>{% endif %}
+
+			<div class="mp-ucp-hub-grid">
+				<a href="{{ U_MARKETPLACE_ADS }}" class="mp-ucp-hub-card"><strong>{{ lang('UCP_MARKETPLACE_ADS') }}</strong><span>{{ MP_SUMMARY.ADS_TOTAL }}</span><small>{{ MP_SUMMARY.ADS_ACTIVE }} {{ lang('MARKETPLACE_ACTIVE') }} / {{ MP_SUMMARY.ADS_PENDING }} {{ lang('MARKETPLACE_PENDING') }}</small></a>
+				<a href="{{ U_MARKETPLACE_PROMOTIONS }}" class="mp-ucp-hub-card"><strong>{{ lang('UCP_MARKETPLACE_PROMOTIONS') }}</strong><span>{{ MP_SUMMARY.PROMOTIONS }}</span><small>{{ lang('MARKETPLACE_UCP_PROMOTIONS_SHORT') }}</small></a>
+				<a href="{{ U_MARKETPLACE_NOTIFICATIONS }}" class="mp-ucp-hub-card"><strong>{{ lang('UCP_MARKETPLACE_NOTIFICATIONS') }}</strong><span>{{ MP_SUMMARY.UNREAD_NOTIFICATIONS }}</span><small>{{ lang('MARKETPLACE_UNREAD') }}</small></a>
+				<a href="{{ U_MARKETPLACE_PURCHASES }}" class="mp-ucp-hub-card"><strong>{{ lang('UCP_MARKETPLACE_PURCHASES') }}</strong><span>{{ MP_SUMMARY.PURCHASES }}</span><small>{{ lang('MARKETPLACE_UCP_PURCHASES_SHORT') }}</small></a>
+				<a href="{{ U_MARKETPLACE_SALES }}" class="mp-ucp-hub-card"><strong>{{ lang('UCP_MARKETPLACE_SALES') }}</strong><span>{{ MP_SUMMARY.SALES }}</span><small>{{ lang('MARKETPLACE_UCP_SALES_SHORT') }}</small></a>
+				<a href="{{ U_MARKETPLACE_FAVORITES }}" class="mp-ucp-hub-card"><strong>{{ lang('UCP_MARKETPLACE_FAVORITES') }}</strong><span>{{ MP_SUMMARY.FAVORITES }}</span><small>{{ lang('MARKETPLACE_UCP_FAVORITES_SHORT') }}</small></a>
+				<a href="{{ U_MARKETPLACE_CONVERSATIONS }}" class="mp-ucp-hub-card"><strong>{{ lang('UCP_MARKETPLACE_CONVERSATIONS') }}</strong><span>{{ MP_SUMMARY.MESSAGES }}</span><small>{{ lang('MARKETPLACE_UCP_MESSAGES_SHORT') }}</small></a>
+				<a href="{{ U_MARKETPLACE_PAYMENTS }}" class="mp-ucp-hub-card"><strong>{{ lang('UCP_MARKETPLACE_PAYMENTS') }}</strong><span>{{ MP_SUMMARY.PAYMENTS }}</span><small>{{ lang('MARKETPLACE_UCP_PAYMENTS_SHORT') }}</small></a>
+			</div>
 		</div>
-
-		{% if MY_ADS|length %}
-			<div class="mp-ucp-grid">
-				{% for ad in MY_ADS %}
-						{% INCLUDE 'marketplace_ucp_ad_card.html' %}
-					{% endfor %}
-			</div>
-
-			{% if pagination|length %}<div class="pagination">{% include 'pagination.html' %}</div>{% endif %}
-		{% else %}
-			<div class="mp-ucp-empty mp-ucp-empty-ads">
-				<span class="mp-empty-icon" aria-hidden="true">＋</span>
-				<h3>{{ lang('MARKETPLACE_EMPTY_MY_ADS_TITLE') }}</h3>
-				<p>{{ lang('MARKETPLACE_EMPTY_MY_ADS_EXPLAIN') }}</p>
-				{% if S_CAN_POST %}<p><a href="{{ U_POST_NEW }}" class="button button-primary mp-ucp-button-primary">{{ lang('MARKETPLACE_POST_AD') }}</a></p>{% endif %}
-			</div>
-		{% endif %}
 	</div>
-</div>
-
 </div>
 
 {% include 'ucp_footer.html' %}

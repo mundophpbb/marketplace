@@ -1,0 +1,86 @@
+{% include 'overall_header.html' %}
+
+<div class="mp-shell mp-payment-shell">
+	<div class="panel">
+		<div class="inner">
+			<h2>{{ lang('MARKETPLACE_PAYMENT_INSTRUCTIONS') }}</h2>
+			<p>{{ lang('MARKETPLACE_PAYMENT_INSTRUCTIONS_EXPLAIN') }}</p>
+
+			<dl class="mp-detail-list mp-payment-details">
+				<dt>{{ lang('MARKETPLACE_AD') }}</dt><dd>{{ PAYMENT.ad_title }}</dd>
+				<dt>{{ lang('MARKETPLACE_PAYMENT_CONTEXT') }}</dt><dd>{{ PAYMENT.PAYMENT_CONTEXT_LANG }}</dd>
+				<dt>{{ lang('MARKETPLACE_GATEWAY') }}</dt><dd>{{ PAYMENT.PAYMENT_PROVIDER_LANG }}</dd>
+				<dt>{{ lang('MARKETPLACE_VALUE') }}</dt><dd><strong>{{ PAYMENT.PAYMENT_AMOUNT_DISPLAY }}</strong></dd>
+				<dt>{{ lang('MARKETPLACE_PAYMENT_REFERENCE') }}</dt><dd><span class="marketplace-copy-value">{{ PAYMENT.PAYMENT_REFERENCE_DISPLAY }}</span> <button type="button" class="button button-small marketplace-copy-button" data-copy="{{ PAYMENT.payment_reference|e('html_attr') }}">{{ lang('MARKETPLACE_COPY') }}</button></dd>
+			</dl>
+
+			{% if PAYMENT.S_IS_PIX %}
+				<div class="mp-payment-box mp-pix-box">
+					<h3>{{ lang('MARKETPLACE_PIX_PAYMENT') }}</h3>
+					<p>{{ lang('MARKETPLACE_PIX_PRIVACY_EXPLAIN') }}</p>
+					{% if PAYMENT.S_HAS_PIX_QR %}
+						<div class="mp-pix-qrcode-wrap">
+							<div id="marketplace-pix-qrcode" class="mp-pix-qrcode" data-pix-payload="{{ PAYMENT.PIX_BR_CODE|e('html_attr') }}" aria-label="{{ lang('MARKETPLACE_PIX_QR_CODE')|e('html_attr') }}"></div>
+							<p class="help">{{ lang('MARKETPLACE_PIX_QR_CODE_EXPLAIN') }}</p>
+						</div>
+					{% endif %}
+					<dl class="mp-detail-list">
+						<dt>{{ lang('MARKETPLACE_GATEWAY_PIX_KEY_TYPE') }}</dt><dd>{{ PAYMENT.PIX_KEY_TYPE_LANG }}</dd>
+						<dt>{{ lang('MARKETPLACE_GATEWAY_PIX_KEY') }}</dt><dd>{{ PAYMENT.PIX_KEY_MASKED }} <button type="button" class="button button-small marketplace-copy-button" data-copy="{{ PAYMENT.PIX_KEY_RAW|e('html_attr') }}">{{ lang('MARKETPLACE_COPY_PIX_KEY') }}</button></dd>
+						{% if PAYMENT.S_HAS_PIX_QR %}<dt>{{ lang('MARKETPLACE_PIX_COPY_AND_PASTE') }}</dt><dd><textarea class="inputbox mp-pix-copy-code" rows="4" readonly>{{ PAYMENT.PIX_BR_CODE }}</textarea><br><button type="button" class="button button-small marketplace-copy-button" data-copy="{{ PAYMENT.PIX_BR_CODE|e('html_attr') }}">{{ lang('MARKETPLACE_COPY_PIX_CODE') }}</button></dd>{% endif %}
+						{% if PAYMENT.PIX_RECEIVER_NAME %}<dt>{{ lang('MARKETPLACE_GATEWAY_PIX_RECEIVER_NAME') }}</dt><dd>{{ PAYMENT.PIX_RECEIVER_NAME }}</dd>{% endif %}
+						{% if PAYMENT.PIX_RECEIVER_CITY %}<dt>{{ lang('MARKETPLACE_GATEWAY_PIX_RECEIVER_CITY') }}</dt><dd>{{ PAYMENT.PIX_RECEIVER_CITY }}</dd>{% endif %}
+						<dt>{{ lang('MARKETPLACE_GATEWAY_PIX_DEADLINE') }}</dt><dd>{{ PAYMENT.PIX_DEADLINE_MINUTES }} {{ lang('MARKETPLACE_MINUTES') }}</dd>
+					</dl>
+					{% if PAYMENT.PIX_INSTRUCTIONS %}<div class="mp-payment-note-block">{{ PAYMENT.PIX_INSTRUCTIONS }}</div>{% endif %}
+					<p class="help">{{ lang('MARKETPLACE_PIX_MANUAL_CONFIRM_EXPLAIN') }}</p>
+				</div>
+			{% endif %}
+
+			<p><a href="{{ U_BACK_TO_AD }}" class="button">{{ lang('RETURN_TO_PAGE') }}</a></p>
+		</div>
+	</div>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+	var qrTarget = document.getElementById('marketplace-pix-qrcode');
+	if (qrTarget && typeof qrcode === 'function') {
+		var payload = qrTarget.getAttribute('data-pix-payload') || '';
+		if (payload) {
+			try {
+				var qr = qrcode(0, 'M');
+				qr.addData(payload);
+				qr.make();
+				qrTarget.innerHTML = qr.createSvgTag({cellSize: 4, margin: 4, scalable: true, alt: '{{ lang('MARKETPLACE_PIX_QR_CODE')|e('js') }}'});
+			} catch (e) {
+				qrTarget.innerHTML = '<p class="error">{{ lang('MARKETPLACE_PIX_QR_CODE_ERROR')|e('js') }}</p>';
+			}
+		}
+	}
+
+	var buttons = document.querySelectorAll('.marketplace-copy-button');
+	for (var i = 0; i < buttons.length; i++) {
+		buttons[i].addEventListener('click', function() {
+			var value = this.getAttribute('data-copy') || '';
+			if (!value) { return; }
+			if (navigator.clipboard && navigator.clipboard.writeText) {
+				navigator.clipboard.writeText(value);
+			} else {
+				var input = document.createElement('input');
+				input.value = value;
+				document.body.appendChild(input);
+				input.select();
+				document.execCommand('copy');
+				document.body.removeChild(input);
+			}
+			this.textContent = '{{ lang('MARKETPLACE_COPIED')|e('js') }}';
+		});
+	}
+});
+</script>
+
+{% if PAYMENT.S_IS_PIX and PAYMENT.S_HAS_PIX_QR %}
+{% INCLUDEJS '@mundophpbb_marketplace/qrcode.js' %}
+{% endif %}
+{% include 'overall_footer.html' %}

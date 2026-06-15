@@ -1,0 +1,45 @@
+{% include 'ucp_header.html' %}
+
+<h2>{{ lang('UCP_MARKETPLACE_PROMOTIONS') }}</h2>
+
+<div class="mp-ucp-shell">
+<div class="panel marketplace-promotions-panel mp-ucp-section">
+	<div class="inner">
+		<h3>{{ lang('MARKETPLACE_MY_PROMOTION_REQUESTS') }}</h3>
+		<p>{{ lang('MARKETPLACE_MY_PROMOTION_REQUESTS_EXPLAIN') }}</p>
+		<form method="get" action="{{ U_ACTION }}" class="marketplace-inline-form">
+			<label>{{ lang('MARKETPLACE_PROMOTION_STATUS') }}{{ lang('COLON') }}
+				<select name="status">
+					<option value="-1"{% if S_FILTER_STATUS == -1 %} selected{% endif %}>{{ lang('MARKETPLACE_ALL') }}</option>
+					<option value="0"{% if S_FILTER_STATUS == 0 %} selected{% endif %}>{{ lang('MARKETPLACE_PROMOTION_STATUS_PENDING') }}</option>
+					<option value="1"{% if S_FILTER_STATUS == 1 %} selected{% endif %}>{{ lang('MARKETPLACE_PROMOTION_STATUS_APPROVED') }}</option>
+					<option value="2"{% if S_FILTER_STATUS == 2 %} selected{% endif %}>{{ lang('MARKETPLACE_PROMOTION_STATUS_REJECTED') }}</option>
+					<option value="3"{% if S_FILTER_STATUS == 3 %} selected{% endif %}>{{ lang('MARKETPLACE_PROMOTION_STATUS_AWAITING_PAYMENT') }}</option>
+				</select>
+			</label>
+			<input type="submit" value="{{ lang('MARKETPLACE_FILTER') }}" class="button button-small mp-ucp-button">
+		</form>
+		{% if S_HAS_USER_PROMOTIONS %}
+		<table class="table1 zebra-table responsive">
+			<thead><tr><th>{{ lang('MARKETPLACE_AD') }}</th><th>{{ lang('MARKETPLACE_PROMOTION_TYPE') }}</th><th>{{ lang('MARKETPLACE_PROMOTION_STATUS') }}</th><th>{{ lang('MARKETPLACE_PACKAGE_PRICE') }}</th><th>{{ lang('MARKETPLACE_PAYMENT') }}</th><th>{{ lang('MARKETPLACE_VALID_UNTIL') }}</th></tr></thead>
+			<tbody>
+			{% for promotion in USER_PROMOTIONS %}
+				<tr>
+					<td>{% if promotion.U_VIEW %}<a href="{{ promotion.U_VIEW }}">{{ promotion.ad_title }}</a>{% else %}{{ promotion.ad_title|default('-') }}{% endif %}<br><small>{{ lang('MARKETPLACE_CREATED') }}{{ lang('COLON') }} {{ promotion.PROMOTION_REQUESTED_DISPLAY }}</small></td>
+					<td>{{ promotion.PROMOTION_TYPE_LANG }}</td>
+					<td>{{ promotion.PROMOTION_STATUS_LANG }}{% if promotion.S_PROMOTION_ACTIVE %}<br><small><strong>{{ lang('MARKETPLACE_ACTIVE') }}</strong></small>{% endif %}</td>
+					<td>{{ promotion.PROMOTION_PRICE_DISPLAY }}</td>
+					<td>{{ promotion.PAYMENT_PROVIDER_LANG }}<br><small>{{ promotion.PAYMENT_REFERENCE_DISPLAY }}</small>{% if promotion.PAYMENT_LAST_STATUS_DISPLAY %}<br><small>{{ promotion.PAYMENT_LAST_STATUS_DISPLAY }}</small>{% endif %}</td>
+					<td>{{ promotion.PROMOTION_UNTIL_DISPLAY }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+		{% else %}
+			<div class="mp-ucp-empty mp-ucp-empty-small"><strong>{{ lang('MARKETPLACE_NO_PROMOTIONS') }}</strong><p>{{ lang('MARKETPLACE_NO_PROMOTIONS_EXPLAIN') }}</p></div>
+		{% endif %}
+	</div>
+</div>
+</div>
+
+{% include 'ucp_footer.html' %}

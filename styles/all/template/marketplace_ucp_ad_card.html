@@ -52,12 +52,22 @@
 			{% if ad.AD_EXPIRED_AT_DISPLAY %}<span>{{ lang('MARKETPLACE_EXPIRED_ON') }}: {{ ad.AD_EXPIRED_AT_DISPLAY }}</span>{% endif %}
 			{% if ad.AD_LAST_RENEWED_DISPLAY %}<span>{{ lang('MARKETPLACE_LAST_RENEWED') }}: {{ ad.AD_LAST_RENEWED_DISPLAY }}</span>{% endif %}
 			{% if ad.AD_NEXT_BUMP_DISPLAY %}<span>{{ lang('MARKETPLACE_NEXT_BUMP') }}: {{ ad.AD_NEXT_BUMP_DISPLAY }}</span>{% endif %}
+			{% if ad.AD_FEATURED_UNTIL_DISPLAY %}<span>{{ lang('MARKETPLACE_FEATURED_UNTIL') }}: {{ ad.AD_FEATURED_UNTIL_DISPLAY }}</span>{% endif %}
 			{% if ad.AD_BOOSTED_UNTIL_DISPLAY %}<span>{{ lang('MARKETPLACE_BOOSTED_UNTIL') }}: {{ ad.AD_BOOSTED_UNTIL_DISPLAY }}</span>{% endif %}
 		</div>
 
 		<div class="mp-ucp-actions">
 			{% if ad.U_EDIT %}<a href="{{ ad.U_EDIT }}" class="button button-small mp-ucp-button">{{ lang('MARKETPLACE_EDIT_AD') }}</a>{% endif %}
 			{% if ad.U_DELETE %}<a href="{{ ad.U_DELETE }}" class="button button-small button-danger mp-ucp-button">{{ lang('MARKETPLACE_DELETE_AD') }}</a>{% endif %}
+
+
+			{% if ad.S_CAN_PAUSE %}
+				<form method="post" action="{{ ad.U_ACTION }}" class="marketplace-inline-form">
+					<input type="hidden" name="action" value="pause">
+					<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_PAUSE_AD') }}" class="button button-small mp-ucp-button">
+					{{ S_FORM_TOKEN }}
+				</form>
+			{% endif %}
 
 			{% if ad.S_CAN_MARK_SOLD %}
 				<form method="post" action="{{ ad.U_ACTION }}" class="marketplace-inline-form">

@@ -4,7 +4,7 @@
    Used in: marketplace_index, marketplace_view (more ads), ucp_marketplace_overview
    ============================================================ #}
 
-<article class="mp-card{% if ad.S_IS_FEATURED %} mp-card-featured{% endif %}{% if ad.S_IS_BOOSTED %} mp-card-boosted{% endif %}{% if ad.ad_status != 1 %} mp-card-muted{% endif %}">
+<article class="mp-card mp-card-modern{% if ad.S_IS_FEATURED %} mp-card-featured{% endif %}{% if ad.S_IS_BOOSTED %} mp-card-boosted{% endif %}{% if ad.ad_status != 1 %} mp-card-muted{% endif %}">
 	<a href="{{ ad.U_VIEW }}" class="mp-card-media" aria-label="{{ ad.ad_title }}">
 		{% if ad.MAIN_IMAGE %}
 			<img src="{{ ad.MAIN_IMAGE }}" alt="{{ ad.ad_title }}" loading="lazy">
@@ -39,10 +39,15 @@
 			<div class="mp-price">{{ ad.AD_PRICE_DISPLAY }}</div>
 		{% endif %}
 
+		<div class="mp-card-actions">
+			{% if ad.U_FAVORITE %}<a href="{{ ad.U_FAVORITE }}" class="mp-icon-action{% if ad.S_IS_FAVORITE %} is-active{% endif %}" title="{{ lang('MARKETPLACE_FAVORITE') }}">♥</a>{% endif %}
+			{% if ad.U_COMPARE %}<a href="{{ ad.U_COMPARE }}" class="mp-icon-action" title="{{ lang('MARKETPLACE_COMPARE_ADD') }}">⇄</a>{% endif %}
+		</div>
+
 		<h4><a href="{{ ad.U_VIEW }}">{{ ad.ad_title }}</a></h4>
 
 		<div class="mp-card-meta">
-			{% if ad.ad_location %}<span>{{ ad.ad_location }}</span>{% endif %}
+			{% if ad.ad_location %}<span>{{ ad.LOCATION_DISPLAY|default(ad.ad_location) }}</span>{% endif %}
 			<span>{{ ad.AD_QUANTITY_LANG }}</span>
 			{% if ad.ad_condition != 0 %}<span>{{ ad.AD_CONDITION_LANG }}</span>{% endif %}
 		</div>
@@ -56,7 +61,8 @@
 		</div>
 
 		<div class="mp-card-stats">
-			<span>{{ ad.ad_views }} {{ lang('MARKETPLACE_VIEWS') }}</span>
+			<span>👁 {{ ad.ad_views }} {{ lang('MARKETPLACE_VIEWS') }}</span>
+			{% if ad.ad_contact_count is defined %}<span>✉ {{ ad.ad_contact_count }} {{ lang('MARKETPLACE_CONTACTS_RECEIVED') }}</span>{% endif %}
 			{% if ad.AD_EXPIRES_IN_LANG %}<span>{{ ad.AD_EXPIRES_IN_LANG }}</span>{% endif %}
 		</div>
 	</div>

@@ -1,0 +1,33 @@
+{% include 'ucp_header.html' %}
+
+<h2>{{ lang('UCP_MARKETPLACE_PAYMENTS') }}</h2>
+
+<div class="mp-ucp-shell">
+<div class="panel mp-ucp-section">
+	<div class="inner">
+		<h3>{{ lang('MARKETPLACE_MY_PAYMENT_HISTORY') }}</h3>
+		<p>{{ lang('MARKETPLACE_MY_PAYMENT_HISTORY_EXPLAIN') }}</p>
+		{% if S_HAS_PAYMENTS %}
+		<table class="table1 zebra-table responsive">
+			<thead><tr><th>{{ lang('MARKETPLACE_DATE') }}</th><th>{{ lang('MARKETPLACE_AD') }}</th><th>{{ lang('MARKETPLACE_PROMOTION_TYPE') }}</th><th>{{ lang('MARKETPLACE_VALUE') }}</th><th>{{ lang('MARKETPLACE_PAYMENT_STATUS') }}</th><th>{{ lang('MARKETPLACE_PAYMENT_REFERENCE') }}</th></tr></thead>
+			<tbody>
+			{% for payment in PAYMENTS %}
+			<tr>
+				<td>{{ payment.PAYMENT_CREATED_DISPLAY }}</td>
+				<td>{% if payment.U_VIEW %}<a href="{{ payment.U_VIEW }}">{{ payment.ad_title }}</a>{% else %}{{ payment.ad_title|default('-') }}{% endif %}</td>
+				<td>{{ payment.PROMOTION_TYPE_LANG }}<br><small>{{ payment.PROMOTION_STATUS_LANG }}</small></td>
+				<td>{{ payment.PAYMENT_AMOUNT_DISPLAY }}</td>
+				<td>{{ payment.payment_status|default('-') }}<br><small>{{ payment.PAYMENT_VALIDATION_STATUS_LANG }}</small></td>
+				<td><small>{% if payment.payment_reference %}{{ payment.payment_reference }}{% elseif payment.promotion_reference %}{{ payment.promotion_reference }}{% else %}-{% endif %}</small>{% if payment.payment_transaction_id %}<br><small>{{ payment.payment_transaction_id }}</small>{% endif %}</td>
+			</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+		{% else %}
+			<div class="mp-ucp-empty mp-ucp-empty-small"><strong>{{ lang('MARKETPLACE_NO_PAYMENTS') }}</strong><p>{{ lang('MARKETPLACE_NO_PAYMENTS_EXPLAIN') }}</p></div>
+		{% endif %}
+	</div>
+</div>
+</div>
+
+{% include 'ucp_footer.html' %}

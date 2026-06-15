@@ -1,0 +1,38 @@
+{% include 'ucp_header.html' %}
+
+<h2>{{ lang('UCP_MARKETPLACE_ADS') }}</h2>
+
+<div class="mp-ucp-shell">
+
+<div class="panel marketplace-myads-panel mp-ucp-section">
+	<div class="inner">
+		<div class="mp-ucp-section-head">
+			<div>
+				<h3>{{ lang('MARKETPLACE_MY_ADS') }}</h3>
+				<p>{{ lang('MARKETPLACE_UCP_MY_ADS_EXPLAIN') }}</p>
+			</div>
+			{% if S_CAN_POST %}<a href="{{ U_POST_NEW }}" class="button button-primary mp-ucp-post-button">{{ lang('MARKETPLACE_POST_AD') }}</a>{% endif %}
+		</div>
+
+		{% if MY_ADS|length %}
+			<div class="mp-ucp-grid">
+				{% for ad in MY_ADS %}
+						{% INCLUDE 'marketplace_ucp_ad_card.html' %}
+					{% endfor %}
+			</div>
+
+			{% if pagination|length %}<div class="pagination">{% include 'pagination.html' %}</div>{% endif %}
+		{% else %}
+			<div class="mp-ucp-empty mp-ucp-empty-ads">
+				<span class="mp-empty-icon" aria-hidden="true">＋</span>
+				<h3>{{ lang('MARKETPLACE_EMPTY_MY_ADS_TITLE') }}</h3>
+				<p>{{ lang('MARKETPLACE_EMPTY_MY_ADS_EXPLAIN') }}</p>
+				{% if S_CAN_POST %}<p><a href="{{ U_POST_NEW }}" class="button button-primary mp-ucp-button-primary">{{ lang('MARKETPLACE_POST_AD') }}</a></p>{% endif %}
+			</div>
+		{% endif %}
+	</div>
+</div>
+
+</div>
+
+{% include 'ucp_footer.html' %}

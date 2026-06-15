@@ -3,51 +3,40 @@
 <h2>{{ lang('UCP_MARKETPLACE_NOTIFICATIONS') }}</h2>
 
 <div class="mp-ucp-shell">
-
-
-{% if S_HAS_USER_PROMOTIONS %}
-<div class="panel marketplace-promotions-panel mp-ucp-section">
-	<div class="inner">
-		<h3>{{ lang('MARKETPLACE_MY_PROMOTION_REQUESTS') }}</h3>
-		<p>{{ lang('MARKETPLACE_MY_PROMOTION_REQUESTS_EXPLAIN') }}</p>
-		<table class="table1 zebra-table responsive">
-			<thead>
-				<tr>
-					<th>{{ lang('MARKETPLACE_AD') }}</th>
-					<th>{{ lang('MARKETPLACE_PROMOTION_TYPE') }}</th>
-					<th>{{ lang('MARKETPLACE_PROMOTION_STATUS') }}</th>
-					<th>{{ lang('MARKETPLACE_PACKAGE_PRICE') }}</th>
-					<th>{{ lang('MARKETPLACE_PAYMENT') }}</th>
-					<th>{{ lang('MARKETPLACE_VALID_UNTIL') }}</th>
-				</tr>
-			</thead>
-			<tbody>
-			{% for promotion in USER_PROMOTIONS %}
-				<tr>
-					<td>{% if promotion.U_VIEW %}<a href="{{ promotion.U_VIEW }}">{{ promotion.ad_title }}</a>{% else %}{{ promotion.ad_title|default('-') }}{% endif %}<br><small>{{ lang('MARKETPLACE_CREATED') }}{{ lang('COLON') }} {{ promotion.PROMOTION_REQUESTED_DISPLAY }}</small></td>
-					<td>{{ promotion.PROMOTION_TYPE_LANG }}</td>
-					<td>{{ promotion.PROMOTION_STATUS_LANG }}{% if promotion.S_PROMOTION_ACTIVE %}<br><small><strong>{{ lang('MARKETPLACE_ACTIVE') }}</strong></small>{% endif %}</td>
-					<td>{{ promotion.PROMOTION_PRICE_DISPLAY }}</td>
-					<td>{{ promotion.PAYMENT_PROVIDER_LANG }}<br><small>{{ promotion.PAYMENT_REFERENCE_DISPLAY }}</small>{% if promotion.PAYMENT_LAST_STATUS_DISPLAY %}<br><small>{{ promotion.PAYMENT_LAST_STATUS_DISPLAY }}</small>{% endif %}</td>
-					<td>{{ promotion.PROMOTION_UNTIL_DISPLAY }}</td>
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-	</div>
-</div>
-{% endif %}
 <div class="panel marketplace-notifications-panel mp-ucp-section">
 	<div class="inner">
 		<h3>{{ lang('MARKETPLACE_NOTIFICATIONS') }}{% if UNREAD_NOTIFICATIONS %} <span class="marketplace-nav-badge">{{ UNREAD_NOTIFICATIONS }}</span>{% endif %}</h3>
+		<p>{{ lang('MARKETPLACE_UCP_NOTIFICATIONS_EXPLAIN') }}</p>
+		<form method="get" action="{{ U_ACTION }}" class="marketplace-inline-form">
+			<label>{{ lang('MARKETPLACE_NOTIFICATION_TYPE') }}{{ lang('COLON') }}
+				<select name="notification_type">
+					<option value="">{{ lang('MARKETPLACE_ALL_TYPES') }}</option>
+					{% for type in NOTIFICATION_TYPES %}<option value="{{ type.VALUE }}"{% if S_FILTER_NOTIFICATION_TYPE == type.VALUE %} selected{% endif %}>{{ type.LABEL }}</option>{% endfor %}
+				</select>
+			</label>
+			<label>{{ lang('MARKETPLACE_NOTIFICATION_STATUS') }}{{ lang('COLON') }}
+				<select name="notification_read">
+					<option value="">{{ lang('MARKETPLACE_ALL') }}</option>
+					<option value="0"{% if S_FILTER_NOTIFICATION_READ == '0' %} selected{% endif %}>{{ lang('MARKETPLACE_UNREAD') }}</option>
+					<option value="1"{% if S_FILTER_NOTIFICATION_READ == '1' %} selected{% endif %}>{{ lang('MARKETPLACE_READ') }}</option>
+				</select>
+			</label>
+			<input type="submit" value="{{ lang('FILTER') }}" class="button button-small mp-ucp-button">
+		</form>
 		{% if NOTIFICATIONS|length %}
 			<ul class="marketplace-notifications-list">
 				{% for notification in NOTIFICATIONS %}
 					<li class="mp-ucp-notification{% if not notification.notification_read %} unread{% endif %}">
-						<strong>{{ notification.notification_title }}</strong><br>
+						<strong>{{ notification.notification_title }}</strong> <small>{{ notification.NOTIFICATION_TYPE_LANG }}</small><br>
 						<span>{{ notification.notification_message }}</span>
 						{% if notification.U_AD %}<br><a href="{{ notification.U_AD }}">{{ lang('MARKETPLACE_VIEW_AD') }}</a>{% endif %}
 						<small>{{ notification.NOTIFICATION_TIME_DISPLAY }}</small>
+						<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form">
+							<input type="hidden" name="action" value="delete_notification">
+							<input type="hidden" name="notification_id" value="{{ notification.notification_id }}">
+							<input type="submit" name="submit_action" value="{{ lang('DELETE') }}" class="button button-small mp-ucp-button">
+							{{ S_FORM_TOKEN }}
+						</form>
 					</li>
 				{% endfor %}
 			</ul>
@@ -58,6 +47,12 @@
 					{{ S_FORM_TOKEN }}
 				</form>
 			{% endif %}
+			<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form">
+				<input type="hidden" name="action" value="delete_old_notifications">
+				<label>{{ lang('MARKETPLACE_DELETE_NOTIFICATIONS_OLDER_THAN') }} <input type="number" name="days" value="90" min="1" style="width: 70px;"> {{ lang('MARKETPLACE_DAYS') }}</label>
+				<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_DELETE_OLD_NOTIFICATIONS') }}" class="button button-small mp-ucp-button">
+				{{ S_FORM_TOKEN }}
+			</form>
 		{% else %}
 			<div class="mp-ucp-empty mp-ucp-empty-small">
 				<strong>{{ lang('MARKETPLACE_EMPTY_NOTIFICATIONS_TITLE') }}</strong>
@@ -66,92 +61,6 @@
 		{% endif %}
 	</div>
 </div>
-
-{% if S_HAS_FOLLOWED_SELLERS %}
-<div class="panel marketplace-follows-panel mp-ucp-section">
-	<div class="inner">
-		<h3>{{ lang('MARKETPLACE_FOLLOWED_SELLERS') }}</h3>
-		<p>{{ lang('MARKETPLACE_FOLLOWED_SELLERS_EXPLAIN') }}</p>
-		<table class="table1 zebra-table responsive">
-			<thead>
-				<tr>
-					<th>{{ lang('MARKETPLACE_SELLER') }}</th>
-					<th>{{ lang('MARKETPLACE_ACTIVE_ADS') }}</th>
-					<th>{{ lang('MARKETPLACE_FOLLOWED_ON') }}</th>
-					<th>{{ lang('ACTIONS') }}</th>
-				</tr>
-			</thead>
-			<tbody>
-			{% for seller in FOLLOWED_SELLERS %}
-				<tr>
-					<td><a href="{{ seller.U_PROFILE }}"{% if seller.user_colour %} style="color: #{{ seller.user_colour }};"{% endif %}>{{ seller.username }}</a></td>
-					<td>{{ seller.active_ads }}</td>
-					<td>{{ seller.FOLLOW_CREATED_DISPLAY }}</td>
-					<td>
-						<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form">
-							<input type="hidden" name="action" value="unfollow_seller">
-							<input type="hidden" name="seller_id" value="{{ seller.followed_user_id }}">
-							<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_UNFOLLOW_SELLER') }}" class="button button-small mp-ucp-button">
-							{{ S_FORM_TOKEN }}
-						</form>
-					</td>
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-	</div>
-</div>
-{% endif %}
-
-{% if S_HAS_PENDING_SALES %}
-<div class="panel marketplace-sales-panel mp-ucp-section">
-	<div class="inner">
-		<h3>{{ lang('MARKETPLACE_PENDING_SALES') }}</h3>
-		<p>{{ lang('MARKETPLACE_PENDING_SALES_EXPLAIN') }}</p>
-		<table class="table1 zebra-table responsive">
-			<thead>
-				<tr>
-					<th>{{ lang('MARKETPLACE_AD') }}</th>
-					<th>{{ lang('MARKETPLACE_BUYER') }}</th>
-					<th>{{ lang('MARKETPLACE_PURCHASE_STATUS') }}</th>
-					<th>{{ lang('MARKETPLACE_PACKAGE_PRICE') }}</th>
-					<th>{{ lang('MARKETPLACE_PAYMENT_REFERENCE') }}</th>
-					<th>{{ lang('MARKETPLACE_CREATED') }}</th>
-					<th>{{ lang('ACTIONS') }}</th>
-				</tr>
-			</thead>
-			<tbody>
-			{% for sale in PENDING_SALES %}
-				<tr>
-					<td><a href="{{ sale.U_VIEW }}">{{ sale.ad_title }}</a></td>
-					<td>{{ sale.buyer_username }}</td>
-					<td>{{ sale.PURCHASE_STATUS_LANG }}</td>
-					<td>{{ sale.PURCHASE_PRICE_DISPLAY }}</td>
-					<td><small>{{ sale.PAYMENT_REFERENCE_DISPLAY }}</small></td>
-					<td>{{ sale.PURCHASE_CREATED_DISPLAY }}</td>
-					<td>
-						<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form">
-							<input type="hidden" name="action" value="approve_sale">
-							<input type="hidden" name="purchase_id" value="{{ sale.purchase_id }}">
-							<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_CONFIRM_SALE') }}" class="button button-small mp-ucp-button">
-							{{ S_FORM_TOKEN }}
-						</form>
-						<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form">
-							<input type="hidden" name="action" value="reject_sale">
-							<input type="hidden" name="purchase_id" value="{{ sale.purchase_id }}">
-							<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_REJECT_SALE') }}" class="button button-small button-danger mp-ucp-button">
-							{{ S_FORM_TOKEN }}
-						</form>
-					</td>
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-	</div>
-</div>
-{% endif %}
-
-
 </div>
 
 {% include 'ucp_footer.html' %}

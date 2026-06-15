@@ -22,18 +22,9 @@ class v_1_4_15 extends \phpbb\db\migration\migration
 	public function update_data()
 	{
 		return [
-			['module.add', [
-				'ucp',
-				'UCP_MARKETPLACE_TITLE',
-				[
-					'module_basename' => '\mundophpbb\marketplace\ucp\main_module',
-					'modes' => ['notifications'],
-				],
-			]],
 			['config.update', ['marketplace_version', '1.4.15']],
 		];
 	}
-
 	public function revert_data()
 	{
 		return [];

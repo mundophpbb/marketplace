@@ -1,0 +1,182 @@
+{% include 'ucp_header.html' %}
+
+<h2>{{ lang('UCP_MARKETPLACE_SALES') }}</h2>
+
+<div class="panel">
+	<div class="inner">
+		<form method="get" action="{{ U_ACTION }}" class="marketplace-filter-form">
+			<label>{{ lang('MARKETPLACE_PURCHASE_STATUS') }}
+				<select name="status">
+					<option value="-1"{% if S_FILTER_STATUS == -1 %} selected{% endif %}>{{ lang('MARKETPLACE_ALL') }}</option>
+					<option value="0"{% if S_FILTER_STATUS == 0 %} selected{% endif %}>{{ lang('MARKETPLACE_PURCHASE_STATUS_PENDING') }}</option>
+					<option value="1"{% if S_FILTER_STATUS == 1 %} selected{% endif %}>{{ lang('MARKETPLACE_PURCHASE_STATUS_APPROVED') }}</option>
+					<option value="2"{% if S_FILTER_STATUS == 2 %} selected{% endif %}>{{ lang('MARKETPLACE_PURCHASE_STATUS_REJECTED') }}</option>
+					<option value="3"{% if S_FILTER_STATUS == 3 %} selected{% endif %}>{{ lang('MARKETPLACE_PURCHASE_STATUS_AWAITING_PAYMENT') }}</option>
+					<option value="4"{% if S_FILTER_STATUS == 4 %} selected{% endif %}>{{ lang('MARKETPLACE_PURCHASE_STATUS_CANCELLED') }}</option>
+					<option value="5"{% if S_FILTER_STATUS == 5 %} selected{% endif %}>{{ lang('MARKETPLACE_PURCHASE_STATUS_COMPLETED') }}</option>
+				</select>
+			</label>
+			<input type="submit" value="{{ lang('MARKETPLACE_FILTER') }}" class="button">
+		</form>
+	</div>
+</div>
+
+<div class="panel">
+	<div class="inner">
+		<h3>{{ lang('MARKETPLACE_SALES_HISTORY') }}</h3>
+		{% if S_HAS_SALES %}
+			<table class="table1 responsive">
+				<thead>
+					<tr>
+						<th>{{ lang('MARKETPLACE_AD') }}</th>
+						<th>{{ lang('MARKETPLACE_BUYER') }}</th>
+						<th>{{ lang('MARKETPLACE_VALUE') }}</th>
+						<th>{{ lang('MARKETPLACE_PURCHASE_STATUS') }}</th>
+						<th>{{ lang('MARKETPLACE_DATE') }}</th>
+						<th>{{ lang('MARKETPLACE_ACTIONS') }}</th>
+					</tr>
+				</thead>
+				<tbody>
+				{% for sale in SALES %}
+					<tr>
+						<td>{% if sale.U_VIEW %}<a href="{{ sale.U_VIEW }}">{{ sale.ad_title }}</a>{% else %}{{ sale.ad_title }}{% endif %}</td>
+						<td>{% if sale.buyer_username %}<span{% if sale.buyer_user_colour %} style="color:#{{ sale.buyer_user_colour }}"{% endif %}>{{ sale.buyer_username }}</span>{% else %}-{% endif %}</td>
+						<td>{{ sale.PURCHASE_PRICE_DISPLAY }}</td>
+						<td>{{ sale.PURCHASE_STATUS_LANG }}{% if sale.U_PAYMENT %}<br><a href="{{ sale.U_PAYMENT }}" class="button button-small">{{ lang('MARKETPLACE_VIEW_PAYMENT_INSTRUCTIONS') }}</a>{% endif %}</td>
+						<td>{{ sale.PURCHASE_CREATED_DISPLAY }}</td>
+						<td>
+							{% if sale.S_CAN_APPROVE %}
+							<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form"><input type="hidden" name="action" value="approve_sale"><input type="hidden" name="purchase_id" value="{{ sale.purchase_id }}"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_APPROVE_PURCHASE') }}" class="button button-small">{{ S_FORM_TOKEN }}</form>
+							{% endif %}
+							{% if sale.S_CAN_REJECT %}
+							<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form"><input type="hidden" name="action" value="reject_sale"><input type="hidden" name="purchase_id" value="{{ sale.purchase_id }}"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_REJECT_PURCHASE') }}" class="button button-small">{{ S_FORM_TOKEN }}</form>
+							{% endif %}
+							{% if sale.S_CAN_COMPLETE_SELLER %}
+							<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form"><input type="hidden" name="action" value="complete_sale"><input type="hidden" name="purchase_id" value="{{ sale.purchase_id }}"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_COMPLETE_SALE') }}" class="button button-small">{{ S_FORM_TOKEN }}</form>
+							{% endif %}
+							{% if sale.S_CAN_RATE %}
+							<form method="post" action="{{ U_ACTION }}" class="marketplace-review-form">
+								<input type="hidden" name="action" value="submit_rating"><input type="hidden" name="purchase_id" value="{{ sale.purchase_id }}">
+								<div class="mp-rating-input mp-rating-picker" aria-label="{{ lang('MARKETPLACE_RATE_BUYER') }}" data-default-score="5">
+									<input type="hidden" name="review_score" value="5">
+									<button type="button" class="mp-rating-star is-active" data-score="1" aria-label="1/5">★</button>
+									<button type="button" class="mp-rating-star is-active" data-score="2" aria-label="2/5">★</button>
+									<button type="button" class="mp-rating-star is-active" data-score="3" aria-label="3/5">★</button>
+									<button type="button" class="mp-rating-star is-active" data-score="4" aria-label="4/5">★</button>
+									<button type="button" class="mp-rating-star is-active" data-score="5" aria-label="5/5">★</button>
+									<span class="mp-rating-current" aria-hidden="true">5/5</span>
+								</div>
+								<input type="text" name="review_comment" class="inputbox autowidth" placeholder="{{ lang('MARKETPLACE_REVIEW_COMMENT') }}">
+								<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_RATE_BUYER') }}" class="button button-small">{{ S_FORM_TOKEN }}
+							</form>
+							{% endif %}
+							{% if sale.GIVEN_REVIEW %}<div class="mp-review-mini"><strong>{{ lang('MARKETPLACE_YOUR_REVIEW') }}:</strong> <span class="mp-stars" aria-label="{{ sale.GIVEN_REVIEW.review_score }}/5">{{ sale.GIVEN_REVIEW.REVIEW_SCORE_STARS }}</span>{% if sale.GIVEN_REVIEW.review_comment %}<br>{{ sale.GIVEN_REVIEW.review_comment }}{% endif %}</div>{% endif %}
+							{% if sale.RECEIVED_REVIEW %}<div class="mp-review-mini"><strong>{{ lang('MARKETPLACE_REVIEW_RECEIVED') }}:</strong> <span class="mp-stars" aria-label="{{ sale.RECEIVED_REVIEW.review_score }}/5">{{ sale.RECEIVED_REVIEW.REVIEW_SCORE_STARS }}</span>{% if sale.RECEIVED_REVIEW.review_comment %}<br>{{ sale.RECEIVED_REVIEW.review_comment }}{% endif %}{% if sale.RECEIVED_REVIEW.S_CAN_REPORT_REVIEW %}<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form"><input type="hidden" name="action" value="report_rating"><input type="hidden" name="review_id" value="{{ sale.RECEIVED_REVIEW.review_id }}"><input type="text" name="review_report_reason" class="inputbox autowidth" placeholder="{{ lang('MARKETPLACE_REVIEW_REPORT_REASON') }}"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_REPORT_REVIEW') }}" class="button button-small">{{ S_FORM_TOKEN }}</form>{% endif %}</div>{% endif %}
+						</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		{% else %}
+			<p>{{ lang('MARKETPLACE_NO_SALES') }}</p>
+		{% endif %}
+	</div>
+</div>
+
+<script>
+(function () {
+	'use strict';
+
+	function updateMarketplaceRating(picker, score) {
+		score = parseInt(score, 10) || 0;
+		var input = picker.querySelector('input[name="review_score"]');
+		var current = picker.querySelector('.mp-rating-current');
+		var stars = picker.querySelectorAll('.mp-rating-star');
+
+		if (input) {
+			input.value = score;
+		}
+
+		for (var i = 0; i < stars.length; i++) {
+			var starScore = parseInt(stars[i].getAttribute('data-score'), 10) || 0;
+			stars[i].className = stars[i].className.replace(/\s?is-active/g, '').replace(/\s?is-preview/g, '');
+			if (starScore <= score) {
+				stars[i].className += ' is-active';
+			}
+		}
+
+		if (current) {
+			current.innerHTML = score + '/5';
+		}
+	}
+
+	function previewMarketplaceRating(picker, score) {
+		score = parseInt(score, 10) || 0;
+		var stars = picker.querySelectorAll('.mp-rating-star');
+		for (var i = 0; i < stars.length; i++) {
+			var starScore = parseInt(stars[i].getAttribute('data-score'), 10) || 0;
+			stars[i].className = stars[i].className.replace(/\s?is-preview/g, '');
+			if (starScore <= score) {
+				stars[i].className += ' is-preview';
+			}
+		}
+	}
+
+	function resetMarketplaceRatingPreview(picker) {
+		var stars = picker.querySelectorAll('.mp-rating-star');
+		for (var i = 0; i < stars.length; i++) {
+			stars[i].className = stars[i].className.replace(/\s?is-preview/g, '');
+		}
+	}
+
+	document.addEventListener('click', function (event) {
+		var target = event.target;
+		if (!target || !target.className || target.className.indexOf('mp-rating-star') === -1) {
+			return;
+		}
+
+		var picker = target.parentNode;
+		while (picker && (!picker.className || picker.className.indexOf('mp-rating-picker') === -1)) {
+			picker = picker.parentNode;
+		}
+
+		if (picker) {
+			updateMarketplaceRating(picker, target.getAttribute('data-score'));
+		}
+	});
+
+	document.addEventListener('mouseover', function (event) {
+		var target = event.target;
+		if (!target || !target.className || target.className.indexOf('mp-rating-star') === -1) {
+			return;
+		}
+
+		var picker = target.parentNode;
+		while (picker && (!picker.className || picker.className.indexOf('mp-rating-picker') === -1)) {
+			picker = picker.parentNode;
+		}
+
+		if (picker) {
+			previewMarketplaceRating(picker, target.getAttribute('data-score'));
+		}
+	});
+
+	document.addEventListener('mouseout', function (event) {
+		var target = event.target;
+		if (!target || !target.className || target.className.indexOf('mp-rating-star') === -1) {
+			return;
+		}
+
+		var picker = target.parentNode;
+		while (picker && (!picker.className || picker.className.indexOf('mp-rating-picker') === -1)) {
+			picker = picker.parentNode;
+		}
+
+		if (picker) {
+			resetMarketplaceRatingPreview(picker);
+		}
+	});
+})();
+</script>
+
+{% include 'ucp_footer.html' %}
