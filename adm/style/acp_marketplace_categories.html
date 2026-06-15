@@ -1,11 +1,21 @@
 {% include 'overall_header.html' %}
-<!-- INCLUDECSS @mundophpbb_marketplace/acp_marketplace.css -->
 
 <h1>{{ lang('MARKETPLACE_ACP_CATEGORIES') }}</h1>
 <p>{{ lang('MARKETPLACE_ACP_CATEGORIES_EXPLAIN') }}</p>
 
 {% if S_EDIT or S_ADD %}
+	<div class="mp-acp-category-toolbar">
+		{% if S_EDIT %}
+			<a href="{{ U_ACTION }}&amp;action=add" class="button1 mp-acp-add-category-button">{{ lang('MARKETPLACE_ADD_CATEGORY') }}</a>
+			<span>{{ lang('MARKETPLACE_ACP_CATEGORY_HINT') }}</span>
+		{% else %}
+			<a href="{{ U_ACTION }}" class="button">{{ lang('BACK') }}</a>
+		{% endif %}
+	</div>
+
 	<form method="post" action="{{ U_ACTION }}">
+		{% if S_EDIT %}<input type="hidden" name="cat_id" value="{{ CAT_ID }}">{% endif %}
+		{% if S_ADD %}<input type="hidden" name="action" value="add">{% endif %}
 		<fieldset>
 			<legend>{{ S_EDIT ? lang('MARKETPLACE_EDIT_CATEGORY') : lang('MARKETPLACE_ADD_CATEGORY') }}</legend>
 
@@ -116,7 +126,7 @@
 	</form>
 {% else %}
 	<div class="mp-acp-category-toolbar">
-		<a href="{{ U_ACTION }}&amp;action=add" class="button">{{ lang('MARKETPLACE_ADD_CATEGORY') }}</a>
+		<a href="{{ U_ACTION }}&amp;action=add" class="button1 mp-acp-add-category-button">{{ lang('MARKETPLACE_ADD_CATEGORY') }}</a>
 		<span>{{ lang('MARKETPLACE_ACP_CATEGORY_HINT') }}</span>
 	</div>
 {% endif %}

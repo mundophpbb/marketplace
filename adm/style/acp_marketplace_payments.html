@@ -1,5 +1,4 @@
 {% include 'overall_header.html' %}
-<!-- INCLUDECSS @mundophpbb_marketplace/acp_marketplace.css -->
 
 <h1>{{ lang('MARKETPLACE_ACP_PAYMENTS') }}</h1>
 <p>{{ lang('MARKETPLACE_ACP_PAYMENTS_EXPLAIN') }}</p>
@@ -72,7 +71,7 @@
 		<td>{{ payment.PAYMENT_AMOUNT_DISPLAY }}</td>
 		<td>
 			{% if payment.S_CAN_REVALIDATE %}
-			<form method="post" action="{{ U_ACTION }}" class="mp-acp-inline-form">
+			<form method="post" action="{{ U_ACTION }}" style="display:inline;">
 				<input type="hidden" name="action" value="revalidate_payment">
 				<input type="hidden" name="payment_log_id" value="{{ payment.payment_log_id }}">
 				<input class="button2" type="submit" name="submit_action" value="{{ lang('MARKETPLACE_PAYMENT_REVALIDATE') }}">

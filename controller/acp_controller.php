@@ -764,6 +764,13 @@ class acp_controller
 		$action = $this->request->variable('action', '');
 		$cat_id = $this->request->variable('cat_id', 0);
 
+		// The add form must always create a fresh category.
+		// Editing is only allowed when a valid cat_id is explicitly preserved in the form.
+		if ($action === 'add')
+		{
+			$cat_id = 0;
+		}
+
 		if ($action === 'toggle' && $cat_id)
 		{
 			if (!$this->request->is_set_post('submit_action') || !\check_form_key('mundophpbb_marketplace_acp_cats'))
@@ -919,6 +926,11 @@ class acp_controller
 			$result = $this->db->sql_query($sql);
 			$cat_data = $this->db->sql_fetchrow($result);
 			$this->db->sql_freeresult($result);
+
+			if (!$cat_data)
+			{
+				$cat_id = 0;
+			}
 		}
 
 		$categories = [];

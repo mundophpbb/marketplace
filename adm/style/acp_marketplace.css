@@ -528,3 +528,31 @@
 		grid-template-columns: 1fr;
 	}
 }
+
+
+/* acp_marketplace_categories.html */
+.mp-acp-category-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin: 12px 0 14px;
+	padding: 10px 12px;
+	border: 1px solid #d7d7d7;
+	background: #f5f7fa;
+	border-radius: 4px;
+}
+
+.mp-acp-category-toolbar .mp-acp-add-category-button {
+	font-weight: bold;
+}
+
+.mp-acp-category-toolbar span {
+	color: #666;
+}
+
+@media (max-width: 700px) {
+	.mp-acp-category-toolbar {
+		align-items: stretch;
+		flex-direction: column;
+	}
+}

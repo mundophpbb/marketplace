@@ -1,5 +1,4 @@
 {% include 'overall_header.html' %}
-<!-- INCLUDECSS @mundophpbb_marketplace/acp_marketplace.css -->
 
 <h1>{{ lang('MARKETPLACE_ACP_PACKAGES') }}</h1>
 <p>{{ lang('MARKETPLACE_ACP_PACKAGES_EXPLAIN') }}</p>
@@ -137,13 +136,13 @@
 				<td>{{ package.package_enabled ? lang('YES') : lang('NO') }}</td>
 				<td>
 					<a href="{{ package.U_EDIT }}">{{ lang('EDIT') }}</a>
-					<form method="post" action="{{ U_ACTION }}" class="mp-acp-inline-form">
+					<form method="post" action="{{ U_ACTION }}" style="display:inline">
 						<input type="hidden" name="action" value="toggle">
 						<input type="hidden" name="package_id" value="{{ package.package_id }}">
 						<input type="submit" name="submit_action" value="{{ package.package_enabled ? lang('DISABLE') : lang('ENABLE') }}" class="button2">
 						{{ S_FORM_TOKEN }}
 					</form>
-					<form method="post" action="{{ U_ACTION }}" class="mp-acp-inline-form">
+					<form method="post" action="{{ U_ACTION }}" style="display:inline">
 						<input type="hidden" name="action" value="delete">
 						<input type="hidden" name="package_id" value="{{ package.package_id }}">
 						<input type="submit" name="submit_action" value="{{ lang('DELETE') }}" class="button2">

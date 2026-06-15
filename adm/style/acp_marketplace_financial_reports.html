@@ -1,7 +1,67 @@
 {% include 'overall_header.html' %}
-<!-- INCLUDECSS @mundophpbb_marketplace/acp_marketplace.css -->
 
-
+<style>
+	.mp-acp-financial-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(150px, 1fr));
+		gap: 10px;
+		margin: 12px 0 16px;
+	}
+	.mp-acp-financial-card {
+		padding: 12px;
+		border: 1px solid #d7d7d7;
+		background: #f7f9fb;
+		border-radius: 4px;
+	}
+	.mp-acp-financial-card strong {
+		display: block;
+		font-size: 20px;
+		line-height: 1.2;
+		color: #115098;
+	}
+	.mp-acp-financial-card span {
+		display: block;
+		margin-top: 4px;
+		color: #555;
+		font-size: 11px;
+		font-weight: bold;
+		text-transform: uppercase;
+	}
+	.mp-acp-financial-card.success strong { color: #246b24; }
+	.mp-acp-financial-card.warning strong { color: #8a5a00; }
+	.mp-acp-financial-card.danger strong { color: #8b1e1e; }
+	.mp-acp-financial-columns {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 14px;
+		margin-top: 14px;
+	}
+	.mp-acp-financial-columns .panel { margin: 0; }
+	.mp-acp-financial-filters fieldset dl { margin-bottom: 8px; }
+	.mp-acp-financial-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 7px;
+		margin-top: 8px;
+	}
+	.mp-acp-financial-empty {
+		padding: 12px;
+		border: 1px dashed #c7c7c7;
+		background: #fbfbfb;
+		color: #666;
+		text-align: center;
+	}
+	.mp-acp-financial-table td.amount,
+	.mp-acp-financial-table th.amount,
+	.mp-acp-financial-table td.center,
+	.mp-acp-financial-table th.center {
+		text-align: center;
+	}
+	@media (max-width: 900px) {
+		.mp-acp-financial-grid { grid-template-columns: repeat(2, minmax(150px, 1fr)); }
+		.mp-acp-financial-columns { grid-template-columns: 1fr; }
+	}
+</style>
 
 <h1>{{ lang('MARKETPLACE_ACP_FINANCIAL_REPORTS') }}</h1>
 <p>{{ lang('MARKETPLACE_ACP_FINANCIAL_REPORTS_EXPLAIN') }}</p>

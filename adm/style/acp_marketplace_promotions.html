@@ -1,5 +1,4 @@
 {% include 'overall_header.html' %}
-<!-- INCLUDECSS @mundophpbb_marketplace/acp_marketplace.css -->
 
 <h1>{{ lang('MARKETPLACE_ACP_PROMOTIONS') }}</h1>
 <p>{{ lang('MARKETPLACE_ACP_PROMOTIONS_EXPLAIN') }}</p>
@@ -41,10 +40,10 @@
 		<td>{{ promotion.PROMOTION_REQUESTED_DISPLAY }}</td>
 		<td>
 		{% if promotion.promotion_status == 0 %}
-			<form method="post" action="{{ U_ACTION }}" class="mp-acp-inline-form">
+			<form method="post" action="{{ U_ACTION }}" style="display:inline">
 				<input type="hidden" name="action" value="approve_promotion"><input type="hidden" name="promotion_id" value="{{ promotion.promotion_id }}"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_APPROVE') }}" class="button-small">{{ S_FORM_TOKEN }}
 			</form>
-			<form method="post" action="{{ U_ACTION }}" class="mp-acp-inline-form">
+			<form method="post" action="{{ U_ACTION }}" style="display:inline">
 				<input type="hidden" name="action" value="reject_promotion"><input type="hidden" name="promotion_id" value="{{ promotion.promotion_id }}"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_REJECT') }}" class="button-small">{{ S_FORM_TOKEN }}
 			</form>
 		{% else %}-{% endif %}

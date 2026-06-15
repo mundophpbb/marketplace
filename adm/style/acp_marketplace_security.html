@@ -1,5 +1,4 @@
 {% include 'overall_header.html' %}
-<!-- INCLUDECSS @mundophpbb_marketplace/acp_marketplace.css -->
 
 <h1>{{ lang('MARKETPLACE_ACP_SECURITY') }}</h1>
 <p>{{ lang('MARKETPLACE_ACP_SECURITY_EXPLAIN') }}</p>
@@ -42,11 +41,11 @@
 			<td>{{ term.TERM_CREATED_DISPLAY }}</td>
 			<td>{{ term.term_enabled ? lang('ENABLED') : lang('DISABLED') }}</td>
 			<td>
-				<form method="post" action="{{ U_ACTION }}" class="mp-acp-inline-form">
+				<form method="post" action="{{ U_ACTION }}" style="display:inline">
 					<input type="hidden" name="action" value="toggle_term"><input type="hidden" name="term_id" value="{{ term.term_id }}">
 					<input type="submit" name="submit_action" value="{{ term.term_enabled ? lang('DISABLE') : lang('ENABLE') }}" class="button-small">{{ S_FORM_TOKEN }}
 				</form>
-				<form method="post" action="{{ U_ACTION }}" class="mp-acp-inline-form">
+				<form method="post" action="{{ U_ACTION }}" style="display:inline">
 					<input type="hidden" name="action" value="delete_term"><input type="hidden" name="term_id" value="{{ term.term_id }}">
 					<input type="submit" name="submit_action" value="{{ lang('DELETE') }}" class="button-small">{{ S_FORM_TOKEN }}
 				</form>
@@ -59,7 +58,7 @@
 </table>
 
 <h2>{{ lang('MARKETPLACE_PUBLISH_LIMITS') }}</h2>
-<div class="mp-acp-two-columns">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
 	<div>
 		<form method="post" action="{{ U_ACTION }}">
 			<fieldset>
