@@ -1,0 +1,110 @@
+{# ============================================================
+   marketplace_ucp_ad_card.html
+   UCP My Ads card component (v1.6.3)
+   Specialized for owner view with action buttons
+   ============================================================ #}
+
+<article class="mp-ucp-card">
+	<a href="{{ ad.U_VIEW }}" class="mp-ucp-media">
+		{% if ad.MAIN_IMAGE %}
+			<img src="{{ ad.MAIN_IMAGE }}" alt="{{ ad.ad_title }}" loading="lazy">
+		{% else %}
+			<span>{{ lang('MARKETPLACE_NO_IMAGE') }}</span>
+		{% endif %}
+	</a>
+
+	<div class="mp-ucp-body">
+		<div class="mp-ucp-top">
+			<span class="status-badge status-{{ ad.ad_status }}">{{ ad.STATUS_LANG }}</span>
+			{% if ad.S_IS_FEATURED %}<span class="status-badge status-featured">{{ lang('MARKETPLACE_FEATURED') }}</span>{% endif %}
+			{% if ad.S_IS_BOOSTED %}<span class="status-badge status-boosted">{{ lang('MARKETPLACE_BOOSTED') }}</span>{% endif %}
+		</div>
+
+		<h3><a href="{{ ad.U_VIEW }}">{{ ad.ad_title }}</a></h3>
+
+		{% if ad.AD_PRICE_DISPLAY %}
+			<div class="mp-ucp-price">{{ ad.AD_PRICE_DISPLAY }}</div>
+		{% endif %}
+
+		{% if ad.ad_status == 0 %}
+			<div class="mp-ucp-status-note pending">{{ lang('MARKETPLACE_UCP_PENDING_EXPLAIN') }}</div>
+		{% endif %}
+		{% if ad.ad_status == 3 %}
+			<div class="mp-ucp-status-note expired">{{ lang('MARKETPLACE_UCP_EXPIRED_EXPLAIN') }}</div>
+		{% endif %}
+		{% if ad.ad_status == 4 %}
+			<div class="mp-ucp-status-note hidden">
+				{{ lang('MARKETPLACE_UCP_HIDDEN_EXPLAIN') }}
+				{% if ad.ad_hidden_reason %}<br><strong>{{ lang('MARKETPLACE_HIDDEN_REASON') }}:</strong> {{ ad.ad_hidden_reason }}{% endif %}
+			</div>
+		{% endif %}
+
+		<div class="mp-ucp-meta">
+			{% if ad.cat_name %}<span>{{ ad.cat_name }}</span>{% endif %}
+			<span>{{ ad.AD_QUANTITY_LANG }}</span>
+			<span>{{ ad.AD_TYPE_LANG }}</span>
+			{% if ad.ad_condition != 0 %}<span>{{ ad.AD_CONDITION_LANG }}</span>{% endif %}
+			<span>{{ ad.ad_views }} {{ lang('MARKETPLACE_VIEWS') }}</span>
+		</div>
+
+		<div class="mp-ucp-dates">
+			{% if ad.AD_EXPIRES_DISPLAY %}<span>{{ lang('MARKETPLACE_EXPIRES_ON') }}: {{ ad.AD_EXPIRES_DISPLAY }}</span>{% endif %}
+			{% if ad.AD_EXPIRED_AT_DISPLAY %}<span>{{ lang('MARKETPLACE_EXPIRED_ON') }}: {{ ad.AD_EXPIRED_AT_DISPLAY }}</span>{% endif %}
+			{% if ad.AD_LAST_RENEWED_DISPLAY %}<span>{{ lang('MARKETPLACE_LAST_RENEWED') }}: {{ ad.AD_LAST_RENEWED_DISPLAY }}</span>{% endif %}
+			{% if ad.AD_NEXT_BUMP_DISPLAY %}<span>{{ lang('MARKETPLACE_NEXT_BUMP') }}: {{ ad.AD_NEXT_BUMP_DISPLAY }}</span>{% endif %}
+			{% if ad.AD_FEATURED_UNTIL_DISPLAY %}<span>{{ lang('MARKETPLACE_FEATURED_UNTIL') }}: {{ ad.AD_FEATURED_UNTIL_DISPLAY }}</span>{% endif %}
+			{% if ad.AD_BOOSTED_UNTIL_DISPLAY %}<span>{{ lang('MARKETPLACE_BOOSTED_UNTIL') }}: {{ ad.AD_BOOSTED_UNTIL_DISPLAY }}</span>{% endif %}
+		</div>
+
+		<div class="mp-ucp-actions">
+			{% if ad.U_EDIT %}<a href="{{ ad.U_EDIT }}" class="button button-small mp-ucp-button">{{ lang('MARKETPLACE_EDIT_AD') }}</a>{% endif %}
+			{% if ad.U_DELETE %}<a href="{{ ad.U_DELETE }}" class="button button-small button-danger mp-ucp-button">{{ lang('MARKETPLACE_DELETE_AD') }}</a>{% endif %}
+
+
+			{% if ad.S_CAN_PAUSE %}
+				<form method="post" action="{{ ad.U_ACTION }}" class="marketplace-inline-form">
+					<input type="hidden" name="action" value="pause">
+					<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_PAUSE_AD') }}" class="button button-small mp-ucp-button">
+					{{ S_FORM_TOKEN }}
+				</form>
+			{% endif %}
+
+			{% if ad.S_CAN_MARK_SOLD %}
+				<form method="post" action="{{ ad.U_ACTION }}" class="marketplace-inline-form">
+					<input type="hidden" name="action" value="mark_sold">
+					<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_MARK_AS_SOLD') }}" class="button button-small mp-ucp-button button-success">
+					{{ S_FORM_TOKEN }}
+				</form>
+			{% endif %}
+
+			{% if ad.S_CAN_MANAGE_STOCK %}
+				<form method="post" action="{{ ad.U_ACTION }}" class="marketplace-inline-form">
+					<input type="hidden" name="action" value="stock_decrease">
+					<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_STOCK_DECREASE') }}" class="button button-small mp-ucp-button">
+					{{ S_FORM_TOKEN }}
+				</form>
+				<form method="post" action="{{ ad.U_ACTION }}" class="marketplace-inline-form">
+					<input type="hidden" name="action" value="stock_increase">
+					<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_STOCK_INCREASE') }}" class="button button-small mp-ucp-button">
+					{{ S_FORM_TOKEN }}
+				</form>
+			{% endif %}
+
+			{% if ad.S_CAN_RENEW %}
+				<form method="post" action="{{ ad.U_ACTION }}" class="marketplace-inline-form">
+					<input type="hidden" name="action" value="renew">
+					<input type="submit" name="submit_action" value="{{ ad.ad_status == 3 ? lang('MARKETPLACE_REPUBLISH_AD') : lang('MARKETPLACE_RENEW_AD') }}" class="button button-small mp-ucp-button button-primary">
+					{{ S_FORM_TOKEN }}
+				</form>
+			{% endif %}
+
+			{% if ad.S_CAN_BUMP %}
+				<form method="post" action="{{ ad.U_ACTION }}" class="marketplace-inline-form">
+					<input type="hidden" name="action" value="bump">
+					<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_BUMP_AD') }}" class="button button-small mp-ucp-button">
+					{{ S_FORM_TOKEN }}
+				</form>
+			{% endif %}
+		</div>
+	</div>
+</article>

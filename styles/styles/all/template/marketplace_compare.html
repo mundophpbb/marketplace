@@ -1,0 +1,20 @@
+{% include 'overall_header.html' %}
+<div class="mp-shell mp-wide-page mp-compare-page">
+	<div class="panel"><div class="inner">
+		<div class="mp-section-head"><div><p class="mp-results-label">{{ lang('MARKETPLACE') }}</p><h2>{{ lang('MARKETPLACE_COMPARE') }}</h2><p>{{ lang('MARKETPLACE_COMPARE_EXPLAIN') }}</p></div><a href="{{ U_CLEAR_COMPARE }}" class="button">{{ lang('MARKETPLACE_COMPARE_CLEAR') }}</a></div>
+		{% if ADS|length %}
+			<div class="mp-compare-grid">
+			{% for ad in ADS %}
+				<article class="mp-compare-card">
+					{% if ad.MAIN_IMAGE %}<img src="{{ ad.MAIN_IMAGE }}" alt="{{ ad.ad_title }}">{% endif %}
+					<h3><a href="{{ ad.U_VIEW }}">{{ ad.ad_title }}</a></h3>
+					{% if ad.AD_PRICE_DISPLAY %}<strong class="mp-price">{{ ad.AD_PRICE_DISPLAY }}</strong>{% endif %}
+					<dl><dt>{{ lang('MARKETPLACE_CATEGORY') }}</dt><dd>{{ ad.cat_name }}</dd><dt>{{ lang('MARKETPLACE_CONDITION') }}</dt><dd>{{ ad.AD_CONDITION_LANG }}</dd><dt>{{ lang('MARKETPLACE_LOCATION') }}</dt><dd>{{ ad.ad_location }}</dd><dt>{{ lang('MARKETPLACE_VIEWS') }}</dt><dd>{{ ad.ad_views }}</dd></dl>
+					<a href="{{ ad.U_REMOVE_COMPARE }}" class="button button-small">{{ lang('MARKETPLACE_COMPARE_REMOVE') }}</a>
+				</article>
+			{% endfor %}
+			</div>
+		{% else %}<p>{{ lang('MARKETPLACE_COMPARE_EMPTY') }}</p>{% endif %}
+	</div></div>
+</div>
+{% include 'overall_footer.html' %}

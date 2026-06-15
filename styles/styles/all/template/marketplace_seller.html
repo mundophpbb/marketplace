@@ -1,0 +1,10 @@
+{% include 'overall_header.html' %}
+<div class="mp-shell mp-wide-page mp-seller-page">
+	<section class="panel mp-seller-public-hero"><div class="inner">
+		<div class="mp-seller-public-grid"><div><p class="mp-eyebrow">{{ lang('MARKETPLACE_PUBLIC_SELLER_PAGE') }}</p><h2><a href="{{ SELLER.U_PROFILE }}"{% if SELLER.user_colour %} style="color:#{{ SELLER.user_colour }}"{% endif %}>{{ SELLER.username }}</a></h2><p>{{ lang('MARKETPLACE_SELLER_MEMBER_SINCE') }} {{ SELLER.MEMBER_SINCE }}</p></div>
+		<div class="mp-seller-public-stats"><span>{{ SELLER_REPUTATION.AVERAGE_STARS }} {{ SELLER_REPUTATION.AVERAGE }}/5</span><span>{{ SELLER_REPUTATION.COMPLETED_SALES }} {{ lang('MARKETPLACE_COMPLETED_SALES') }}</span><span>{{ TOTAL_ADS }} {{ lang('MARKETPLACE_ADS') }}</span></div></div>
+		<div class="mp-trust-badges">{% if SELLER_REPUTATION.S_SELLER_TRUSTED %}<span>{{ lang('MARKETPLACE_BADGE_TRUSTED_SELLER') }}</span>{% endif %}{% if SELLER_REPUTATION.S_SELLER_VERIFIED %}<span>{{ lang('MARKETPLACE_BADGE_VERIFIED_SELLER') }}</span>{% endif %}{% if SELLER_REPUTATION.S_GOOD_REPUTATION %}<span>{{ lang('MARKETPLACE_BADGE_GOOD_REPUTATION') }}</span>{% endif %}</div>
+	</div></section>
+	<section class="panel"><div class="inner"><h3>{{ lang('MARKETPLACE_SELLER_ACTIVE_ADS') }}</h3>{% if ADS|length %}<div class="mp-grid">{% for ad in ADS %}{% INCLUDE 'marketplace_ad_card.html' %}{% endfor %}</div>{% else %}<p>{{ lang('MARKETPLACE_EMPTY_RESULTS_EXPLAIN') }}</p>{% endif %}</div></section>
+</div>
+{% include 'overall_footer.html' %}

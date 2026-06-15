@@ -1,0 +1,157 @@
+{% include 'overall_header.html' %}
+
+<div class="mp-shell mp-index">
+	<section class="mp-hero panel">
+		<div class="inner">
+			<div class="mp-hero-grid">
+				<div class="mp-hero-copy">
+					<p class="mp-eyebrow">{{ lang('MARKETPLACE') }}</p>
+					<h2>{{ MARKETPLACE_TITLE|default(lang('MARKETPLACE')) }}</h2>
+					<p class="mp-lead">{{ lang('MARKETPLACE_TOTAL_ADS', TOTAL_ADS) }}</p>
+				</div>
+
+				{% if S_CAN_POST %}
+					<div class="mp-hero-action">
+						<a href="{{ U_POST_NEW }}" class="button button-primary mp-primary-cta">{{ lang('MARKETPLACE_POST_AD') }}</a>
+					</div>
+				{% endif %}
+			</div>
+
+			<form method="get" action="{{ U_FILTER_ACTION }}" class="mp-searchbar" role="search">
+				<div class="mp-search-field mp-search-field-main">
+					<label for="mp-q">{{ lang('MARKETPLACE_SEARCH') }}</label>
+					<input id="mp-q" type="search" name="q" value="{{ FILTER_Q }}" class="inputbox" placeholder="{{ lang('MARKETPLACE_SEARCH_PLACEHOLDER') }}">
+				</div>
+				<div class="mp-search-field">
+					<label for="mp-cat">{{ lang('MARKETPLACE_CATEGORY') }}</label>
+					<select id="mp-cat" name="cat_id">
+						<option value="0">{{ lang('MARKETPLACE_ALL_CATEGORIES') }}</option>
+						{% for cat in CATEGORIES %}
+							<option value="{{ cat.cat_id }}"{% if FILTER_CAT_ID == cat.cat_id %} selected{% endif %}>{{ cat.cat_name }}</option>
+						{% endfor %}
+					</select>
+				</div>
+				<div class="mp-search-field">
+					<label for="mp-city">{{ lang('MARKETPLACE_CITY') }}</label>
+					<input id="mp-city" type="text" name="city" value="{{ FILTER_CITY }}" class="inputbox" placeholder="{{ lang('MARKETPLACE_CITY') }}">
+				</div>
+				<div class="mp-search-submit">
+					<input type="submit" class="button button-primary" value="{{ lang('MARKETPLACE_FILTER_APPLY') }}">
+				</div>
+			</form>
+		</div>
+	</section>
+
+
+	{% if CURRENT_CAT %}
+		<div class="mp-current-category panel">
+			<div class="inner">
+				<h3>{{ CURRENT_CAT.cat_name }}</h3>
+				{% if CURRENT_CAT.cat_desc %}<p>{{ CURRENT_CAT.cat_desc }}</p>{% endif %}
+			</div>
+		</div>
+	{% endif %}
+
+	<div class="mp-layout">
+		<aside class="mp-sidebar panel">
+			<div class="inner">
+				<h3>{{ lang('MARKETPLACE_FILTER_APPLY') }}</h3>
+				<form method="get" action="{{ U_FILTER_ACTION }}" class="mp-filter-form">
+					<input type="hidden" name="q" value="{{ FILTER_Q }}">
+					<input type="hidden" name="location" value="{{ FILTER_LOCATION }}">
+
+					<label class="mp-filter-category">{{ lang('MARKETPLACE_CATEGORY') }}
+						<select name="cat_id">
+							<option value="0">{{ lang('MARKETPLACE_ALL_CATEGORIES') }}</option>
+							{% for cat in CATEGORIES %}
+								<option value="{{ cat.cat_id }}"{% if FILTER_CAT_ID == cat.cat_id %} selected{% endif %}>{{ cat.cat_name }}</option>
+							{% endfor %}
+						</select>
+					</label>
+
+					<label>{{ lang('MARKETPLACE_AD_TYPE') }}
+						<select name="ad_type">
+							{% for option in AD_TYPE_OPTIONS %}<option value="{{ option.VALUE }}"{% if option.SELECTED %} selected{% endif %}>{{ option.LABEL }}</option>{% endfor %}
+						</select>
+					</label>
+
+					<label>{{ lang('MARKETPLACE_CONDITION') }}
+						<select name="ad_condition">
+							{% for option in AD_CONDITION_OPTIONS %}<option value="{{ option.VALUE }}"{% if option.SELECTED %} selected{% endif %}>{{ option.LABEL }}</option>{% endfor %}
+						</select>
+					</label>
+
+					<label>{{ lang('MARKETPLACE_STATUS') }}
+						<select name="status">
+							{% for option in STATUS_OPTIONS %}<option value="{{ option.VALUE }}"{% if option.SELECTED %} selected{% endif %}>{{ option.LABEL }}</option>{% endfor %}
+						</select>
+					</label>
+
+					<label>{{ lang('MARKETPLACE_CITY') }}<input type="text" name="city" value="{{ FILTER_CITY }}" class="inputbox"></label>
+					<label>{{ lang('MARKETPLACE_REGION') }}<input type="text" name="region" value="{{ FILTER_REGION }}" class="inputbox"></label>
+					<label>{{ lang('MARKETPLACE_COUNTRY') }}<input type="text" name="country" value="{{ FILTER_COUNTRY }}" class="inputbox"></label>
+					<div class="mp-price-row">
+						<label>{{ lang('MARKETPLACE_PRICE_MIN') }}<input type="text" name="price_min" value="{{ FILTER_PRICE_MIN }}" class="inputbox"></label>
+						<label>{{ lang('MARKETPLACE_PRICE_MAX') }}<input type="text" name="price_max" value="{{ FILTER_PRICE_MAX }}" class="inputbox"></label>
+					</div>
+
+					<label>{{ lang('MARKETPLACE_SORT_BY') }}
+						<select name="sort">
+							{% for option in SORT_OPTIONS %}<option value="{{ option.VALUE }}"{% if option.SELECTED %} selected{% endif %}>{{ option.LABEL }}</option>{% endfor %}
+						</select>
+					</label>
+
+					<label class="mp-checkbox"><input type="checkbox" name="with_image" value="1"{% if FILTER_WITH_IMAGE %} checked{% endif %}> {{ lang('MARKETPLACE_WITH_IMAGES') }}</label>
+
+					<div class="mp-filter-actions">
+						<input type="submit" class="button button-primary" value="{{ lang('MARKETPLACE_FILTER_APPLY') }}">
+						<a href="{{ U_FILTER_RESET }}" class="button">{{ lang('MARKETPLACE_FILTER_RESET') }}</a>
+					</div>
+				</form>
+			</div>
+		</aside>
+
+		<main class="mp-main">
+			<div class="mp-results-head">
+				<div>
+					<p class="mp-results-label">{{ lang('MARKETPLACE') }}</p>
+					<h3>{{ lang('MARKETPLACE_TOTAL_ADS', TOTAL_ADS) }}</h3>
+				</div>
+				<div class="mp-results-actions">
+					<a href="{{ U_COMPARE_PAGE }}" class="button">{{ lang('MARKETPLACE_COMPARE') }}</a>
+					{% if S_CAN_POST %}<a href="{{ U_POST_NEW }}" class="button mp-secondary-post">{{ lang('MARKETPLACE_POST_AD') }}</a>{% endif %}
+				</div>
+			</div>
+
+			{% if pagination|length %}
+				<div class="pagination mp-pagination-top">{% include 'pagination.html' %}</div>
+			{% endif %}
+
+			{% if ADS|length %}
+				<div class="mp-grid">
+					{% for ad in ADS %}
+						{% INCLUDE 'marketplace_ad_card.html' %}
+					{% endfor %}
+				</div>
+			{% else %}
+				<div class="panel mp-empty-state">
+					<div class="inner">
+						<span class="mp-empty-icon" aria-hidden="true">⌕</span>
+						<h3>{{ lang('MARKETPLACE_EMPTY_RESULTS_TITLE') }}</h3>
+						<p>{{ lang('MARKETPLACE_EMPTY_RESULTS_EXPLAIN') }}</p>
+						<div class="mp-empty-actions">
+							<a href="{{ U_FILTER_RESET }}" class="button button-primary">{{ lang('MARKETPLACE_FILTER_RESET') }}</a>
+							{% if S_CAN_POST %}<a href="{{ U_POST_NEW }}" class="button">{{ lang('MARKETPLACE_POST_AD') }}</a>{% endif %}
+						</div>
+					</div>
+				</div>
+			{% endif %}
+
+			{% if pagination|length %}
+				<div class="pagination mp-pagination-bottom">{% include 'pagination.html' %}</div>
+			{% endif %}
+		</main>
+	</div>
+</div>
+
+{% include 'overall_footer.html' %}

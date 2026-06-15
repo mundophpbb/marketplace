@@ -3,7 +3,7 @@
     "type": "phpbb-extension",
     "description": "Marketplace / Classificados - Permite que usuários postem anúncios classificados (venda, compra, serviços) no fórum phpBB.",
     "homepage": "https://github.com/mundophpbb/marketplace",
-    "version": "1.6.0-rc1",
+    "version": "1.6.1-rc1",
     "time": "2026-06-10",
     "license": "GPL-2.0-only",
     "authors": [

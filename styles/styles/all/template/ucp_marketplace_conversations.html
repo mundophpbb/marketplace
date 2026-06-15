@@ -1,0 +1,97 @@
+{% include 'ucp_header.html' %}
+
+<h2>{{ lang('UCP_MARKETPLACE_CONVERSATIONS') }}</h2>
+
+<div class="panel marketplace-ucp-panel mp-conversations-page">
+	<div class="inner">
+		<p>{{ lang('MARKETPLACE_CONVERSATIONS_EXPLAIN') }}</p>
+
+		<form method="get" action="{{ U_ACTION }}" class="mp-filter-form">
+			<fieldset>
+				<label>{{ lang('MARKETPLACE_FILTER') }}:</label>
+				<select name="filter" class="inputbox autowidth">
+					<option value="all"{% if S_FILTER_CONVERSATION == 'all' %} selected{% endif %}>{{ lang('MARKETPLACE_ALL') }}</option>
+					<option value="unread"{% if S_FILTER_CONVERSATION == 'unread' %} selected{% endif %}>{{ lang('MARKETPLACE_UNREAD') }}</option>
+					<option value="blocked"{% if S_FILTER_CONVERSATION == 'blocked' %} selected{% endif %}>{{ lang('MARKETPLACE_BLOCKED') }}</option>
+				</select>
+				<input type="submit" value="{{ lang('MARKETPLACE_FILTER') }}" class="button2">
+			</fieldset>
+		</form>
+	</div>
+</div>
+
+{% if S_HAS_CONVERSATIONS %}
+	{% for conversation in CONVERSATIONS %}
+		<div class="panel mp-conversation-card{% if conversation.UNREAD_COUNT %} mp-conversation-unread{% endif %}">
+			<div class="inner">
+				<div class="mp-conversation-head">
+					<div>
+						<h3><a href="{{ conversation.U_AD }}">{{ conversation.ad_title }}</a></h3>
+						<p>
+							{{ conversation.ROLE_LANG }} &bull;
+							{{ lang('MARKETPLACE_CONVERSATION_WITH') }}
+							<strong{% if conversation.OTHER_COLOUR %} style="color:#{{ conversation.OTHER_COLOUR }}"{% endif %}>{{ conversation.OTHER_USERNAME }}</strong>
+							{% if conversation.LAST_MESSAGE_DISPLAY %} &bull; {{ conversation.LAST_MESSAGE_DISPLAY }}{% endif %}
+							{% if conversation.UNREAD_COUNT %} &bull; <span class="status-badge status-active">{{ conversation.UNREAD_COUNT }} {{ lang('MARKETPLACE_UNREAD') }}</span>{% endif %}
+							{% if conversation.S_BLOCKED %} &bull; <span class="status-badge status-hidden">{{ lang('MARKETPLACE_BLOCKED') }}</span>{% endif %}
+						</p>
+					</div>
+				</div>
+
+				<div class="mp-message-thread">
+					{% for message in conversation.MESSAGES %}
+						<div class="mp-message-bubble{% if message.S_OWN_MESSAGE %} mp-message-own{% endif %}">
+							<div class="mp-message-meta">
+								<strong{% if message.user_colour %} style="color:#{{ message.user_colour }}"{% endif %}>{{ message.username }}</strong>
+								<span>{{ message.MESSAGE_TIME_DISPLAY }}</span>
+								{% if message.message_reported %}<span class="status-badge status-pending">{{ lang('MARKETPLACE_REPORTED') }}</span>{% endif %}
+							</div>
+							<div class="mp-message-text">{{ message.MESSAGE_TEXT_DISPLAY }}</div>
+							{% if not message.S_OWN_MESSAGE %}
+								<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form mp-message-report-form">
+									<input type="hidden" name="action" value="report_message">
+									<input type="hidden" name="conversation_id" value="{{ conversation.conversation_id }}">
+									<input type="hidden" name="message_id" value="{{ message.message_id }}">
+									<input type="text" name="report_reason" class="inputbox autowidth" placeholder="{{ lang('MARKETPLACE_REPORT_REASON') }}">
+									<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_REPORT_MESSAGE') }}" class="button2">
+									{{ S_FORM_TOKEN }}
+								</form>
+							{% endif %}
+						</div>
+					{% endfor %}
+				</div>
+
+				{% if not conversation.S_BLOCKED %}
+					<form method="post" action="{{ U_ACTION }}" class="mp-message-reply-form">
+						<input type="hidden" name="action" value="reply_message">
+						<input type="hidden" name="conversation_id" value="{{ conversation.conversation_id }}">
+						<textarea name="message_text" class="inputbox" rows="3" maxlength="4000" placeholder="{{ lang('MARKETPLACE_REPLY_PLACEHOLDER') }}" required></textarea>
+						<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_SEND_REPLY') }}" class="button button-primary">
+						{{ S_FORM_TOKEN }}
+					</form>
+				{% endif %}
+
+				<div class="mp-conversation-actions">
+					<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form">
+						<input type="hidden" name="action" value="mark_conversation_read">
+						<input type="hidden" name="conversation_id" value="{{ conversation.conversation_id }}">
+						<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_MARK_READ') }}" class="button2">
+						{{ S_FORM_TOKEN }}
+					</form>
+					{% if not conversation.S_BLOCKED %}
+						<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form">
+							<input type="hidden" name="action" value="block_contact">
+							<input type="hidden" name="conversation_id" value="{{ conversation.conversation_id }}">
+							<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_BLOCK_CONTACT') }}" class="button2">
+							{{ S_FORM_TOKEN }}
+						</form>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+{% else %}
+	<div class="panel"><div class="inner"><p>{{ lang('MARKETPLACE_NO_CONVERSATIONS') }}</p></div></div>
+{% endif %}
+
+{% include 'ucp_footer.html' %}

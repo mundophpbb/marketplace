@@ -1,0 +1,55 @@
+{% include 'ucp_header.html' %}
+
+<h2>{{ lang('UCP_MARKETPLACE_FAVORITES') }}</h2>
+
+<div class="mp-ucp-shell">
+<div class="panel mp-ucp-section">
+	<div class="inner">
+		<h3>{{ lang('MARKETPLACE_MY_FAVORITES') }}</h3>
+		<p>{{ lang('MARKETPLACE_MY_FAVORITES_EXPLAIN') }}</p>
+		{% if S_HAS_FAVORITES %}
+			<div class="mp-ucp-grid">
+			{% for ad in FAVORITES %}
+				<article class="mp-ucp-card">
+					<a href="{{ ad.U_VIEW }}" class="mp-ucp-media">
+						{% if ad.MAIN_IMAGE %}<img src="{{ ad.MAIN_IMAGE }}" alt="{{ ad.ad_title }}" loading="lazy">{% else %}<span>{{ lang('MARKETPLACE_NO_IMAGE') }}</span>{% endif %}
+					</a>
+					<div class="mp-ucp-body">
+						<div class="mp-ucp-top"><span class="status-badge status-{{ ad.ad_status }}">{{ ad.STATUS_LANG }}</span>{% if ad.S_IS_FEATURED %}<span class="status-badge status-featured">{{ lang('MARKETPLACE_FEATURED') }}</span>{% endif %}{% if ad.S_IS_BOOSTED %}<span class="status-badge status-boosted">{{ lang('MARKETPLACE_BOOSTED') }}</span>{% endif %}</div>
+						<h3><a href="{{ ad.U_VIEW }}">{{ ad.ad_title }}</a></h3>
+						{% if ad.AD_PRICE_DISPLAY %}<div class="mp-ucp-price">{{ ad.AD_PRICE_DISPLAY }}</div>{% endif %}
+						<div class="mp-ucp-meta">{% if ad.cat_name %}<span>{{ ad.cat_name }}</span>{% endif %}{% if ad.username %}<span>{{ lang('MARKETPLACE_SELLER') }}: <a href="{{ ad.SELLER_PROFILE }}">{{ ad.username }}</a></span>{% endif %}<span>{{ ad.ad_views }} {{ lang('MARKETPLACE_VIEWS') }}</span></div>
+						<div class="mp-ucp-dates">{% if ad.FAVORITE_TIME_DISPLAY %}<span>{{ lang('MARKETPLACE_FAVORITED_ON') }}: {{ ad.FAVORITE_TIME_DISPLAY }}</span>{% endif %}{% if ad.AD_EXPIRES_DISPLAY %}<span>{{ lang('MARKETPLACE_EXPIRES_ON') }}: {{ ad.AD_EXPIRES_DISPLAY }}</span>{% endif %}</div>
+						<div class="mp-ucp-actions">
+							<a href="{{ ad.U_VIEW }}" class="button button-small mp-ucp-button">{{ lang('MARKETPLACE_VIEW_AD') }}</a>
+							<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form"><input type="hidden" name="action" value="remove_favorite"><input type="hidden" name="ad_id" value="{{ ad.ad_id }}"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_FAVORITE_REMOVE') }}" class="button button-small mp-ucp-button">{{ S_FORM_TOKEN }}</form>
+						</div>
+					</div>
+				</article>
+			{% endfor %}
+			</div>
+		{% else %}
+			<div class="mp-ucp-empty mp-ucp-empty-small"><strong>{{ lang('MARKETPLACE_NO_FAVORITES') }}</strong><p>{{ lang('MARKETPLACE_NO_FAVORITES_EXPLAIN') }}</p></div>
+		{% endif %}
+	</div>
+</div>
+
+{% if S_HAS_FOLLOWED_SELLERS %}
+<div class="panel marketplace-follows-panel mp-ucp-section">
+	<div class="inner">
+		<h3>{{ lang('MARKETPLACE_FOLLOWED_SELLERS') }}</h3>
+		<p>{{ lang('MARKETPLACE_FOLLOWED_SELLERS_EXPLAIN') }}</p>
+		<table class="table1 zebra-table responsive">
+			<thead><tr><th>{{ lang('MARKETPLACE_SELLER') }}</th><th>{{ lang('MARKETPLACE_ACTIVE_ADS') }}</th><th>{{ lang('MARKETPLACE_FOLLOWED_ON') }}</th><th>{{ lang('ACTIONS') }}</th></tr></thead>
+			<tbody>
+			{% for seller in FOLLOWED_SELLERS %}
+				<tr><td><a href="{{ seller.U_PROFILE }}"{% if seller.user_colour %} style="color: #{{ seller.user_colour }};"{% endif %}>{{ seller.username }}</a></td><td>{{ seller.active_ads }}</td><td>{{ seller.FOLLOW_CREATED_DISPLAY }}</td><td><form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form"><input type="hidden" name="action" value="unfollow_seller"><input type="hidden" name="seller_id" value="{{ seller.followed_user_id }}"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_UNFOLLOW_SELLER') }}" class="button button-small mp-ucp-button">{{ S_FORM_TOKEN }}</form></td></tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+{% endif %}
+</div>
+
+{% include 'ucp_footer.html' %}

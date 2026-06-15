@@ -1,0 +1,310 @@
+{% include 'overall_header.html' %}
+
+<div class="mp-shell mp-view{% if AD.S_IS_FEATURED %} mp-view-featured{% endif %}{% if AD.S_IS_BOOSTED %} mp-view-boosted{% endif %}">
+	<div class="mp-view-hero panel">
+		<div class="inner">
+			{% if AD.S_IS_FEATURED %}<div class="mp-featured-ribbon">{{ lang('MARKETPLACE_FEATURED_AD_NOTICE') }}</div>{% endif %}
+			{% if AD.S_IS_BOOSTED %}<div class="mp-boosted-ribbon">{{ lang('MARKETPLACE_BOOSTED_AD_NOTICE') }}</div>{% endif %}
+			<p class="mp-breadcrumb"><a href="{{ U_MARKETPLACE }}">{{ lang('MARKETPLACE') }}</a>{% if AD.cat_name %} &raquo; <a href="{{ AD.U_CATEGORY }}">{{ AD.cat_name }}</a>{% endif %}</p>
+			<div class="mp-view-title-row">
+				<div>
+					<h2>{{ AD.ad_title }}</h2>
+					<div class="mp-view-meta">
+						{% if AD.S_IS_FEATURED %}<span class="status-badge status-featured">{{ lang('MARKETPLACE_FEATURED') }}</span>{% endif %}
+						{% if AD.S_IS_BOOSTED %}<span class="status-badge status-boosted">{{ lang('MARKETPLACE_BOOSTED') }}</span>{% endif %}
+						<span class="status-badge status-{{ AD.ad_status }}">{{ AD.STATUS_LANG }}</span>
+						<span>{{ lang('MARKETPLACE_POSTED_BY') }} <a href="{{ AD.U_POSTER }}"{% if AD.user_colour %} style="color: #{{ AD.user_colour }};"{% endif %}>{{ AD.username }}</a></span>
+						<span>{{ lang('MARKETPLACE_POSTED_ON') }} {{ AD.ad_created|date('d/m/Y H:i') }}</span>
+					</div>
+				</div>
+				{% if S_SHOW_PRICE and AD.AD_PRICE_DISPLAY %}
+					<div class="mp-view-price-inline">{{ AD.AD_PRICE_DISPLAY }}</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+
+	<div class="mp-product-layout">
+		<section class="mp-product-media panel">
+			<div class="inner">
+				{% if IMAGES|length > 0 %}
+					<div class="mp-gallery mp-gallery-interactive" data-mp-gallery>
+						{% for img in IMAGES %}
+							{% if loop.first %}
+								<a href="{{ img.SRC }}" class="mp-gallery-main" data-mp-gallery-main target="_blank" rel="noopener">
+									<span class="mp-gallery-zoom-hint">{{ lang('MARKETPLACE_ZOOM_HINT') }}</span>
+									<img src="{{ img.SRC }}" alt="{{ AD.ad_title }}" data-mp-gallery-main-img>
+								</a>
+							{% endif %}
+						{% endfor %}
+
+						{% if IMAGES|length > 1 %}
+							<div class="mp-gallery-thumbs" aria-label="{{ lang('MARKETPLACE_IMAGES') }}">
+								{% for img in IMAGES %}
+									<button type="button" class="mp-gallery-thumb{% if loop.first %} active{% endif %}" data-mp-gallery-thumb data-src="{{ img.SRC }}" aria-label="{{ AD.ad_title }}">
+										<img src="{{ img.SRC }}" alt="{{ AD.ad_title }}"{% if not loop.first %} loading="lazy"{% endif %}>
+									</button>
+								{% endfor %}
+							</div>
+						{% endif %}
+					</div>
+				{% else %}
+					<div class="mp-no-image-large">{{ lang('MARKETPLACE_NO_IMAGE') }}</div>
+				{% endif %}
+			</div>
+		</section>
+
+		<aside class="mp-product-summary panel">
+			<div class="inner">
+				{% if S_SHOW_PRICE and AD.AD_PRICE_DISPLAY %}<div class="mp-product-price">{{ AD.AD_PRICE_DISPLAY }}</div>{% endif %}
+
+				<div class="mp-seller-box">
+					<span class="mp-seller-avatar">&#9733;</span>
+					<div>
+						<strong><a href="{{ AD.U_POSTER }}"{% if AD.user_colour %} style="color: #{{ AD.user_colour }};"{% endif %}>{{ AD.username }}</a></strong>
+						<small>{{ lang('MARKETPLACE_POSTED_BY') }}</small>
+						{% if SELLER_REPUTATION %}
+							<div class="mp-reputation-summary">
+								<strong>{{ lang('MARKETPLACE_REPUTATION') }}:</strong> <span class="mp-stars mp-stars-average" aria-label="{{ SELLER_REPUTATION.AVERAGE }}/5">{{ SELLER_REPUTATION.AVERAGE_STARS }}</span> <span class="mp-rating-number">{{ SELLER_REPUTATION.AVERAGE }}/5 ({{ SELLER_REPUTATION.TOTAL_REVIEWS }})</span><br>
+								<small>{{ lang('MARKETPLACE_COMPLETED_SALES') }}: {{ SELLER_REPUTATION.COMPLETED_SALES }}{% if SELLER_REPUTATION.MEMBER_FOR %} &bull; {{ SELLER_REPUTATION.MEMBER_FOR }}{% endif %}</small>
+								<div class="mp-trust-badges">
+									{% if SELLER_REPUTATION.S_SELLER_TRUSTED %}<span class="status-badge status-featured">{{ lang('MARKETPLACE_BADGE_TRUSTED_SELLER') }}</span>{% endif %}
+									{% if SELLER_REPUTATION.S_SELLER_VERIFIED %}<span class="status-badge status-boosted">{{ lang('MARKETPLACE_BADGE_VERIFIED_SELLER') }}</span>{% endif %}
+									{% if SELLER_REPUTATION.S_GOOD_REPUTATION %}<span class="status-badge status-active">{{ lang('MARKETPLACE_BADGE_GOOD_REPUTATION') }}</span>{% endif %}
+								</div>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+
+				<div class="mp-social-actions">
+					{% if AD.U_FAVORITE %}<a href="{{ AD.U_FAVORITE }}" class="button button-small">{% if S_IS_FAVORITE_AD %}{{ lang('MARKETPLACE_FAVORITE_REMOVE') }}{% else %}{{ lang('MARKETPLACE_FAVORITE_ADD') }}{% endif %}</a>{% endif %}
+					{% if AD.U_COMPARE %}<a href="{{ AD.U_COMPARE }}" class="button button-small">{{ lang('MARKETPLACE_COMPARE_ADD') }}</a>{% endif %}
+				</div>
+
+				{% if S_CAN_FOLLOW_SELLER or S_IS_FOLLOWING_SELLER %}
+					<form method="post" action="{{ AD.U_ACTION }}" class="marketplace-inline-form mp-follow-form">
+						<input type="hidden" name="action" value="{{ S_IS_FOLLOWING_SELLER ? 'unfollow_seller' : 'follow_seller' }}">
+						<input type="submit" name="submit_action" value="{{ S_IS_FOLLOWING_SELLER ? lang('MARKETPLACE_UNFOLLOW_SELLER') : lang('MARKETPLACE_FOLLOW_SELLER') }}" class="button button-small">
+						{{ S_FORM_TOKEN }}
+					</form>
+				{% endif %}
+
+				<dl class="mp-detail-list">
+					{% if AD.LOCATION_DISPLAY %}<dt>{{ lang('MARKETPLACE_LOCATION') }}</dt><dd>{{ AD.LOCATION_DISPLAY }}{% if AD.ad_location_approx %}<br><small>{{ lang('MARKETPLACE_LOCATION_APPROXIMATE') }}</small>{% endif %}</dd>{% endif %}
+					<dt>{{ lang('MARKETPLACE_CATEGORY') }}</dt><dd><a href="{{ AD.U_CATEGORY }}">{{ AD.cat_name }}</a></dd>
+					<dt>{{ lang('MARKETPLACE_AD_TYPE') }}</dt><dd>{{ AD.AD_TYPE_LANG }}</dd>
+					<dt>{{ lang('MARKETPLACE_QUANTITY_AVAILABLE') }}</dt><dd><strong>{{ AD.AD_QUANTITY_LANG }}</strong></dd>
+					{% if AD.ad_condition != 0 %}<dt>{{ lang('MARKETPLACE_CONDITION') }}</dt><dd>{{ AD.AD_CONDITION_LANG }}{% if AD.ad_conservation %}<br><small>{{ AD.ad_conservation }}</small>{% endif %}</dd>{% endif %}
+					{% if AD.DELIVERY_OPTIONS_LANG %}<dt>{{ lang('MARKETPLACE_DELIVERY_OPTIONS') }}</dt><dd>{{ AD.DELIVERY_OPTIONS_LANG }}</dd>{% endif %}
+					<dt>{{ lang('MARKETPLACE_STATUS') }}</dt><dd>{{ AD.STATUS_LANG }}</dd>
+					{% if AD.AD_EXPIRES_DISPLAY %}<dt>{{ lang('MARKETPLACE_EXPIRES_ON') }}</dt><dd>{{ AD.AD_EXPIRES_DISPLAY }}{% if AD.AD_EXPIRES_IN_LANG %}<br><small>{{ AD.AD_EXPIRES_IN_LANG }}</small>{% endif %}</dd>{% endif %}
+					{% if AD.AD_SOLD_AT_DISPLAY %}<dt>{{ lang('MARKETPLACE_SOLD_ON') }}</dt><dd>{{ AD.AD_SOLD_AT_DISPLAY }}</dd>{% endif %}
+					{% if AD.AD_EXPIRED_AT_DISPLAY %}<dt>{{ lang('MARKETPLACE_EXPIRED_ON') }}</dt><dd>{{ AD.AD_EXPIRED_AT_DISPLAY }}</dd>{% endif %}
+					{% if AD.AD_LAST_RENEWED_DISPLAY %}<dt>{{ lang('MARKETPLACE_LAST_RENEWED') }}</dt><dd>{{ AD.AD_LAST_RENEWED_DISPLAY }}</dd>{% endif %}
+					{% if AD.AD_FEATURED_UNTIL_DISPLAY %}<dt>{{ lang('MARKETPLACE_FEATURED_UNTIL') }}</dt><dd>{{ AD.AD_FEATURED_UNTIL_DISPLAY }}</dd>{% endif %}
+					{% if AD.AD_BOOSTED_UNTIL_DISPLAY %}<dt>{{ lang('MARKETPLACE_BOOSTED_UNTIL') }}</dt><dd>{{ AD.AD_BOOSTED_UNTIL_DISPLAY }}</dd>{% endif %}
+					{% if AD.AD_LAST_BUMPED_DISPLAY %}<dt>{{ lang('MARKETPLACE_LAST_BUMPED') }}</dt><dd>{{ AD.AD_LAST_BUMPED_DISPLAY }}</dd>{% endif %}
+					{% if AD.AD_NEXT_BUMP_DISPLAY and S_OWN_AD %}<dt>{{ lang('MARKETPLACE_NEXT_BUMP') }}</dt><dd>{{ AD.AD_NEXT_BUMP_DISPLAY }}</dd>{% endif %}
+					<dt>{{ lang('MARKETPLACE_VIEWS') }}</dt><dd>{{ AD.ad_views }}</dd>
+					{% if AD.ad_contact_count is defined %}<dt>{{ lang('MARKETPLACE_CONTACTS_RECEIVED') }}</dt><dd>{{ AD.ad_contact_count }}</dd>{% endif %}
+				</dl>
+
+				{% if AD.ad_status == 3 and S_CAN_RENEW %}
+					<div class="mp-alert mp-alert-renew"><strong>{{ lang('MARKETPLACE_RENEW_EXPIRED_TITLE') }}</strong><br>{{ lang('MARKETPLACE_RENEW_EXPIRED_EXPLAIN') }}</div>
+				{% endif %}
+
+				{% if AD.ad_hidden_reason and (S_OWN_AD or S_IS_MOD) %}
+					<div class="mp-alert"><strong>{{ lang('MARKETPLACE_HIDDEN_REASON') }}:</strong> {{ AD.ad_hidden_reason }}{% if AD.AD_HIDDEN_AT_DISPLAY %}<br><small>{{ lang('MARKETPLACE_HIDDEN_ON') }} {{ AD.AD_HIDDEN_AT_DISPLAY }}</small>{% endif %}</div>
+				{% endif %}
+
+				{% if S_CAN_CONTACT %}
+					<div class="mp-contact-box">
+						<h3>{{ lang('MARKETPLACE_CONTACT_SELLER') }}</h3>
+						<div class="mp-contact-actions">
+							{% if S_CAN_BUY %}<form method="post" action="{{ AD.U_ACTION }}" class="marketplace-inline-form mp-buy-form"><input type="hidden" name="action" value="buy"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_BUY') }}" class="button button-primary mp-contact-button mp-action-primary">{{ S_FORM_TOKEN }}</form>{% endif %}
+							{% if S_CAN_BUY_WITH_PAYPAL %}<form method="post" action="{{ AD.U_ACTION }}" class="marketplace-inline-form mp-buy-form"><input type="hidden" name="action" value="buy_paypal"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_BUY_WITH_PAYPAL') }}" class="button mp-contact-button mp-action-secondary">{{ S_FORM_TOKEN }}</form>{% endif %}
+							{% if S_CAN_BUY_WITH_PIX %}<form method="post" action="{{ AD.U_ACTION }}" class="marketplace-inline-form mp-buy-form"><input type="hidden" name="action" value="buy_pix"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_BUY_WITH_PIX') }}" class="button mp-contact-button mp-action-secondary">{{ S_FORM_TOKEN }}</form>{% endif %}
+							{% if AD.ad_contact_method != 1 and AD.ad_phone and AD.U_WHATSAPP_TRACKED %}<a href="{{ AD.U_WHATSAPP_TRACKED }}" class="button mp-contact-button mp-action-secondary" target="_blank" rel="noopener noreferrer">{{ lang('MARKETPLACE_WHATSAPP') }}: {{ AD.ad_phone }}</a>{% endif %}
+						</div>
+
+						<form method="post" action="{{ AD.U_ACTION }}" class="mp-message-form">
+							<input type="hidden" name="action" value="send_message">
+							<input type="hidden" name="mp_contact_time" value="{{ 'now'|date('U') }}">
+							<input type="text" name="mp_contact_homepage" value="" class="mp-hp-field" tabindex="-1" autocomplete="off">
+							<label for="mp-message-text"><strong>{{ lang('MARKETPLACE_INTERNAL_MESSAGE') }}</strong></label>
+							<textarea id="mp-message-text" name="message_text" class="inputbox" rows="4" maxlength="4000" placeholder="{{ lang('MARKETPLACE_MESSAGE_PLACEHOLDER') }}" required></textarea>
+							<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_SEND_MESSAGE') }}" class="button button-primary mp-contact-button">
+							{{ S_FORM_TOKEN }}
+						</form>
+						{% if S_HAS_PENDING_PURCHASE %}<small class="mp-payment-note">{{ lang('MARKETPLACE_PURCHASE_ALREADY_PENDING') }}</small>{% endif %}
+						{% if S_CAN_BUY_WITH_PAYPAL %}<small class="mp-payment-note">{{ lang('MARKETPLACE_BUY_WITH_PAYPAL_SELLER_EXPLAIN') }}</small>{% endif %}
+						{% if S_CAN_BUY_WITH_PIX %}<small class="mp-payment-note">{{ lang('MARKETPLACE_BUY_WITH_PIX_EXPLAIN') }}</small>{% endif %}
+					</div>
+				{% elseif AD.ad_status != 1 %}
+					<p class="mp-contact-unavailable">{{ lang('MARKETPLACE_CONTACT_UNAVAILABLE') }}</p>
+				{% endif %}
+
+				{% if S_OWN_AD or S_IS_MOD or S_CAN_FEATURE or S_CAN_UNFEATURE or S_CAN_REQUEST_FEATURED or S_CAN_REQUEST_BOOSTED %}
+					<div class="mp-owner-actions">
+						{% if AD.U_EDIT %}<a href="{{ AD.U_EDIT }}" class="button button-primary">{{ lang('MARKETPLACE_EDIT_AD') }}</a>{% endif %}
+						{% if S_CAN_RENEW %}<form method="post" action="{{ AD.U_ACTION }}" class="marketplace-inline-form"><input type="hidden" name="action" value="renew"><input type="submit" name="submit_action" value="{{ AD.ad_status == 3 ? lang('MARKETPLACE_REPUBLISH_AD') : lang('MARKETPLACE_RENEW_AD') }}" class="button">{{ S_FORM_TOKEN }}</form>{% endif %}
+						{% if S_CAN_BUMP %}<form method="post" action="{{ AD.U_ACTION }}" class="marketplace-inline-form"><input type="hidden" name="action" value="bump"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_BUMP_AD') }}" class="button">{{ S_FORM_TOKEN }}</form>{% endif %}
+						{% if S_CAN_REQUEST_FEATURED %}<form method="post" action="{{ AD.U_ACTION }}" class="marketplace-inline-form marketplace-feature-form"><input type="hidden" name="action" value="request_featured">{% if FEATURED_PACKAGES %}<select name="package_id" class="inputbox autowidth">{% for package in FEATURED_PACKAGES %}<option value="{{ package.package_id }}">{{ package.package_title }} - {{ package.package_days }} {{ lang('DAYS') }} - {{ package.PACKAGE_PRICE_DISPLAY }}</option>{% endfor %}</select> <input type="text" name="coupon_code" class="inputbox autowidth" size="10" placeholder="{{ lang('MARKETPLACE_COUPON_CODE') }}"> <select name="payment_gateway" class="inputbox autowidth"><option value="">{{ lang('MARKETPLACE_PAYMENT_GATEWAY_AUTO') }}</option><option value="paypal">PayPal</option><option value="pix">PIX</option></select>{% else %}<label class="mp-feature-days"><span>{{ lang('MARKETPLACE_FEATURED_DAYS_SHORT') }}</span><input type="number" name="featured_days" value="{{ FEATURED_DAYS_DEFAULT }}" min="1" class="inputbox autowidth" size="3"></label>{% endif %}<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_REQUEST_FEATURED_AD') }}" class="button">{{ S_FORM_TOKEN }}</form>{% endif %}
+						{% if S_CAN_REQUEST_BOOSTED %}<form method="post" action="{{ AD.U_ACTION }}" class="marketplace-inline-form marketplace-feature-form"><input type="hidden" name="action" value="request_boosted">{% if BOOSTED_PACKAGES %}<select name="package_id" class="inputbox autowidth">{% for package in BOOSTED_PACKAGES %}<option value="{{ package.package_id }}">{{ package.package_title }} - {{ package.package_days }} {{ lang('DAYS') }} - {{ package.PACKAGE_PRICE_DISPLAY }}</option>{% endfor %}</select> <input type="text" name="coupon_code" class="inputbox autowidth" size="10" placeholder="{{ lang('MARKETPLACE_COUPON_CODE') }}"> <select name="payment_gateway" class="inputbox autowidth"><option value="">{{ lang('MARKETPLACE_PAYMENT_GATEWAY_AUTO') }}</option><option value="paypal">PayPal</option><option value="pix">PIX</option></select>{% else %}<label class="mp-feature-days"><span>{{ lang('MARKETPLACE_BOOSTED_DAYS_SHORT') }}</span><input type="number" name="boosted_days" value="{{ BOOSTED_DAYS_DEFAULT }}" min="1" class="inputbox autowidth" size="3"></label>{% endif %}<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_REQUEST_BOOSTED_AD') }}" class="button">{{ S_FORM_TOKEN }}</form>{% endif %}
+						{% if S_CAN_FEATURE or S_CAN_UNFEATURE %}<form method="post" action="{{ AD.U_ACTION }}" class="marketplace-inline-form marketplace-feature-form"><input type="hidden" name="action" value="{{ AD.S_IS_FEATURED ? 'unfeature' : 'feature' }}">{% if not AD.S_IS_FEATURED %}<label class="mp-feature-days"><span>{{ lang('MARKETPLACE_FEATURED_DAYS_SHORT') }}</span><input type="number" name="featured_days" value="{{ FEATURED_DAYS_DEFAULT }}" min="1" class="inputbox autowidth" size="3"></label>{% endif %}<input type="submit" name="submit_action" value="{{ AD.S_IS_FEATURED ? lang('MARKETPLACE_UNFEATURE_AD') : lang('MARKETPLACE_FEATURE_AD') }}" class="button">{{ S_FORM_TOKEN }}</form>{% endif %}
+						{% if S_CAN_BOOST or S_CAN_UNBOOST %}<form method="post" action="{{ AD.U_ACTION }}" class="marketplace-inline-form marketplace-feature-form"><input type="hidden" name="action" value="{{ AD.S_IS_BOOSTED ? 'unboost' : 'boost' }}">{% if not AD.S_IS_BOOSTED %}<label class="mp-feature-days"><span>{{ lang('MARKETPLACE_BOOSTED_DAYS_SHORT') }}</span><input type="number" name="boosted_days" value="{{ BOOSTED_DAYS_DEFAULT }}" min="1" class="inputbox autowidth" size="3"></label>{% endif %}<input type="submit" name="submit_action" value="{{ AD.S_IS_BOOSTED ? lang('MARKETPLACE_UNBOOST_AD') : lang('MARKETPLACE_BOOST_AD') }}" class="button">{{ S_FORM_TOKEN }}</form>{% endif %}
+						{% if S_CAN_APPROVE %}<form method="post" action="{{ AD.U_ACTION }}" class="marketplace-inline-form"><input type="hidden" name="action" value="approve"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_APPROVE_AD') }}" class="button button-success">{{ S_FORM_TOKEN }}</form>{% endif %}
+						{% if S_CAN_MARK_SOLD %}<form method="post" action="{{ AD.U_ACTION }}" class="marketplace-inline-form"><input type="hidden" name="action" value="mark_sold"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_MARK_AS_SOLD') }}" class="button">{{ S_FORM_TOKEN }}</form>{% endif %}
+						{% if S_CAN_MANAGE_STOCK %}<form method="post" action="{{ AD.U_ACTION }}" class="marketplace-inline-form"><input type="hidden" name="action" value="stock_increase"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_STOCK_INCREASE') }}" class="button">{{ S_FORM_TOKEN }}</form><form method="post" action="{{ AD.U_ACTION }}" class="marketplace-inline-form"><input type="hidden" name="action" value="stock_decrease"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_STOCK_DECREASE') }}" class="button">{{ S_FORM_TOKEN }}</form><form method="post" action="{{ AD.U_ACTION }}" class="marketplace-inline-form"><input type="hidden" name="action" value="stock_out"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_STOCK_OUT_ACTION') }}" class="button">{{ S_FORM_TOKEN }}</form>{% endif %}
+						{% if AD.U_DELETE %}<a href="{{ AD.U_DELETE }}" class="button button-danger">{{ lang('MARKETPLACE_DELETE_AD') }}</a>{% endif %}
+					</div>
+{% endif %}
+			</div>
+		</aside>
+	</div>
+
+	<section class="mp-description panel">
+		<div class="inner">
+			<h3>{{ lang('MARKETPLACE_AD_DETAILS') }}</h3>
+			<div class="mp-desc-content">{{ AD.AD_DESC_HTML }}</div>
+			{% if S_HAS_CUSTOM_FIELDS %}
+				<dl class="mp-detail-list mp-custom-detail-list">
+					{% for field in AD_CUSTOM_FIELDS %}<dt>{{ field.field_label }}</dt><dd>{{ field.field_value }}</dd>{% endfor %}
+				</dl>
+			{% endif %}
+		</div>
+	</section>
+
+	{% if AD.U_MAP %}
+	<section class="mp-map panel">
+		<div class="inner">
+			<h3>{{ lang('MARKETPLACE_MAP') }}</h3>
+			<p><a href="{{ AD.U_MAP }}" target="_blank" rel="noopener noreferrer" class="button">{{ lang('MARKETPLACE_OPEN_MAP') }}</a></p>
+			{% if AD.U_MAP_EMBED %}<iframe class="mp-map-frame" src="{{ AD.U_MAP_EMBED }}" loading="lazy" referrerpolicy="no-referrer"></iframe>{% else %}<p class="help">{{ lang('MARKETPLACE_MAP_COORDINATES_REQUIRED') }}</p>{% endif %}
+		</div>
+	</section>
+	{% endif %}
+
+	{% if S_HAS_AD_REVIEWS %}
+		<section class="mp-reputation-history panel">
+			<div class="inner">
+				<h3>{{ lang('MARKETPLACE_REPUTATION_HISTORY') }}</h3>
+				{% for review in AD_REVIEWS %}
+					<div class="mp-review-item">
+						<strong><span class="mp-stars" aria-label="{{ review.review_score }}/5">{{ review.REVIEW_SCORE_STARS }}</span></strong>
+						<span>{{ review.REVIEWER_ROLE_LANG }}{% if review.username %} - <span{% if review.user_colour %} style="color:#{{ review.user_colour }}"{% endif %}>{{ review.username }}</span>{% endif %}</span>
+						{% if review.REVIEW_TIME_DISPLAY %}<small>{{ review.REVIEW_TIME_DISPLAY }}</small>{% endif %}
+						{% if review.review_comment %}<p>{{ review.review_comment }}</p>{% endif %}
+					</div>
+				{% endfor %}
+			</div>
+		</section>
+	{% endif %}
+
+	{% if S_HAS_MORE_ADS_FROM_USER %}
+		<section class="mp-more-user-ads panel">
+			<div class="inner">
+				<div class="mp-section-head">
+					<div>
+						<p class="mp-results-label">{{ AD.username }}</p>
+						<h3>{{ lang('MARKETPLACE_MORE_ADS_FROM_USER') }}</h3>
+					</div>
+				</div>
+
+				<div class="mp-grid mp-more-user-grid">
+					{% for ad in MORE_ADS_FROM_USER %}
+						{% INCLUDE 'marketplace_ad_card.html' %}
+					{% endfor %}
+				</div>
+			</div>
+		</section>
+	{% endif %}
+
+	{% if S_CAN_REPORT %}
+		<section class="mp-report panel">
+			<div class="inner">
+				<form method="post" action="{{ AD.U_ACTION }}" class="mp-report-form">
+					<h3>{{ lang('MARKETPLACE_REPORT_AD') }}</h3>
+					<select name="report_type" class="inputbox autowidth">
+						<option value="ad">{{ lang('MARKETPLACE_REPORT_TYPE_AD') }}</option>
+						<option value="seller">{{ lang('MARKETPLACE_REPORT_TYPE_SELLER') }}</option>
+					</select>
+					<textarea name="report_reason" rows="3" class="inputbox" placeholder="{{ lang('MARKETPLACE_REPORT_REASON') }}" required></textarea>
+					<input type="hidden" name="action" value="report">
+					<input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_REPORT_SEND') }}" class="button">
+					{{ S_FORM_TOKEN }}
+				</form>
+			</div>
+		</section>
+	{% endif %}
+</div>
+
+
+<script>
+(function () {
+	'use strict';
+
+	var galleries = document.querySelectorAll('[data-mp-gallery]');
+	for (var i = 0; i < galleries.length; i++) {
+		(function (gallery) {
+			var mainLink = gallery.querySelector('[data-mp-gallery-main]');
+			var mainImg = gallery.querySelector('[data-mp-gallery-main-img]');
+			var thumbs = gallery.querySelectorAll('[data-mp-gallery-thumb]');
+			var canHoverZoom = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+			if (!mainLink || !mainImg) {
+				return;
+			}
+
+			function resetZoom() {
+				mainImg.style.transformOrigin = '50% 50%';
+				mainImg.style.transform = 'scale(1)';
+				mainLink.classList.remove('is-zooming');
+			}
+
+			mainLink.addEventListener('click', function (event) {
+					event.preventDefault();
+					var overlay = document.createElement('div');
+					overlay.className = 'mp-lightbox';
+					overlay.innerHTML = '<button type=\"button\" class=\"mp-lightbox-close\" aria-label=\"Close\">×</button><img src=\"' + mainLink.getAttribute('href') + '\" alt=\"\">';
+					document.body.appendChild(overlay);
+					overlay.addEventListener('click', function () { document.body.removeChild(overlay); });
+				});
+
+				if (canHoverZoom) {
+				mainLink.classList.add('is-zoomable');
+				mainLink.addEventListener('mousemove', function (event) {
+					var rect = mainLink.getBoundingClientRect();
+					var x = ((event.clientX - rect.left) / rect.width) * 100;
+					var y = ((event.clientY - rect.top) / rect.height) * 100;
+					mainImg.style.transformOrigin = x + '% ' + y + '%';
+					mainImg.style.transform = 'scale(2.2)';
+					mainLink.classList.add('is-zooming');
+				});
+				mainLink.addEventListener('mouseleave', resetZoom);
+			}
+
+			for (var j = 0; j < thumbs.length; j++) {
+				thumbs[j].addEventListener('click', function () {
+					var src = this.getAttribute('data-src');
+					if (!src) {
+						return;
+					}
+
+					mainImg.setAttribute('src', src);
+					mainLink.setAttribute('href', src);
+					resetZoom();
+
+					for (var k = 0; k < thumbs.length; k++) {
+						thumbs[k].classList.remove('active');
+					}
+					this.classList.add('active');
+				});
+			}
+		})(galleries[i]);
+	}
+})();
+</script>
+
+{% include 'overall_footer.html' %}
