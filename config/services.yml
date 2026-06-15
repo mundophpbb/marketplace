@@ -27,8 +27,6 @@ services:
             - '%tables.marketplace_promotion_packages%'
             - '%tables.marketplace_purchases%'
             - '%tables.marketplace_follows%'
-            - '%tables.marketplace_promotions%'
-            - '%tables.marketplace_payment_logs%'
             - '%tables.marketplace_payment_logs%'
 
     # ACP controller

@@ -1,7 +1,91 @@
 {% include 'overall_header.html' %}
-<!-- INCLUDECSS @mundophpbb_marketplace/acp_marketplace.css -->
 
-
+<style>
+	.mp-acp-dashboard-grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(130px, 1fr));
+		gap: 10px;
+		margin: 12px 0 16px;
+	}
+	.mp-acp-stat-card {
+		display: block;
+		padding: 12px;
+		border: 1px solid #d7d7d7;
+		background: #f7f9fb;
+		border-radius: 4px;
+		text-decoration: none;
+	}
+	.mp-acp-stat-card strong {
+		display: block;
+		font-size: 22px;
+		line-height: 1.1;
+		color: #115098;
+	}
+	.mp-acp-stat-card span {
+		display: block;
+		margin-top: 4px;
+		color: #555;
+		font-size: 11px;
+		font-weight: bold;
+		text-transform: uppercase;
+	}
+	.mp-acp-stat-card.warning strong { color: #8a5a00; }
+	.mp-acp-stat-card.danger strong { color: #8b1e1e; }
+	.mp-acp-stat-card.success strong { color: #246b24; }
+	.mp-acp-stat-card.paypal strong { color: #00457c; }
+	.mp-acp-dashboard-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 7px;
+		margin: 10px 0 4px;
+	}
+	.mp-acp-dashboard-columns {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 14px;
+		margin-top: 14px;
+	}
+	.mp-acp-dashboard-columns .panel {
+		margin: 0;
+	}
+	.mp-acp-priority-list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.mp-acp-priority-list li {
+		padding: 8px 0;
+		border-bottom: 1px solid #e5e5e5;
+	}
+	.mp-acp-priority-list li:last-child {
+		border-bottom: 0;
+	}
+	.mp-acp-item-title {
+		font-weight: bold;
+	}
+	.mp-acp-item-meta {
+		display: block;
+		margin-top: 3px;
+		color: #666;
+		font-size: 11px;
+		line-height: 1.35;
+	}
+	.mp-acp-empty {
+		padding: 12px;
+		border: 1px dashed #c7c7c7;
+		background: #fbfbfb;
+		color: #666;
+		text-align: center;
+	}
+	.mp-acp-dashboard-table td:last-child,
+	.mp-acp-dashboard-table th:last-child {
+		text-align: right;
+	}
+	@media (max-width: 900px) {
+		.mp-acp-dashboard-grid { grid-template-columns: repeat(2, minmax(130px, 1fr)); }
+		.mp-acp-dashboard-columns { grid-template-columns: 1fr; }
+	}
+</style>
 
 <h1>{{ lang('MARKETPLACE_ACP_DASHBOARD') }}</h1>
 <p>{{ lang('MARKETPLACE_ACP_DASHBOARD_EXPLAIN') }}</p>

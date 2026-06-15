@@ -41,7 +41,55 @@ mundophpbb_marketplace_ucp:
     path: /ucp/marketplace
     defaults: { _controller: mundophpbb.marketplace.controller.ucp:main }
 
+
+mundophpbb_marketplace_payment:
+    path: /marketplace/payment/{context}/{id}
+    defaults: { _controller: mundophpbb.marketplace.controller.main:payment }
+    requirements:
+        context: purchase|promotion
+        id: \d+
+
+
 mundophpbb_marketplace_paypal_ipn:
     path: /marketplace/paypal/ipn
     defaults: { _controller: mundophpbb.marketplace.controller.main:paypal_ipn }
 
+
+mundophpbb_marketplace_seller:
+    path: /marketplace/seller/{user_id}
+    defaults: { _controller: mundophpbb.marketplace.controller.main:seller }
+    requirements:
+        user_id: \d+
+
+mundophpbb_marketplace_favorite:
+    path: /marketplace/favorite/{ad_id}
+    defaults: { _controller: mundophpbb.marketplace.controller.main:favorite }
+    requirements:
+        ad_id: \d+
+
+mundophpbb_marketplace_compare:
+    path: /marketplace/compare
+    defaults: { _controller: mundophpbb.marketplace.controller.main:compare }
+
+mundophpbb_marketplace_compare_add:
+    path: /marketplace/compare/add/{ad_id}
+    defaults: { _controller: mundophpbb.marketplace.controller.main:compare_add }
+    requirements:
+        ad_id: \d+
+
+mundophpbb_marketplace_compare_remove:
+    path: /marketplace/compare/remove/{ad_id}
+    defaults: { _controller: mundophpbb.marketplace.controller.main:compare_remove }
+    requirements:
+        ad_id: \d+
+
+mundophpbb_marketplace_compare_clear:
+    path: /marketplace/compare/clear
+    defaults: { _controller: mundophpbb.marketplace.controller.main:compare_clear }
+
+mundophpbb_marketplace_contact:
+    path: /marketplace/contact/{ad_id}/{method}
+    defaults: { _controller: mundophpbb.marketplace.controller.main:contact }
+    requirements:
+        ad_id: \d+
+        method: pm|whatsapp

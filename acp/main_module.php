@@ -70,6 +70,24 @@ class main_module
 				$acp_controller->display_notifications();
 			break;
 
+			case 'payments':
+				$this->tpl_name = 'acp_marketplace_payments';
+				$this->page_title = $language->lang('MARKETPLACE_ACP_PAYMENTS');
+				$acp_controller->display_payments();
+			break;
+
+			case 'promotions':
+				$this->tpl_name = 'acp_marketplace_promotions';
+				$this->page_title = $language->lang('MARKETPLACE_ACP_PROMOTIONS');
+				$acp_controller->display_promotions();
+			break;
+
+			case 'financial_reports':
+				$this->tpl_name = 'acp_marketplace_financial_reports';
+				$this->page_title = $language->lang('MARKETPLACE_ACP_FINANCIAL_REPORTS');
+				$acp_controller->display_financial_reports();
+			break;
+
 			case 'packages':
 				$this->tpl_name = 'acp_marketplace_packages';
 				$this->page_title = $language->lang('MARKETPLACE_ACP_PACKAGES');
@@ -80,6 +98,18 @@ class main_module
 				$this->tpl_name = 'acp_marketplace_reports';
 				$this->page_title = $language->lang('MARKETPLACE_ACP_REPORTS');
 				$acp_controller->manage_reports();
+			break;
+
+			case 'security':
+				$this->tpl_name = 'acp_marketplace_security';
+				$this->page_title = $language->lang('MARKETPLACE_ACP_SECURITY');
+				$acp_controller->display_security();
+			break;
+
+			case 'admin_logs':
+				$this->tpl_name = 'acp_marketplace_admin_logs';
+				$this->page_title = $language->lang('MARKETPLACE_ACP_ADMIN_LOGS');
+				$acp_controller->display_admin_logs();
 			break;
 
 			default:

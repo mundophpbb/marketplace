@@ -1,0 +1,194 @@
+{% include 'overall_header.html' %}
+
+<style>
+	.mp-acp-financial-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(150px, 1fr));
+		gap: 10px;
+		margin: 12px 0 16px;
+	}
+	.mp-acp-financial-card {
+		padding: 12px;
+		border: 1px solid #d7d7d7;
+		background: #f7f9fb;
+		border-radius: 4px;
+	}
+	.mp-acp-financial-card strong {
+		display: block;
+		font-size: 20px;
+		line-height: 1.2;
+		color: #115098;
+	}
+	.mp-acp-financial-card span {
+		display: block;
+		margin-top: 4px;
+		color: #555;
+		font-size: 11px;
+		font-weight: bold;
+		text-transform: uppercase;
+	}
+	.mp-acp-financial-card.success strong { color: #246b24; }
+	.mp-acp-financial-card.warning strong { color: #8a5a00; }
+	.mp-acp-financial-card.danger strong { color: #8b1e1e; }
+	.mp-acp-financial-columns {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 14px;
+		margin-top: 14px;
+	}
+	.mp-acp-financial-columns .panel { margin: 0; }
+	.mp-acp-financial-filters fieldset dl { margin-bottom: 8px; }
+	.mp-acp-financial-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 7px;
+		margin-top: 8px;
+	}
+	.mp-acp-financial-empty {
+		padding: 12px;
+		border: 1px dashed #c7c7c7;
+		background: #fbfbfb;
+		color: #666;
+		text-align: center;
+	}
+	.mp-acp-financial-table td.amount,
+	.mp-acp-financial-table th.amount,
+	.mp-acp-financial-table td.center,
+	.mp-acp-financial-table th.center {
+		text-align: center;
+	}
+	@media (max-width: 900px) {
+		.mp-acp-financial-grid { grid-template-columns: repeat(2, minmax(150px, 1fr)); }
+		.mp-acp-financial-columns { grid-template-columns: 1fr; }
+	}
+</style>
+
+<h1>{{ lang('MARKETPLACE_ACP_FINANCIAL_REPORTS') }}</h1>
+<p>{{ lang('MARKETPLACE_ACP_FINANCIAL_REPORTS_EXPLAIN') }}</p>
+
+<div class="panel mp-acp-financial-filters">
+	<div class="inner">
+		<h2>{{ lang('MARKETPLACE_FINANCIAL_FILTERS') }}</h2>
+		<form id="marketplace_financial_filters" method="get" action="{{ U_ACTION }}">
+			<fieldset>
+				<dl>
+					<dt><label for="start_date">{{ lang('MARKETPLACE_FILTER_START_DATE') }}{{ lang('COLON') }}</label></dt>
+					<dd><input type="date" id="start_date" name="start_date" value="{{ FILTER_START_DATE }}" /></dd>
+				</dl>
+				<dl>
+					<dt><label for="end_date">{{ lang('MARKETPLACE_FILTER_END_DATE') }}{{ lang('COLON') }}</label></dt>
+					<dd><input type="date" id="end_date" name="end_date" value="{{ FILTER_END_DATE }}" /></dd>
+				</dl>
+				<dl>
+					<dt><label for="user_id">{{ lang('MARKETPLACE_FILTER_USER_ID') }}{{ lang('COLON') }}</label></dt>
+					<dd><input type="number" min="1" id="user_id" name="user_id" value="{{ FILTER_USER_ID }}" /></dd>
+				</dl>
+				<dl>
+					<dt><label for="promotion_type">{{ lang('MARKETPLACE_FILTER_PROMOTION_TYPE') }}{{ lang('COLON') }}</label></dt>
+					<dd>
+						<select id="promotion_type" name="promotion_type">
+						{% for option in PROMOTION_TYPE_OPTIONS %}
+							<option value="{{ option.VALUE }}"{% if option.S_SELECTED %} selected="selected"{% endif %}>{{ option.LABEL }}</option>
+						{% endfor %}
+						</select>
+					</dd>
+				</dl>
+				<p class="submit-buttons">
+					<input class="button1" type="submit" value="{{ lang('MARKETPLACE_APPLY_FILTERS') }}" />
+					<a class="button2" href="{{ U_ACTION }}">{{ lang('RESET') }}</a>
+				</p>
+			</fieldset>
+		</form>
+		<div class="mp-acp-financial-actions">
+			<a href="{{ U_EXPORT_CSV }}" class="button2">{{ lang('MARKETPLACE_EXPORT_CSV') }}</a>
+		</div>
+	</div>
+</div>
+
+<div class="panel">
+	<div class="inner">
+		<h2>{{ lang('MARKETPLACE_FINANCIAL_OVERVIEW') }}</h2>
+		<div class="mp-acp-financial-grid">
+			<div class="mp-acp-financial-card success"><strong>{{ FINANCIAL_TOTAL_REVENUE }}</strong><span>{{ lang('MARKETPLACE_FINANCIAL_TOTAL_REVENUE') }}</span></div>
+			<div class="mp-acp-financial-card success"><strong>{{ FINANCIAL_FEATURED_REVENUE }}</strong><span>{{ lang('MARKETPLACE_FINANCIAL_FEATURED_REVENUE') }}</span></div>
+			<div class="mp-acp-financial-card success"><strong>{{ FINANCIAL_BOOSTED_REVENUE }}</strong><span>{{ lang('MARKETPLACE_FINANCIAL_BOOSTED_REVENUE') }}</span></div>
+			<div class="mp-acp-financial-card"><strong>{{ FINANCIAL_CONFIRMED_TRANSACTIONS }}</strong><span>{{ lang('MARKETPLACE_FINANCIAL_CONFIRMED_TRANSACTIONS') }}</span></div>
+			<div class="mp-acp-financial-card danger"><strong>{{ FINANCIAL_INVALID_TRANSACTIONS }}</strong><span>{{ lang('MARKETPLACE_FINANCIAL_INVALID_TRANSACTIONS') }}</span></div>
+			<div class="mp-acp-financial-card warning"><strong>{{ FINANCIAL_PENDING_TRANSACTIONS }}</strong><span>{{ lang('MARKETPLACE_FINANCIAL_PENDING_TRANSACTIONS') }}</span></div>
+		</div>
+	</div>
+</div>
+
+<div class="mp-acp-financial-columns">
+	<div class="panel">
+		<div class="inner">
+			<h2>{{ lang('MARKETPLACE_FINANCIAL_REVENUE_BY_MONTH') }}</h2>
+			{% if FINANCIAL_MONTHLY_REVENUE|length %}
+			<table class="table1 zebra-table mp-acp-financial-table">
+				<thead><tr><th>{{ lang('MARKETPLACE_MONTH') }}</th><th class="amount">{{ lang('MARKETPLACE_REVENUE') }}</th></tr></thead>
+				<tbody>
+				{% for item in FINANCIAL_MONTHLY_REVENUE %}
+					<tr><td>{{ item.MONTH }}</td><td class="amount">{{ item.REVENUE_DISPLAY }}</td></tr>
+				{% endfor %}
+				</tbody>
+			</table>
+			{% else %}
+				<div class="mp-acp-financial-empty">{{ lang('MARKETPLACE_NO_FINANCIAL_DATA') }}</div>
+			{% endif %}
+		</div>
+	</div>
+
+	<div class="panel">
+		<div class="inner">
+			<h2>{{ lang('MARKETPLACE_FINANCIAL_REVENUE_BY_TYPE') }}</h2>
+			<table class="table1 zebra-table mp-acp-financial-table">
+				<thead><tr><th>{{ lang('MARKETPLACE_PROMOTION_TYPE') }}</th><th class="amount">{{ lang('MARKETPLACE_REVENUE') }}</th></tr></thead>
+				<tbody>
+				{% for item in FINANCIAL_TYPE_REVENUE %}
+					<tr><td>{{ item.TYPE_LANG }}</td><td class="amount">{{ item.REVENUE_DISPLAY }}</td></tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<div class="panel">
+	<div class="inner">
+		<h2>{{ lang('MARKETPLACE_FINANCIAL_LATEST_TRANSACTIONS') }}</h2>
+		{% if FINANCIAL_PAYMENT_LOGS|length %}
+		<table class="table1 zebra-table mp-acp-financial-table">
+			<thead>
+			<tr>
+				<th>{{ lang('DATE') }}</th>
+				<th>{{ lang('USERNAME') }}</th>
+				<th>{{ lang('MARKETPLACE_AD') }}</th>
+				<th>{{ lang('MARKETPLACE_PROMOTION_TYPE') }}</th>
+				<th>{{ lang('MARKETPLACE_PAYMENT_RESULT') }}</th>
+				<th>{{ lang('MARKETPLACE_PAYMENT_VERIFICATION') }}</th>
+				<th>{{ lang('MARKETPLACE_PAYMENT_TRANSACTION') }}</th>
+				<th class="amount">{{ lang('MARKETPLACE_AMOUNT') }}</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for payment in FINANCIAL_PAYMENT_LOGS %}
+			<tr>
+				<td>{{ payment.PAYMENT_CREATED_DISPLAY }}</td>
+				<td>{{ payment.username }}</td>
+				<td>{{ payment.ad_title }}</td>
+				<td>{{ payment.PROMOTION_TYPE_LANG }}</td>
+				<td>{{ payment.PAYMENT_VALIDATION_STATUS_LANG }}</td>
+				<td>{{ payment.PAYMENT_VERIFICATION_STATUS_LANG }}</td>
+				<td>{{ payment.PAYMENT_TRANSACTION_DISPLAY }}</td>
+				<td class="amount">{{ payment.PAYMENT_AMOUNT_DISPLAY }}</td>
+			</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+		{% else %}
+			<div class="mp-acp-financial-empty">{{ lang('MARKETPLACE_NO_RECENT_PAYMENTS') }}</div>
+		{% endif %}
+	</div>
+</div>
+
+{% include 'overall_footer.html' %}

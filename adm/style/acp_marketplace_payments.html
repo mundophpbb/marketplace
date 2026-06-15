@@ -1,0 +1,117 @@
+{% include 'overall_header.html' %}
+<!-- INCLUDECSS @mundophpbb_marketplace/acp_marketplace.css -->
+
+<h1>{{ lang('MARKETPLACE_ACP_PAYMENTS') }}</h1>
+<p>{{ lang('MARKETPLACE_ACP_PAYMENTS_EXPLAIN') }}</p>
+
+<form method="get" action="{{ U_ACTION }}" class="quick marketplace-acp-filter">
+	<fieldset>
+		<label>{{ lang('MARKETPLACE_SEARCH') }}{{ lang('COLON') }} <input type="text" name="q" value="{{ FILTER_Q }}" class="inputbox autowidth" size="24" placeholder="{{ lang('MARKETPLACE_PAYMENT_SEARCH_PLACEHOLDER') }}"></label>
+		<label>{{ lang('MARKETPLACE_GATEWAY') }}{{ lang('COLON') }}
+			<select name="provider">
+				<option value=""{% if not FILTER_PROVIDER %} selected{% endif %}>{{ lang('ALL') }}</option>
+				<option value="paypal"{% if FILTER_PROVIDER == 'paypal' %} selected{% endif %}>PayPal</option>
+				<option value="stripe"{% if FILTER_PROVIDER == 'stripe' %} selected{% endif %}>Stripe</option>
+				<option value="pix"{% if FILTER_PROVIDER == 'pix' %} selected{% endif %}>PIX</option>
+				<option value="mercadopago"{% if FILTER_PROVIDER == 'mercadopago' %} selected{% endif %}>Mercado Pago</option>
+			</select>
+		</label>
+		<label>{{ lang('MARKETPLACE_STATUS') }}{{ lang('COLON') }}
+			<select name="status">
+				<option value=""{% if not FILTER_STATUS %} selected{% endif %}>{{ lang('ALL') }}</option>
+				<option value="confirmed"{% if FILTER_STATUS == 'confirmed' %} selected{% endif %}>{{ lang('MARKETPLACE_PAYMENT_CONFIRMED') }}</option>
+				<option value="invalid"{% if FILTER_STATUS == 'invalid' %} selected{% endif %}>{{ lang('MARKETPLACE_PAYMENT_INVALID') }}</option>
+				<option value="pending"{% if FILTER_STATUS == 'pending' %} selected{% endif %}>{{ lang('MARKETPLACE_PENDING') }}</option>
+			</select>
+		</label>
+		<label>{{ lang('MARKETPLACE_PAYMENT_TRANSACTION') }}{{ lang('COLON') }} <input type="text" name="transaction" value="{{ FILTER_TRANSACTION }}" class="inputbox autowidth" size="18"></label>
+		<label>{{ lang('MARKETPLACE_PAYMENT_REFERENCE') }}{{ lang('COLON') }} <input type="text" name="reference" value="{{ FILTER_REFERENCE }}" class="inputbox autowidth" size="18"></label>
+		<label>{{ lang('MARKETPLACE_FILTER_USER_ID') }}{{ lang('COLON') }} <input type="number" name="user_id" value="{{ FILTER_USER_ID }}" min="1" class="inputbox autowidth" size="6"></label>
+		<label>{{ lang('MARKETPLACE_FILTER_START_DATE') }}{{ lang('COLON') }} <input type="date" name="start_date" value="{{ FILTER_START_DATE }}"></label>
+		<label>{{ lang('MARKETPLACE_FILTER_END_DATE') }}{{ lang('COLON') }} <input type="date" name="end_date" value="{{ FILTER_END_DATE }}"></label>
+		<input class="button2" type="submit" value="{{ lang('FILTER') }}">
+		<a class="button2" href="{{ U_EXPORT_CSV }}">{{ lang('MARKETPLACE_EXPORT_CSV') }}</a>
+	</fieldset>
+</form>
+
+<table class="table1 zebra-table marketplace-payment-log-table">
+	<thead>
+	<tr>
+		<th>ID</th>
+		<th>{{ lang('DATE') }}</th>
+		<th>{{ lang('MARKETPLACE_GATEWAY') }}</th>
+		<th>{{ lang('USERNAME') }}</th>
+		<th>{{ lang('MARKETPLACE_AD') }}</th>
+		<th>{{ lang('MARKETPLACE_PROMOTION_TYPE') }}</th>
+		<th>{{ lang('MARKETPLACE_PAYMENT_RESULT') }}</th>
+		<th>{{ lang('MARKETPLACE_PAYMENT_TRANSACTION') }}</th>
+		<th>{{ lang('MARKETPLACE_PAYMENT_REFERENCE') }}</th>
+		<th>{{ lang('MARKETPLACE_AMOUNT') }}</th>
+		<th>{{ lang('ACTION') }}</th>
+	</tr>
+	</thead>
+	<tbody>
+	{% for payment in PAYMENTS %}
+	<tr>
+		<td>{{ payment.payment_log_id }}</td>
+		<td>{{ payment.PAYMENT_CREATED_DISPLAY }}</td>
+		<td>{{ payment.PAYMENT_PROVIDER_LANG }}</td>
+		<td>{{ payment.username|default('-') }}</td>
+		<td>{{ payment.ad_title|default('-') }}</td>
+		<td>{{ payment.PROMOTION_TYPE_LANG }}</td>
+		<td>{{ payment.PAYMENT_VALIDATION_STATUS_LANG }}<br><small>{{ payment.PAYMENT_VERIFICATION_STATUS_LANG }}</small><br><small>{{ payment.payment_status }}</small></td>
+		<td>
+			<span class="marketplace-copy-value">{{ payment.PAYMENT_TRANSACTION_DISPLAY }}</span>
+			{% if payment.payment_transaction_id %}<button type="button" class="button2 marketplace-copy-button" data-copy="{{ payment.payment_transaction_id|e('html_attr') }}">{{ lang('MARKETPLACE_COPY') }}</button>{% endif %}
+		</td>
+		<td>
+			<span class="marketplace-copy-value">{{ payment.PAYMENT_REFERENCE_DISPLAY }}</span>
+			{% if payment.payment_reference %}<button type="button" class="button2 marketplace-copy-button" data-copy="{{ payment.payment_reference|e('html_attr') }}">{{ lang('MARKETPLACE_COPY') }}</button>{% endif %}
+			<br><small>{{ lang('MARKETPLACE_PAYMENT_RECEIVER') }}{{ lang('COLON') }} {{ payment.PAYMENT_RECEIVER_DISPLAY }}</small>
+		</td>
+		<td>{{ payment.PAYMENT_AMOUNT_DISPLAY }}</td>
+		<td>
+			{% if payment.S_CAN_REVALIDATE %}
+			<form method="post" action="{{ U_ACTION }}" class="mp-acp-inline-form">
+				<input type="hidden" name="action" value="revalidate_payment">
+				<input type="hidden" name="payment_log_id" value="{{ payment.payment_log_id }}">
+				<input class="button2" type="submit" name="submit_action" value="{{ lang('MARKETPLACE_PAYMENT_REVALIDATE') }}">
+				{{ S_FORM_TOKEN }}
+			</form>
+			{% else %}
+			-
+			{% endif %}
+		</td>
+	</tr>
+	{% else %}
+	<tr><td colspan="11">{{ lang('MARKETPLACE_NO_RECENT_PAYMENTS') }}</td></tr>
+	{% endfor %}
+	</tbody>
+</table>
+
+<script>
+(function() {
+	var buttons = document.querySelectorAll('.marketplace-copy-button');
+	for (var i = 0; i < buttons.length; i++) {
+		buttons[i].addEventListener('click', function() {
+			var value = this.getAttribute('data-copy') || '';
+			if (!value) { return; }
+			if (navigator.clipboard && navigator.clipboard.writeText) {
+				navigator.clipboard.writeText(value);
+			} else {
+				var input = document.createElement('input');
+				input.value = value;
+				document.body.appendChild(input);
+				input.select();
+				document.execCommand('copy');
+				document.body.removeChild(input);
+			}
+			this.textContent = '{{ lang('MARKETPLACE_COPIED')|e('js') }}';
+		});
+	}
+})();
+</script>
+
+{% if pagination|length %}<div class="pagination">{% include 'pagination.html' %}</div>{% endif %}
+
+{% include 'overall_footer.html' %}

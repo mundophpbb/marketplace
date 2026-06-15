@@ -1,0 +1,57 @@
+{% include 'overall_header.html' %}
+
+<h1>{{ lang('MARKETPLACE_ACP_PROMOTIONS') }}</h1>
+<p>{{ lang('MARKETPLACE_ACP_PROMOTIONS_EXPLAIN') }}</p>
+
+<form method="get" action="{{ U_ACTION }}" class="quick">
+	<fieldset>
+		<label>{{ lang('MARKETPLACE_SEARCH') }}{{ lang('COLON') }} <input type="text" name="q" value="{{ FILTER_Q }}" class="inputbox autowidth" size="28"></label>
+		<label>{{ lang('MARKETPLACE_STATUS') }}{{ lang('COLON') }}
+			<select name="status">
+				<option value="-1"{% if FILTER_STATUS == -1 %} selected{% endif %}>{{ lang('ALL') }}</option>
+				<option value="0"{% if FILTER_STATUS == 0 %} selected{% endif %}>{{ lang('MARKETPLACE_PENDING') }}</option>
+				<option value="1"{% if FILTER_STATUS == 1 %} selected{% endif %}>{{ lang('MARKETPLACE_APPROVED') }}</option>
+				<option value="2"{% if FILTER_STATUS == 2 %} selected{% endif %}>{{ lang('MARKETPLACE_REJECTED') }}</option>
+				<option value="3"{% if FILTER_STATUS == 3 %} selected{% endif %}>{{ lang('MARKETPLACE_PROMOTION_STATUS_AWAITING_PAYMENT') }}</option>
+			</select>
+		</label>
+		<label>{{ lang('MARKETPLACE_PROMOTION_TYPE') }}{{ lang('COLON') }}
+			<select name="promotion_type">
+			{% for option in PROMOTION_TYPE_OPTIONS %}<option value="{{ option.VALUE }}"{% if option.S_SELECTED %} selected{% endif %}>{{ option.LABEL }}</option>{% endfor %}
+			</select>
+		</label>
+		<label>{{ lang('MARKETPLACE_FILTER_USER_ID') }}{{ lang('COLON') }} <input type="number" name="user_id" value="{{ FILTER_USER_ID }}" min="1" class="inputbox autowidth" size="6"></label>
+		<input class="button2" type="submit" value="{{ lang('FILTER') }}">
+		<a class="button2" href="{{ U_EXPORT_CSV }}">{{ lang('MARKETPLACE_EXPORT_CSV') }}</a>
+	</fieldset>
+</form>
+
+<table class="table1 zebra-table">
+	<thead><tr><th>ID</th><th>{{ lang('MARKETPLACE_AD') }}</th><th>{{ lang('USERNAME') }}</th><th>{{ lang('MARKETPLACE_PROMOTION_TYPE') }}</th><th>{{ lang('MARKETPLACE_STATUS') }}</th><th>{{ lang('MARKETPLACE_AMOUNT') }}</th><th>{{ lang('MARKETPLACE_CREATED') }}</th><th>{{ lang('ACTIONS') }}</th></tr></thead>
+	<tbody>
+	{% for promotion in PROMOTIONS %}
+	<tr>
+		<td>{{ promotion.promotion_id }}</td>
+		<td>{% if promotion.U_AD %}<a href="{{ promotion.U_AD }}" target="_blank">{{ promotion.ad_title }}</a>{% else %}{{ promotion.ad_title|default('-') }}{% endif %}<br><small>{{ promotion.package_title|default('-') }}</small></td>
+		<td>{{ promotion.username|default('-') }}</td>
+		<td>{{ promotion.PROMOTION_TYPE_LANG }}</td>
+		<td>{{ promotion.PROMOTION_STATUS_LANG }}</td>
+		<td>{{ promotion.PROMOTION_AMOUNT_DISPLAY }}</td>
+		<td>{{ promotion.PROMOTION_REQUESTED_DISPLAY }}</td>
+		<td>
+		{% if promotion.promotion_status == 0 %}
+			<form method="post" action="{{ U_ACTION }}" style="display:inline">
+				<input type="hidden" name="action" value="approve_promotion"><input type="hidden" name="promotion_id" value="{{ promotion.promotion_id }}"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_APPROVE') }}" class="button-small">{{ S_FORM_TOKEN }}
+			</form>
+			<form method="post" action="{{ U_ACTION }}" style="display:inline">
+				<input type="hidden" name="action" value="reject_promotion"><input type="hidden" name="promotion_id" value="{{ promotion.promotion_id }}"><input type="submit" name="submit_action" value="{{ lang('MARKETPLACE_REJECT') }}" class="button-small">{{ S_FORM_TOKEN }}
+			</form>
+		{% else %}-{% endif %}
+		</td>
+	</tr>
+	{% else %}<tr><td colspan="8">{{ lang('MARKETPLACE_NO_PROMOTIONS') }}</td></tr>{% endfor %}
+	</tbody>
+</table>
+{% if pagination|length %}<div class="pagination">{% include 'pagination.html' %}</div>{% endif %}
+
+{% include 'overall_footer.html' %}

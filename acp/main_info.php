@@ -46,6 +46,21 @@ class main_info
 					'auth'	=> 'ext_mundophpbb/marketplace && acl_a_board',
 					'cat'	=> ['MARKETPLACE_TITLE'],
 				],
+				'payments'	=> [
+					'title'	=> 'MARKETPLACE_ACP_PAYMENTS',
+					'auth'	=> 'ext_mundophpbb/marketplace && acl_a_board',
+					'cat'	=> ['MARKETPLACE_TITLE'],
+				],
+				'promotions'	=> [
+					'title'	=> 'MARKETPLACE_ACP_PROMOTIONS',
+					'auth'	=> 'ext_mundophpbb/marketplace && acl_a_board',
+					'cat'	=> ['MARKETPLACE_TITLE'],
+				],
+				'financial_reports'	=> [
+					'title'	=> 'MARKETPLACE_ACP_FINANCIAL_REPORTS',
+					'auth'	=> 'ext_mundophpbb/marketplace && acl_a_board',
+					'cat'	=> ['MARKETPLACE_TITLE'],
+				],
 				'packages'	=> [
 					'title'	=> 'MARKETPLACE_ACP_PACKAGES',
 					'auth'	=> 'ext_mundophpbb/marketplace && acl_a_board',
@@ -53,6 +68,16 @@ class main_info
 				],
 				'reports'	=> [
 					'title'	=> 'MARKETPLACE_ACP_REPORTS',
+					'auth'	=> 'ext_mundophpbb/marketplace && acl_a_board',
+					'cat'	=> ['MARKETPLACE_TITLE'],
+				],
+				'security'	=> [
+					'title'	=> 'MARKETPLACE_ACP_SECURITY',
+					'auth'	=> 'ext_mundophpbb/marketplace && acl_a_board',
+					'cat'	=> ['MARKETPLACE_TITLE'],
+				],
+				'admin_logs'	=> [
+					'title'	=> 'MARKETPLACE_ACP_ADMIN_LOGS',
 					'auth'	=> 'ext_mundophpbb/marketplace && acl_a_board',
 					'cat'	=> ['MARKETPLACE_TITLE'],
 				],

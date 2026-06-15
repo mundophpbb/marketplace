@@ -1,0 +1,140 @@
+{% include 'overall_header.html' %}
+
+<h1>{{ lang('MARKETPLACE_ACP_SECURITY') }}</h1>
+<p>{{ lang('MARKETPLACE_ACP_SECURITY_EXPLAIN') }}</p>
+
+<h2>{{ lang('MARKETPLACE_SUSPICIOUS_ADS') }}</h2>
+<table class="table1 zebra-table">
+	<thead><tr><th>ID</th><th>{{ lang('MARKETPLACE_AD') }}</th><th>{{ lang('MARKETPLACE_CATEGORY') }}</th><th>{{ lang('MARKETPLACE_POSTED_BY') }}</th><th>{{ lang('MARKETPLACE_STATUS') }}</th><th>{{ lang('ACTIONS') }}</th></tr></thead>
+	<tbody>
+	{% for ad in SUSPICIOUS_ADS %}
+		<tr>
+			<td>{{ ad.ad_id }}</td>
+			<td><a href="{{ ad.U_VIEW }}" target="_blank" rel="noopener">{{ ad.ad_title }}</a></td>
+			<td>{{ ad.CAT_NAME_DISPLAY }}</td>
+			<td>{{ ad.username }}</td>
+			<td>{{ ad.STATUS_LANG }}</td>
+			<td><a href="{{ U_ACTION|replace({'mode=security':'mode=ads'}) }}&amp;status=0" class="button-small">{{ lang('MARKETPLACE_REVIEW_IN_AD_QUEUE') }}</a></td>
+		</tr>
+	{% else %}
+		<tr><td colspan="6">{{ lang('MARKETPLACE_NO_SUSPICIOUS_ADS') }}</td></tr>
+	{% endfor %}
+	</tbody>
+</table>
+
+<h2>{{ lang('MARKETPLACE_FORBIDDEN_TERMS') }}</h2>
+<form method="post" action="{{ U_ACTION }}">
+	<fieldset>
+		<legend>{{ lang('MARKETPLACE_ADD_FORBIDDEN_TERM') }}</legend>
+		<input type="hidden" name="action" value="add_term">
+		<input type="text" name="term_text" class="inputbox autowidth" maxlength="255" placeholder="{{ lang('MARKETPLACE_FORBIDDEN_TERM') }}">
+		<input type="submit" name="submit_action" value="{{ lang('SUBMIT') }}" class="button1">
+		{{ S_FORM_TOKEN }}
+	</fieldset>
+</form>
+<table class="table1 zebra-table">
+	<thead><tr><th>{{ lang('MARKETPLACE_FORBIDDEN_TERM') }}</th><th>{{ lang('MARKETPLACE_CREATED') }}</th><th>{{ lang('MARKETPLACE_STATUS') }}</th><th>{{ lang('ACTIONS') }}</th></tr></thead>
+	<tbody>
+	{% for term in FORBIDDEN_TERMS %}
+		<tr>
+			<td>{{ term.term_text }}</td>
+			<td>{{ term.TERM_CREATED_DISPLAY }}</td>
+			<td>{{ term.term_enabled ? lang('ENABLED') : lang('DISABLED') }}</td>
+			<td>
+				<form method="post" action="{{ U_ACTION }}" style="display:inline">
+					<input type="hidden" name="action" value="toggle_term"><input type="hidden" name="term_id" value="{{ term.term_id }}">
+					<input type="submit" name="submit_action" value="{{ term.term_enabled ? lang('DISABLE') : lang('ENABLE') }}" class="button-small">{{ S_FORM_TOKEN }}
+				</form>
+				<form method="post" action="{{ U_ACTION }}" style="display:inline">
+					<input type="hidden" name="action" value="delete_term"><input type="hidden" name="term_id" value="{{ term.term_id }}">
+					<input type="submit" name="submit_action" value="{{ lang('DELETE') }}" class="button-small">{{ S_FORM_TOKEN }}
+				</form>
+			</td>
+		</tr>
+	{% else %}
+		<tr><td colspan="4">{{ lang('MARKETPLACE_NO_FORBIDDEN_TERMS') }}</td></tr>
+	{% endfor %}
+	</tbody>
+</table>
+
+<h2>{{ lang('MARKETPLACE_PUBLISH_LIMITS') }}</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+	<div>
+		<form method="post" action="{{ U_ACTION }}">
+			<fieldset>
+				<legend>{{ lang('MARKETPLACE_LIMIT_BY_USER') }}</legend>
+				<input type="hidden" name="action" value="save_user_limit">
+				<dl><dt><label>{{ lang('USERNAME') }}{{ lang('COLON') }}</label></dt><dd><input type="text" name="username" class="inputbox"></dd></dl>
+				<dl><dt><label>{{ lang('MARKETPLACE_MAX_ADS') }}{{ lang('COLON') }}</label></dt><dd><input type="number" name="max_ads" min="0" value="0" class="inputbox autowidth"></dd></dl>
+				<input type="submit" name="submit_action" value="{{ lang('SUBMIT') }}" class="button1">{{ S_FORM_TOKEN }}
+			</fieldset>
+		</form>
+		<table class="table1 zebra-table"><tbody>
+		{% for limit in USER_LIMITS %}
+			<tr><td>{{ limit.username }}</td><td>{{ limit.max_ads }}</td><td><form method="post" action="{{ U_ACTION }}"><input type="hidden" name="action" value="delete_user_limit"><input type="hidden" name="user_id" value="{{ limit.user_id }}"><input type="submit" name="submit_action" value="{{ lang('DELETE') }}" class="button-small">{{ S_FORM_TOKEN }}</form></td></tr>
+		{% else %}<tr><td>{{ lang('MARKETPLACE_NO_USER_LIMITS') }}</td></tr>{% endfor %}
+		</tbody></table>
+	</div>
+	<div>
+		<form method="post" action="{{ U_ACTION }}">
+			<fieldset>
+				<legend>{{ lang('MARKETPLACE_LIMIT_BY_GROUP') }}</legend>
+				<input type="hidden" name="action" value="save_group_limit">
+				<dl><dt><label>{{ lang('GROUP') }}{{ lang('COLON') }}</label></dt><dd><select name="group_id">{% for group in GROUP_OPTIONS %}<option value="{{ group.GROUP_ID }}">{{ group.GROUP_NAME }}</option>{% endfor %}</select></dd></dl>
+				<dl><dt><label>{{ lang('MARKETPLACE_MAX_ADS') }}{{ lang('COLON') }}</label></dt><dd><input type="number" name="max_ads" min="0" value="0" class="inputbox autowidth"></dd></dl>
+				<input type="submit" name="submit_action" value="{{ lang('SUBMIT') }}" class="button1">{{ S_FORM_TOKEN }}
+			</fieldset>
+		</form>
+		<table class="table1 zebra-table"><tbody>
+		{% for limit in GROUP_LIMITS %}
+			<tr><td>{{ limit.group_name }}</td><td>{{ limit.max_ads }}</td><td><form method="post" action="{{ U_ACTION }}"><input type="hidden" name="action" value="delete_group_limit"><input type="hidden" name="group_id" value="{{ limit.group_id }}"><input type="submit" name="submit_action" value="{{ lang('DELETE') }}" class="button-small">{{ S_FORM_TOKEN }}</form></td></tr>
+		{% else %}<tr><td>{{ lang('MARKETPLACE_NO_GROUP_LIMITS') }}</td></tr>{% endfor %}
+		</tbody></table>
+	</div>
+</div>
+
+<h2>{{ lang('MARKETPLACE_USER_SECURITY') }}</h2>
+<form method="post" action="{{ U_ACTION }}">
+	<fieldset>
+		<legend>{{ lang('MARKETPLACE_USER_SECURITY_UPDATE') }}</legend>
+		<input type="hidden" name="action" value="save_user_security">
+		<dl><dt><label>{{ lang('USERNAME') }}{{ lang('COLON') }}</label></dt><dd><input type="text" name="security_username" class="inputbox"></dd></dl>
+		<dl><dt><label>{{ lang('MARKETPLACE_SECURITY_FLAGS') }}{{ lang('COLON') }}</label></dt><dd>
+			<label><input type="checkbox" name="seller_suspended" value="1"> {{ lang('MARKETPLACE_SELLER_SUSPENDED') }}</label><br>
+			<label><input type="checkbox" name="publish_blocked" value="1"> {{ lang('MARKETPLACE_PUBLISH_BLOCKED') }}</label><br>
+			<label><input type="checkbox" name="verified_seller" value="1"> {{ lang('MARKETPLACE_VERIFIED_SELLER') }}</label>
+		</dd></dl>
+		<dl><dt><label>{{ lang('MARKETPLACE_NOTE') }}{{ lang('COLON') }}</label></dt><dd><textarea name="security_note" rows="3" class="inputbox"></textarea></dd></dl>
+		<input type="submit" name="submit_action" value="{{ lang('SUBMIT') }}" class="button1">{{ S_FORM_TOKEN }}
+	</fieldset>
+</form>
+<table class="table1 zebra-table">
+	<thead><tr><th>{{ lang('USERNAME') }}</th><th>{{ lang('MARKETPLACE_SECURITY_FLAGS') }}</th><th>{{ lang('MARKETPLACE_NOTE') }}</th><th>{{ lang('MARKETPLACE_UPDATED') }}</th><th>{{ lang('ACTIONS') }}</th></tr></thead>
+	<tbody>
+	{% for sec in USER_SECURITY %}
+		<tr>
+			<td>{{ sec.username }}</td>
+			<td>{% if sec.seller_suspended %}{{ lang('MARKETPLACE_SELLER_SUSPENDED') }}<br>{% endif %}{% if sec.publish_blocked %}{{ lang('MARKETPLACE_PUBLISH_BLOCKED') }}<br>{% endif %}{% if sec.verified_seller %}{{ lang('MARKETPLACE_VERIFIED_SELLER') }}{% endif %}</td>
+			<td>{{ sec.security_note }}</td>
+			<td>{{ sec.UPDATED_DISPLAY }}</td>
+			<td><form method="post" action="{{ U_ACTION }}"><input type="hidden" name="action" value="clear_user_security"><input type="hidden" name="user_id" value="{{ sec.user_id }}"><input type="submit" name="submit_action" value="{{ lang('DELETE') }}" class="button-small">{{ S_FORM_TOKEN }}</form></td>
+		</tr>
+	{% else %}
+		<tr><td colspan="5">{{ lang('MARKETPLACE_NO_USER_SECURITY') }}</td></tr>
+	{% endfor %}
+	</tbody>
+</table>
+
+<h2>{{ lang('MARKETPLACE_MODERATION_LOGS') }}</h2>
+<table class="table1 zebra-table">
+	<thead><tr><th>{{ lang('TIME') }}</th><th>{{ lang('ACTION') }}</th><th>{{ lang('MARKETPLACE_AD') }}</th><th>{{ lang('USERNAME') }}</th><th>{{ lang('MARKETPLACE_NOTE') }}</th><th>{{ lang('MARKETPLACE_ADMIN') }}</th></tr></thead>
+	<tbody>
+	{% for log in MODERATION_LOGS %}
+		<tr><td>{{ log.LOG_TIME_DISPLAY }}</td><td>{{ log.log_action }}</td><td>{{ log.ad_title }}</td><td>{{ log.target_username }}</td><td>{{ log.log_note }}</td><td>{{ log.admin_username }}</td></tr>
+	{% else %}
+		<tr><td colspan="6">{{ lang('MARKETPLACE_NO_MODERATION_LOGS') }}</td></tr>
+	{% endfor %}
+	</tbody>
+</table>
+
+{% include 'overall_footer.html' %}
