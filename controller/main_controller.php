@@ -429,6 +429,8 @@ class main_controller
 			'FILTER_CITY'       => isset($filters['city']) ? $filters['city'] : '',
 			'FILTER_REGION'     => isset($filters['region']) ? $filters['region'] : '',
 			'FILTER_COUNTRY'    => isset($filters['country']) ? $filters['country'] : '',
+			'LOCATION_OPTIONS'  => $this->get_marketplace_location_options(isset($filters['location']) ? $filters['location'] : '', false),
+			'REGION_OPTIONS'    => $this->get_marketplace_region_options(isset($filters['region']) ? $filters['region'] : '', false),
 			'FILTER_DISTANCE'   => isset($filters['distance']) ? (int) $filters['distance'] : 0,
 			'FILTER_LAT'        => isset($filters['lat_raw']) ? $filters['lat_raw'] : '',
 			'FILTER_LNG'        => isset($filters['lng_raw']) ? $filters['lng_raw'] : '',
@@ -1421,6 +1423,8 @@ class main_controller
 			'AD_CONDITION_OPTIONS' => $this->get_ad_condition_options((int) $ad['ad_condition'], false),
 			'PRICE_TYPE_OPTIONS' => $this->get_price_type_options((int) $ad['ad_price_type']),
 			'DELIVERY_OPTIONS' => $this->get_delivery_options(isset($ad['ad_delivery_options']) ? $ad['ad_delivery_options'] : ''),
+			'LOCATION_OPTIONS' => $this->get_marketplace_location_options(isset($ad['ad_location']) ? $ad['ad_location'] : '', true),
+			'REGION_OPTIONS' => $this->get_marketplace_region_options(isset($ad['ad_region']) ? $ad['ad_region'] : '', true),
 			'CATEGORY_FIELD_GROUPS' => $category_field_groups,
 			'U_BACK'          => $is_edit ? $this->helper->route('mundophpbb_marketplace_view', ['ad_id' => $ad_id]) : $this->helper->route('mundophpbb_marketplace_index'),
 			'U_ACTION'        => $is_edit ? $this->helper->route('mundophpbb_marketplace_edit', ['ad_id' => $ad_id]) : $this->helper->route('mundophpbb_marketplace_post'),
@@ -2466,6 +2470,84 @@ class main_controller
 		}
 		$clean = array_values(array_unique($clean));
 		return implode(',', $clean);
+	}
+
+	private function get_marketplace_location_options($selected = '', $include_defaults = true)
+	{
+		$defaults = $include_defaults ? [
+			'Retirada no local',
+			'Entrega combinada',
+			'Envio pelos Correios',
+			'Envio por transportadora',
+			'Online',
+		] : [];
+
+		return $this->build_distinct_text_options('ad_location', $selected, $defaults);
+	}
+
+	private function get_marketplace_region_options($selected = '', $include_defaults = true)
+	{
+		$defaults = $include_defaults ? [
+			'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG',
+			'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO',
+		] : [];
+
+		return $this->build_distinct_text_options('ad_region', $selected, $defaults);
+	}
+
+	private function build_distinct_text_options($column, $selected = '', array $defaults = [])
+	{
+		$allowed_columns = ['ad_location', 'ad_region'];
+		if (!in_array($column, $allowed_columns, true))
+		{
+			return [];
+		}
+
+		$values = [];
+		foreach ($defaults as $value)
+		{
+			$value = trim((string) $value);
+			if ($value !== '')
+			{
+				$values[$value] = $value;
+			}
+		}
+
+		$selected = trim((string) $selected);
+		if ($selected !== '')
+		{
+			$values[$selected] = $selected;
+		}
+
+		if ($this->column_exists($this->table_ads, $column))
+		{
+			$sql = 'SELECT DISTINCT ' . $column . ' AS option_value
+				FROM ' . $this->table_ads . "
+				WHERE " . $column . " <> ''
+				ORDER BY " . $column . ' ASC';
+			$result = $this->db->sql_query_limit($sql, 100);
+			while ($row = $this->db->sql_fetchrow($result))
+			{
+				$value = trim((string) $row['option_value']);
+				if ($value !== '')
+				{
+					$values[$value] = $value;
+				}
+			}
+			$this->db->sql_freeresult($result);
+		}
+
+		$options = [];
+		foreach ($values as $value => $label)
+		{
+			$options[] = [
+				'VALUE' => $value,
+				'LABEL' => $label,
+				'SELECTED' => ($selected !== '' && $selected === $value),
+			];
+		}
+
+		return $options;
 	}
 
 	private function get_delivery_options($selected = '')

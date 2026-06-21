@@ -263,6 +263,7 @@ class acp_controller
 			'MARKETPLACE_ALLOW_IMAGES'       => (bool) $this->config['marketplace_allow_images'],
 			'MARKETPLACE_ENABLE_PRICE'       => (bool) $this->config['marketplace_enable_price'],
 			'MARKETPLACE_CURRENCY_DEFAULT'   => $this->config['marketplace_currency_default'],
+			'MARKETPLACE_CURRENCY_OPTIONS'   => $this->build_currency_symbol_options($this->config['marketplace_currency_default']),
 			'MARKETPLACE_SHOW_SOLD_ADS'       => !empty($this->config['marketplace_show_sold_ads']),
 			'MARKETPLACE_SOLD_VISIBLE_DAYS'   => isset($this->config['marketplace_sold_visible_days']) ? (int) $this->config['marketplace_sold_visible_days'] : 15,
 			'MARKETPLACE_ALLOW_REPORTS'      => !empty($this->config['marketplace_allow_reports']),
@@ -671,6 +672,38 @@ class acp_controller
 			return trim((string) $currency . ' ' . number_format(((int) $value) / 100, 2, ',', '.'));
 		}
 		return (int) $value . '%';
+	}
+
+	private function build_currency_symbol_options($selected_currency)
+	{
+		$selected_currency = (string) $selected_currency;
+		$options = [
+			'R$' => 'R$ - Real brasileiro',
+			'$' => '$ - Dólar',
+			'€' => '€ - Euro',
+			'£' => '£ - Libra esterlina',
+			'BRL' => 'BRL - Real brasileiro',
+			'USD' => 'USD - US Dollar',
+			'EUR' => 'EUR - Euro',
+			'GBP' => 'GBP - British Pound',
+		];
+
+		if ($selected_currency !== '' && !isset($options[$selected_currency]))
+		{
+			$options = [$selected_currency => $selected_currency] + $options;
+		}
+
+		$rows = [];
+		foreach ($options as $value => $label)
+		{
+			$rows[] = [
+				'VALUE' => $value,
+				'LABEL' => $label,
+				'SELECTED' => ($selected_currency === $value),
+			];
+		}
+
+		return $rows;
 	}
 
 	private function get_common_currency_options()

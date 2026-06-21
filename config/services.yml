@@ -89,6 +89,10 @@ services:
             - '@dbal.conn'
             - '@auth'
             - '%tables.marketplace_notifications%'
+            - '%tables.marketplace_ads%'
+            - '%tables.marketplace_categories%'
+            - '%tables.marketplace_images%'
+            - '%core.root_path%'
             - '%core.php_ext%'
         tags:
             - { name: event.listener }

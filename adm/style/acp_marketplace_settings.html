@@ -67,7 +67,11 @@
 
 		<dl>
 			<dt><label for="marketplace_currency_default">{{ lang('MARKETPLACE_CURRENCY_DEFAULT') ~ lang('COLON') }}</label></dt>
-			<dd><input type="text" name="marketplace_currency_default" id="marketplace_currency_default" value="{{ MARKETPLACE_CURRENCY_DEFAULT }}" class="inputbox autowidth" size="5"></dd>
+			<dd>
+				<select name="marketplace_currency_default" id="marketplace_currency_default">
+					{% for option in MARKETPLACE_CURRENCY_OPTIONS %}<option value="{{ option.VALUE }}"{% if option.SELECTED %} selected{% endif %}>{{ option.LABEL }}</option>{% endfor %}
+				</select>
+			</dd>
 		</dl>
 
 		<dl>

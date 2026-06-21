@@ -45,6 +45,24 @@ class main_listener implements EventSubscriberInterface
 	protected $table_notifications;
 
 	/** @var string */
+	protected $table_ads;
+
+	/** @var string */
+	protected $table_cats;
+
+	/** @var string */
+	protected $table_images;
+
+	/** @var string */
+	protected $table_conversations;
+
+	/** @var string */
+	protected $table_messages;
+
+	/** @var string */
+	protected $root_path;
+
+	/** @var string */
 	protected $php_ext;
 
 	/**
@@ -59,6 +77,10 @@ class main_listener implements EventSubscriberInterface
 		\phpbb\db\driver\driver_interface $db,
 		\phpbb\auth\auth $auth,
 		$table_notifications,
+		$table_ads,
+		$table_cats,
+		$table_images,
+		$root_path,
 		$php_ext
 	)
 	{
@@ -70,6 +92,12 @@ class main_listener implements EventSubscriberInterface
 		$this->db       = $db;
 		$this->auth     = $auth;
 		$this->table_notifications = $table_notifications;
+		$this->table_ads = $table_ads;
+		$this->table_cats = $table_cats;
+		$this->table_images = $table_images;
+		$this->table_conversations = preg_replace('/marketplace_ads$/', 'marketplace_conversations', $table_ads);
+		$this->table_messages = preg_replace('/marketplace_ads$/', 'marketplace_messages', $table_ads);
+		$this->root_path = $root_path;
 		$this->php_ext  = $php_ext;
 	}
 
@@ -106,28 +134,141 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function add_page_header_link()
 	{
-		if ($this->config['marketplace_enabled'])
+		if (!$this->config['marketplace_enabled'])
 		{
-			$unread_notifications = 0;
-			$has_notifications_table = isset($this->config['marketplace_version']) && version_compare((string) $this->config['marketplace_version'], '1.3.0', '>=');
-			if ($has_notifications_table && (int) $this->user->data['user_id'] !== ANONYMOUS && $this->auth->acl_get('u_marketplace_view'))
+			return;
+		}
+
+		$unread_notifications = 0;
+		$unread_conversations = 0;
+		$u_notifications = '';
+		$u_conversations = '';
+		$can_view = $this->auth->acl_get('u_marketplace_view');
+		$user_id = (int) $this->user->data['user_id'];
+
+		if ($user_id !== ANONYMOUS && $can_view)
+		{
+			$u_notifications = \append_sid("{$this->root_path}ucp.{$this->php_ext}", ['i' => '\\mundophpbb\\marketplace\\ucp\\main_module', 'mode' => 'notifications']);
+			$u_conversations = \append_sid("{$this->root_path}ucp.{$this->php_ext}", ['i' => '\\mundophpbb\\marketplace\\ucp\\main_module', 'mode' => 'conversations']);
+
+			if ($this->table_exists($this->table_notifications))
 			{
 				$sql = 'SELECT COUNT(*) AS total
 					FROM ' . $this->table_notifications . '
-					WHERE user_id = ' . (int) $this->user->data['user_id'] . '
+					WHERE user_id = ' . $user_id . '
 						AND notification_read = 0';
 				$result = $this->db->sql_query($sql);
 				$unread_notifications = (int) $this->db->sql_fetchfield('total');
 				$this->db->sql_freeresult($result);
 			}
 
-			$this->template->assign_vars([
-				'U_MARKETPLACE' => $this->helper->route('mundophpbb_marketplace_index'),
-				'S_MARKETPLACE_ENABLED' => true,
-				'MARKETPLACE_UNREAD_NOTIFICATIONS' => $unread_notifications,
-			]);
+			if ($this->table_exists($this->table_messages))
+			{
+				$sql = 'SELECT COUNT(*) AS total
+					FROM ' . $this->table_messages . '
+					WHERE recipient_user_id = ' . $user_id . '
+						AND message_read = 0';
+				$result = $this->db->sql_query($sql);
+				$unread_conversations = (int) $this->db->sql_fetchfield('total');
+				$this->db->sql_freeresult($result);
+			}
 		}
+
+		$this->template->assign_vars([
+			'U_MARKETPLACE' => $this->helper->route('mundophpbb_marketplace_index'),
+			'U_MARKETPLACE_NOTIFICATIONS' => $u_notifications,
+			'U_MARKETPLACE_CONVERSATIONS' => $u_conversations,
+			'S_MARKETPLACE_ENABLED' => true,
+			'MARKETPLACE_UNREAD_NOTIFICATIONS' => $unread_notifications,
+			'MARKETPLACE_UNREAD_CONVERSATIONS' => $unread_conversations,
+			'MARKETPLACE_TOTAL_ALERTS' => $unread_notifications + $unread_conversations,
+			'MP_LATEST_ADS' => $can_view ? $this->get_latest_ads_for_index() : [],
+		]);
 	}
+
+	private function get_latest_ads_for_index()
+	{
+		if (!$this->table_exists($this->table_ads))
+		{
+			return [];
+		}
+
+		$sql = 'SELECT a.ad_id, a.ad_title, a.ad_price, a.ad_price_type, a.ad_price_cents, a.ad_currency, a.ad_city, a.ad_region, a.ad_created, c.cat_name
+			FROM ' . $this->table_ads . ' a
+			LEFT JOIN ' . $this->table_cats . ' c ON c.cat_id = a.cat_id
+			WHERE a.ad_status = 1
+			ORDER BY a.ad_created DESC';
+		$result = $this->db->sql_query_limit($sql, 5);
+		$ads = [];
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$row['U_VIEW'] = $this->helper->route('mundophpbb_marketplace_view', ['ad_id' => (int) $row['ad_id']]);
+			$row['MAIN_IMAGE'] = $this->get_main_image((int) $row['ad_id']);
+			$row['AD_PRICE_DISPLAY'] = $this->format_ad_price($row);
+			$row['LOCATION_SHORT'] = trim((string) $row['ad_city'] . (((string) $row['ad_city'] !== '' && (string) $row['ad_region'] !== '') ? ' / ' : '') . (string) $row['ad_region']);
+			$row['AD_CREATED_DISPLAY'] = !empty($row['ad_created']) ? $this->user->format_date((int) $row['ad_created']) : '';
+			$ads[] = $row;
+		}
+		$this->db->sql_freeresult($result);
+
+		return $ads;
+	}
+
+	private function get_main_image($ad_id)
+	{
+		if (!$this->table_exists($this->table_images))
+		{
+			return '';
+		}
+
+		$sql = 'SELECT image_id FROM ' . $this->table_images . ' WHERE ad_id = ' . (int) $ad_id . ' ORDER BY image_is_main DESC, image_order ASC';
+		$result = $this->db->sql_query_limit($sql, 1);
+		$image_id = (int) $this->db->sql_fetchfield('image_id');
+		$this->db->sql_freeresult($result);
+
+		return $image_id ? $this->helper->route('mundophpbb_marketplace_image', ['image_id' => $image_id]) : '';
+	}
+
+	private function format_ad_price($ad)
+	{
+		$price_type = isset($ad['ad_price_type']) ? (int) $ad['ad_price_type'] : 0;
+		if ($price_type === 3)
+		{
+			return $this->language->lang('MARKETPLACE_PRICE_FREE');
+		}
+		if ($price_type === 4)
+		{
+			return $this->language->lang('MARKETPLACE_PRICE_ON_REQUEST');
+		}
+
+		$currency = !empty($ad['ad_currency']) ? (string) $ad['ad_currency'] : (isset($this->config['marketplace_currency_default']) ? (string) $this->config['marketplace_currency_default'] : 'R$');
+		if (isset($ad['ad_price_cents']) && (int) $ad['ad_price_cents'] > 0)
+		{
+			return trim($currency . ' ' . number_format(((int) $ad['ad_price_cents']) / 100, 2, ',', '.'));
+		}
+		if (!empty($ad['ad_price']) && (string) $ad['ad_price'] !== '0')
+		{
+			return trim($currency . ' ' . (string) $ad['ad_price']);
+		}
+
+		return '';
+	}
+
+	private function table_exists($table)
+	{
+		if ($table === '')
+		{
+			return false;
+		}
+
+		$sql = "SHOW TABLES LIKE '" . $this->db->sql_escape($table) . "'";
+		$result = $this->db->sql_query($sql);
+		$exists = (bool) $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+
+		return $exists;
+	}
+
 
 	/**
 	 * Show who is viewing Marketplace on viewonline page

@@ -809,11 +809,34 @@ class ucp_controller
 			$row['NOTIFICATION_TIME_DISPLAY'] = !empty($row['notification_time']) ? $this->user->format_date((int) $row['notification_time']) : '';
 			$row['NOTIFICATION_TYPE_LANG'] = $this->get_notification_type_lang($row['notification_type']);
 			$row['U_AD'] = !empty($row['ad_id']) ? $this->helper->route('mundophpbb_marketplace_view', ['ad_id' => (int) $row['ad_id']]) : '';
+			$row['U_CONVERSATION'] = $this->get_notification_conversation_url($row, (int) $user_id);
 			$notifications[] = $row;
 		}
 		$this->db->sql_freeresult($result);
 
 		return $notifications;
+	}
+
+	private function get_notification_conversation_url($notification, $user_id)
+	{
+		$type = isset($notification['notification_type']) ? (string) $notification['notification_type'] : '';
+		$ad_id = isset($notification['ad_id']) ? (int) $notification['ad_id'] : 0;
+		if ($ad_id <= 0 || !in_array($type, ['message_received', 'message_reply'], true) || !$this->has_messages_table())
+		{
+			return '';
+		}
+
+		$sql = 'SELECT conversation_id
+			FROM ' . $this->table_conversations . '
+			WHERE ad_id = ' . $ad_id . '
+				AND (buyer_user_id = ' . (int) $user_id . ' OR seller_user_id = ' . (int) $user_id . ')
+			ORDER BY last_message_time DESC, conversation_updated DESC';
+		$result = $this->db->sql_query_limit($sql, 1);
+		$conversation_id = (int) $this->db->sql_fetchfield('conversation_id');
+		$this->db->sql_freeresult($result);
+
+		$url = \append_sid("{$this->root_path}ucp.{$this->php_ext}", ['i' => '\\mundophpbb\\marketplace\\ucp\\main_module', 'mode' => 'conversations']);
+		return $conversation_id ? $url . '#mp-conversation-' . $conversation_id : $url;
 	}
 
 	private function get_notification_types($user_id)
