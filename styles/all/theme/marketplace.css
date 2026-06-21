@@ -1,5 +1,5 @@
 /* ============================================================
-   Mundophpbb Marketplace - Visual Refresh v1.6.1
+   Mundophpbb Marketplace - Visual Refresh v1.7.0
    Modern prosilver-blue marketplace UI
    Improvements: 
    - @layer architecture + centralized prosilver button overrides
@@ -3052,5 +3052,704 @@
 	}
 	.mp-index-latest-grid {
 		grid-template-columns: 1fr;
+	}
+}
+
+/* ============================================================
+   Marketplace visual polish v1.7.0
+   Final cascade layer for prosilver marketplace pages.
+   ============================================================ */
+.mp-shell,
+.mp-ucp-shell {
+	--mp-blue: #105289;
+	--mp-blue-2: #0b6fcf;
+	--mp-accent: #0f766e;
+	--mp-accent-soft: #e8f6f3;
+	--mp-highlight: #f59e0b;
+	--mp-ink: #17212f;
+	--mp-surface: #ffffff;
+	--mp-surface-soft: #f7f9fc;
+	--mp-line: #d7e0ea;
+	--mp-line-strong: #b6c6d8;
+	--mp-shadow-card: 0 10px 24px rgba(24, 45, 70, .08);
+	--mp-shadow-lift: 0 18px 38px rgba(24, 45, 70, .14);
+	max-width: min(1440px, calc(100vw - 28px));
+	margin-top: 18px;
+	color: var(--mp-text, var(--mp-ink));
+}
+
+.mp-shell *,
+.mp-ucp-shell * {
+	min-width: 0;
+}
+
+.mp-shell .panel,
+.mp-shell.panel,
+.mp-card-modern,
+.mp-ucp-shell .panel,
+.mp-ucp-card,
+.mp-ucp-hub-card,
+.mp-compare-card,
+.mp-conversation-card,
+.mp-pix-qrcode-wrap {
+	border-color: rgba(132, 151, 174, .28) !important;
+	border-radius: 12px !important;
+	background: var(--mp-surface, #fff);
+	box-shadow: var(--mp-shadow-card);
+}
+
+.mp-shell .inner,
+.mp-ucp-shell .inner {
+	padding: 18px;
+}
+
+.mp-shell a,
+.mp-ucp-shell a {
+	font-weight: 700;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 3px;
+}
+
+.mp-shell a:focus-visible,
+.mp-ucp-shell a:focus-visible,
+.mp-shell button:focus-visible,
+.mp-shell input:focus-visible,
+.mp-shell select:focus-visible,
+.mp-shell textarea:focus-visible,
+.mp-ucp-shell button:focus-visible,
+.mp-ucp-shell input:focus-visible,
+.mp-ucp-shell select:focus-visible,
+.mp-ucp-shell textarea:focus-visible {
+	outline: 3px solid rgba(11, 111, 207, .22);
+	outline-offset: 2px;
+}
+
+.mp-shell .button,
+.mp-shell .button1,
+.mp-shell .button2,
+.mp-shell input.button,
+.mp-shell input.button1,
+.mp-shell input.button2,
+.mp-ucp-shell .button,
+.mp-ucp-shell .button1,
+.mp-ucp-shell .button2,
+.mp-ucp-shell input.button,
+.mp-ucp-shell input.button1,
+.mp-ucp-shell input.button2,
+.mp-ucp-button,
+.mp-ucp-button-primary {
+	display: inline-flex !important;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	min-height: 40px;
+	border-radius: 8px !important;
+	font-weight: 800;
+	line-height: 1.15;
+	white-space: normal;
+}
+
+.mp-shell .button-primary,
+.mp-shell .button1,
+.mp-shell .mp-submit-primary,
+.mp-shell .mp-primary-cta,
+.mp-shell .mp-action-primary,
+.mp-shell .mp-buy-form input[type="submit"],
+.mp-ucp-shell .button-primary,
+.mp-ucp-shell .button1,
+.mp-ucp-button-primary,
+.mp-ucp-post-button {
+	border-color: #0a5dad !important;
+	background: linear-gradient(180deg, #1478d4, #105289) !important;
+	color: #fff !important;
+	box-shadow: 0 8px 18px rgba(16, 82, 137, .2) !important;
+}
+
+.mp-shell .button-primary:hover,
+.mp-shell .button1:hover,
+.mp-shell .mp-submit-primary:hover,
+.mp-shell .mp-primary-cta:hover,
+.mp-shell .mp-action-primary:hover,
+.mp-shell .mp-buy-form input[type="submit"]:hover,
+.mp-ucp-shell .button-primary:hover,
+.mp-ucp-shell .button1:hover,
+.mp-ucp-button-primary:hover,
+.mp-ucp-post-button:hover {
+	background: linear-gradient(180deg, #0b80ed, #0b5fac) !important;
+	box-shadow: 0 10px 22px rgba(16, 82, 137, .25) !important;
+}
+
+.mp-shell input.inputbox,
+.mp-shell input[type="text"],
+.mp-shell input[type="search"],
+.mp-shell input[type="email"],
+.mp-shell input[type="number"],
+.mp-shell select,
+.mp-shell textarea.inputbox,
+.mp-ucp-shell input.inputbox,
+.mp-ucp-shell select,
+.mp-ucp-shell textarea.inputbox {
+	min-height: 42px;
+	border-color: var(--mp-line);
+	border-radius: 8px;
+	background: #fff;
+	color: var(--mp-text, var(--mp-ink));
+}
+
+.mp-hero.panel,
+.mp-view-hero.panel,
+.mp-post-hero.panel,
+.mp-seller-public-hero.panel {
+	overflow: hidden;
+	border: 1px solid rgba(16, 82, 137, .14) !important;
+	border-radius: 14px !important;
+	background:
+		linear-gradient(90deg, rgba(16, 82, 137, .08), rgba(15, 118, 110, .06)),
+		linear-gradient(180deg, #ffffff 0%, #f3f8ff 100%) !important;
+	box-shadow: 0 14px 34px rgba(20, 45, 70, .09) !important;
+}
+
+.mp-hero::before,
+.mp-view-hero::before,
+.mp-post-hero::before {
+	background:
+		linear-gradient(90deg, rgba(255,255,255,.76), rgba(255,255,255,0)),
+		linear-gradient(135deg, rgba(16,82,137,.08) 0 1px, transparent 1px) 0 0 / 30px 30px;
+}
+
+.mp-hero > .inner,
+.mp-view-hero > .inner,
+.mp-post-hero > .inner {
+	padding: clamp(22px, 3vw, 34px);
+}
+
+.mp-eyebrow,
+.mp-results-label {
+	color: var(--mp-accent);
+	letter-spacing: .08em;
+}
+
+.mp-hero h2,
+.mp-view-hero h2,
+.mp-post-hero h2 {
+	max-width: 760px;
+	color: var(--mp-ink);
+	font-size: clamp(26px, 3vw, 38px);
+	letter-spacing: 0;
+}
+
+.mp-lead,
+.mp-view-meta,
+.mp-post-hero p {
+	max-width: 780px;
+	color: #4a5a6c;
+}
+
+.mp-searchbar {
+	grid-template-columns: minmax(240px, 1.35fr) minmax(150px, .7fr) minmax(150px, .7fr) minmax(112px, auto);
+	gap: 12px;
+	border-color: rgba(132, 151, 174, .28);
+	border-radius: 12px;
+	background: rgba(255, 255, 255, .94);
+	box-shadow: 0 10px 26px rgba(24, 45, 70, .08);
+}
+
+.mp-layout {
+	grid-template-columns: minmax(248px, 292px) minmax(0, 1fr);
+	gap: 20px;
+}
+
+.mp-sidebar {
+	top: 14px;
+}
+
+.mp-sidebar.panel {
+	overflow: visible;
+}
+
+.mp-sidebar h3 {
+	color: var(--mp-ink);
+	font-size: 17px;
+}
+
+.mp-filter-form {
+	gap: 12px;
+}
+
+.mp-filter-form label,
+.mp-search-field label,
+.mp-field label,
+.mp-field-label {
+	color: #4e6074;
+	font-size: 11px;
+	letter-spacing: .04em;
+}
+
+.mp-filter-category,
+.mp-category-rule-hints,
+.mp-publish-notice,
+.mp-payment-note,
+.mp-location-tools {
+	border-color: rgba(15, 118, 110, .22);
+	background: var(--mp-accent-soft);
+}
+
+.mp-results-head {
+	margin-bottom: 16px;
+	padding: 0;
+}
+
+.mp-results-actions {
+	justify-content: flex-end;
+}
+
+.mp-grid {
+	grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+	gap: 18px;
+}
+
+.mp-card-modern {
+	display: flex;
+	flex-direction: column;
+	border-radius: 12px !important;
+	overflow: hidden;
+	transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.mp-card-modern:hover {
+	transform: translateY(-4px);
+	box-shadow: var(--mp-shadow-lift);
+}
+
+.mp-card-featured {
+	border-color: rgba(245, 158, 11, .5) !important;
+	box-shadow: 0 12px 30px rgba(245, 158, 11, .16);
+}
+
+.mp-card-boosted {
+	border-color: rgba(15, 118, 110, .45) !important;
+	background: linear-gradient(180deg, #fff, #f4fbf9);
+}
+
+.mp-card-modern .mp-card-media {
+	aspect-ratio: 4 / 3;
+	background: #e8eef5;
+}
+
+.mp-card-modern .mp-card-media img {
+	transform-origin: center;
+}
+
+.mp-card-body {
+	gap: 8px;
+	padding: 14px 15px 15px;
+}
+
+.mp-card-topline,
+.mp-card-meta,
+.mp-card-stats {
+	gap: 6px 9px;
+}
+
+.mp-card-body h4 {
+	display: -webkit-box;
+	min-height: 2.7em;
+	margin: 0;
+	overflow: hidden;
+	color: var(--mp-ink);
+	font-size: 17px;
+	letter-spacing: 0;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+.mp-card-body h4 a {
+	color: var(--mp-ink);
+}
+
+.mp-price,
+.mp-product-price,
+.mp-view-price-inline,
+.mp-ucp-price,
+.mp-index-latest-info em {
+	color: var(--mp-accent);
+}
+
+.mp-price {
+	font-size: 20px;
+}
+
+.mp-price-overlay {
+	color: #0b5f55;
+}
+
+.mp-card-footer {
+	margin-top: auto;
+	padding-top: 12px;
+	border-top: 1px solid rgba(132, 151, 174, .18);
+}
+
+.mp-card-stats {
+	margin-top: 2px;
+}
+
+.status-badge,
+.mp-category-pill,
+.mp-type-pill,
+.category-pill,
+.type-pill,
+.mp-condition-badge {
+	border-radius: 999px;
+	box-shadow: none;
+}
+
+.status-featured,
+.mp-featured-ribbon {
+	border-color: rgba(180, 83, 9, .35) !important;
+	background: linear-gradient(180deg, #fbbf24, #f59e0b) !important;
+	color: #241500 !important;
+}
+
+.status-featured::before {
+	content: "\2605";
+}
+
+.status-boosted,
+.mp-boosted-ribbon {
+	border-color: rgba(15, 118, 110, .35) !important;
+	background: linear-gradient(180deg, #14b8a6, #0f766e) !important;
+	color: #fff !important;
+}
+
+.status-boosted::before {
+	content: "\25B2";
+	font-size: 9px;
+}
+
+.mp-category-pill {
+	background: #eef6ff;
+	color: #105289;
+}
+
+.mp-type-pill,
+.mp-condition-badge {
+	background: #eef3f7;
+	color: #445568;
+}
+
+.mp-icon-action {
+	width: 36px;
+	height: 36px;
+	border: 1px solid rgba(132, 151, 174, .28);
+	background: rgba(255, 255, 255, .96);
+	color: #233143;
+	box-shadow: 0 8px 18px rgba(0,0,0,.14);
+}
+
+.mp-icon-action:hover,
+.mp-icon-action.is-active {
+	background: #fff1f4;
+	color: #c51645;
+}
+
+.mp-product-layout {
+	grid-template-columns: minmax(0, 1.38fr) minmax(330px, .62fr);
+	gap: 20px;
+}
+
+.mp-product-media .inner {
+	padding: 14px;
+}
+
+.mp-gallery-main {
+	border-radius: 10px;
+	background: #121a25;
+}
+
+.mp-gallery-main img {
+	max-height: min(640px, 68vh);
+}
+
+.mp-gallery-thumbs {
+	grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+}
+
+.mp-gallery-thumb {
+	border-radius: 8px;
+}
+
+.mp-product-summary {
+	top: 14px;
+}
+
+.mp-product-summary .inner {
+	gap: 13px;
+}
+
+.mp-contact-box,
+.mp-seller-box,
+.mp-detail-list,
+.mp-alert,
+.mp-alert-renew {
+	border-radius: 10px;
+}
+
+.mp-contact-box {
+	background: linear-gradient(180deg, #fff, #f7fbff);
+}
+
+.mp-detail-list {
+	grid-template-columns: minmax(118px, .78fr) minmax(0, 1.22fr);
+	background: #fbfcfe;
+}
+
+.mp-desc-content {
+	color: #2d3c4d;
+	font-size: 15px;
+}
+
+.mp-post-grid {
+	grid-template-columns: minmax(0, 1fr) minmax(286px, 330px);
+	gap: 20px;
+}
+
+.mp-form-card .inner,
+.mp-publish-card .inner {
+	padding: 20px;
+}
+
+.mp-form-section-head {
+	align-items: center;
+}
+
+.mp-step-badge {
+	border-radius: 8px;
+	background: linear-gradient(180deg, #1478d4, #105289);
+}
+
+.mp-choice-grid {
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.mp-choice-grid label,
+.mp-upload-box,
+.mp-selected-image-item,
+.mp-image-edit-item {
+	border-radius: 10px;
+}
+
+.mp-choice-grid label:hover,
+.mp-upload-box:hover,
+.mp-selected-image-item:hover,
+.mp-image-edit-item:hover {
+	border-color: rgba(11, 111, 207, .35);
+}
+
+.mp-upload-box {
+	background: linear-gradient(180deg, #ffffff, #f4f9ff);
+}
+
+.mp-post-checklist li::before {
+	content: "\2713";
+}
+
+.mp-ucp-section-head {
+	align-items: center;
+}
+
+.mp-ucp-hub-grid {
+	grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+	gap: 14px;
+}
+
+.mp-ucp-hub-card {
+	min-height: 118px;
+	border-radius: 12px !important;
+	transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.mp-ucp-hub-card:hover {
+	transform: translateY(-3px);
+	box-shadow: var(--mp-shadow-lift);
+}
+
+.mp-ucp-hub-card span {
+	color: var(--mp-accent);
+}
+
+.mp-index-latest-grid {
+	gap: 12px;
+	padding: 12px;
+	border: 1px solid rgba(132, 151, 174, .22);
+	border-radius: 12px;
+	background: #f7f9fc;
+}
+
+.mp-index-latest-card {
+	border-radius: 10px;
+}
+
+.mp-conversation-card,
+.mp-message-bubble {
+	border-radius: 12px;
+}
+
+.mp-message-own {
+	background: rgba(15, 118, 110, .12);
+}
+
+@media (max-width: 1100px) {
+	.mp-searchbar {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.mp-search-field-main,
+	.mp-search-submit {
+		grid-column: 1 / -1;
+	}
+
+	.mp-search-submit .button,
+	.mp-search-submit input {
+		width: 100%;
+	}
+}
+
+@media (max-width: 900px) {
+	.mp-shell,
+	.mp-ucp-shell {
+		max-width: calc(100vw - 18px);
+		margin-top: 10px;
+	}
+
+	.mp-layout,
+	.mp-product-layout,
+	.mp-post-grid,
+	.mp-seller-public-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.mp-sidebar,
+	.mp-product-summary,
+	.mp-post-aside {
+		position: static;
+	}
+
+	.mp-results-head,
+	.mp-view-title-row,
+	.mp-post-hero-layout,
+	.mp-ucp-section-head {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.mp-results-actions,
+	.mp-post-hero-actions {
+		justify-content: stretch;
+	}
+
+	.mp-results-actions .button,
+	.mp-post-hero-actions .button,
+	.mp-primary-cta {
+		width: 100%;
+	}
+
+	.mp-grid {
+		grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	}
+}
+
+@media (max-width: 560px) {
+	.mp-shell,
+	.mp-ucp-shell {
+		max-width: calc(100vw - 12px);
+		font-size: 14px;
+	}
+
+	.mp-shell .inner,
+	.mp-ucp-shell .inner,
+	.mp-form-card .inner,
+	.mp-publish-card .inner {
+		padding: 14px;
+	}
+
+	.mp-hero > .inner,
+	.mp-view-hero > .inner,
+	.mp-post-hero > .inner {
+		padding: 18px 14px;
+	}
+
+	.mp-searchbar,
+	.mp-form-grid-2,
+	.mp-price-row,
+	.mp-inline-fields,
+	.mp-detail-list {
+		grid-template-columns: 1fr;
+	}
+
+	.mp-grid,
+	.mp-more-user-grid,
+	.mp-ucp-grid,
+	.mp-ucp-hub-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.mp-card-body h4 {
+		min-height: auto;
+	}
+
+	.mp-gallery-thumbs {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	.mp-contact-actions .button,
+	.mp-contact-actions input[type="submit"],
+	.mp-owner-actions .button,
+	.mp-owner-actions input[type="submit"],
+	.mp-filter-actions .button,
+	.mp-filter-actions input {
+		width: 100%;
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	.mp-shell:not(.mp-light),
+	.mp-ucp-shell:not(.mp-light) {
+		--mp-surface: #1e2937;
+		--mp-surface-soft: #111827;
+		--mp-line: #475569;
+		--mp-line-strong: #64748b;
+		--mp-ink: #e5edf6;
+		--mp-accent-soft: rgba(20, 184, 166, .12);
+	}
+
+	.mp-shell:not(.mp-light) .mp-hero.panel,
+	.mp-shell:not(.mp-light) .mp-view-hero.panel,
+	.mp-shell:not(.mp-light) .mp-post-hero.panel {
+		background:
+			linear-gradient(90deg, rgba(20, 184, 166, .14), rgba(11, 111, 207, .12)),
+			linear-gradient(180deg, #1e2937 0%, #111827 100%) !important;
+	}
+
+	.mp-shell:not(.mp-light) .mp-hero h2,
+	.mp-shell:not(.mp-light) .mp-view-hero h2,
+	.mp-shell:not(.mp-light) .mp-post-hero h2,
+	.mp-shell:not(.mp-light) .mp-card-body h4,
+	.mp-shell:not(.mp-light) .mp-card-body h4 a,
+	.mp-ucp-shell:not(.mp-light) .mp-ucp-hub-card strong {
+		color: #f8fafc;
+	}
+
+	.mp-shell:not(.mp-light) .mp-lead,
+	.mp-shell:not(.mp-light) .mp-view-meta,
+	.mp-shell:not(.mp-light) .mp-desc-content {
+		color: #cbd5e1;
+	}
+
+	.mp-shell:not(.mp-light) .mp-searchbar,
+	.mp-shell:not(.mp-light) .mp-card-modern,
+	.mp-shell:not(.mp-light) .mp-seller-box,
+	.mp-shell:not(.mp-light) .mp-detail-list,
+	.mp-ucp-shell:not(.mp-light) .mp-ucp-hub-card {
+		background: #1e2937;
 	}
 }
