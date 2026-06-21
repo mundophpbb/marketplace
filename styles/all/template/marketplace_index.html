@@ -1,6 +1,22 @@
 {% include 'overall_header.html' %}
 
 <div class="mp-shell mp-index">
+	{% if CATEGORIES|length %}
+		<div class="mp-page-category-jump panel">
+			<div class="inner">
+				<label for="mp-page-category-select">
+					<i class="icon fa-tags fa-fw" aria-hidden="true"></i> {{ lang('MARKETPLACE_BROWSE_BY_CATEGORY') }}
+				</label>
+				<select id="mp-page-category-select" class="mp-page-category-select" onchange="if (this.value) { window.location.href = this.value; }">
+					<option value="{{ U_MARKETPLACE_INDEX }}"{% if not FILTER_CAT_ID %} selected{% endif %}>{{ lang('MARKETPLACE_ALL_CATEGORIES') }}</option>
+					{% for cat in CATEGORIES %}
+						<option value="{{ cat.U_CATEGORY }}"{% if FILTER_CAT_ID == cat.cat_id %} selected{% endif %}>{{ cat.cat_name }}</option>
+					{% endfor %}
+				</select>
+			</div>
+		</div>
+	{% endif %}
+
 	<section class="mp-hero panel">
 		<div class="inner">
 			<div class="mp-hero-grid">

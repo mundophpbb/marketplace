@@ -3,9 +3,19 @@
 	<div class="inner">
 		<ul class="topiclist">
 			<li class="header">
-				<dl class="row-item">
-					<dt><i class="icon fa-shopping-cart fa-fw" aria-hidden="true"></i> {{ lang('MARKETPLACE_LATEST_ADS') }}</dt>
-					<dd class="lastpost"><a href="{{ U_MARKETPLACE }}">{{ lang('MARKETPLACE_VIEW_ALL_ADS') }}</a></dd>
+				<dl class="row-item mp-index-latest-header">
+					<dt><i class="icon fa-shopping-cart fa-fw" aria-hidden="true"></i> {{ MP_LATEST_ADS_TITLE }}</dt>
+					<dd class="lastpost mp-index-latest-actions">
+						{% if MP_INDEX_CATEGORIES|length %}
+							<select class="mp-index-category-select" aria-label="{{ MP_ALL_CATEGORIES_TEXT }}" onchange="if (this.value) { window.location.href = this.value; }">
+								<option value="{{ U_MARKETPLACE }}">{{ MP_ALL_CATEGORIES_TEXT }}</option>
+								{% for category in MP_INDEX_CATEGORIES %}
+									<option value="{{ category.U_CATEGORY }}">{{ category.CAT_NAME }}</option>
+								{% endfor %}
+							</select>
+						{% endif %}
+						<a href="{{ U_MARKETPLACE }}">{{ MP_VIEW_ALL_ADS_TEXT }}</a>
+					</dd>
 				</dl>
 			</li>
 		</ul>
@@ -13,7 +23,7 @@
 			{% for ad in MP_LATEST_ADS %}
 				<a href="{{ ad.U_VIEW }}" class="mp-index-latest-card">
 					<span class="mp-index-latest-thumb">
-						{% if ad.MAIN_IMAGE %}<img src="{{ ad.MAIN_IMAGE }}" alt="{{ ad.ad_title }}" loading="lazy">{% else %}<span>{{ lang('MARKETPLACE_NO_IMAGE') }}</span>{% endif %}
+						{% if ad.MAIN_IMAGE %}<img src="{{ ad.MAIN_IMAGE }}" alt="{{ ad.ad_title }}" loading="lazy">{% else %}<span>{{ MP_NO_IMAGE_TEXT }}</span>{% endif %}
 					</span>
 					<span class="mp-index-latest-info">
 						<strong>{{ ad.ad_title }}</strong>

@@ -134,6 +134,9 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function add_page_header_link()
 	{
+		// Ensure extension language is available for event templates rendered on the forum index/header.
+		$this->language->add_lang('common', 'mundophpbb/marketplace');
+
 		if (!$this->config['marketplace_enabled'])
 		{
 			return;
@@ -182,8 +185,38 @@ class main_listener implements EventSubscriberInterface
 			'MARKETPLACE_UNREAD_NOTIFICATIONS' => $unread_notifications,
 			'MARKETPLACE_UNREAD_CONVERSATIONS' => $unread_conversations,
 			'MARKETPLACE_TOTAL_ALERTS' => $unread_notifications + $unread_conversations,
+			'MP_LATEST_ADS_TITLE' => $this->language->lang('MARKETPLACE_LATEST_ADS'),
+			'MP_VIEW_ALL_ADS_TEXT' => $this->language->lang('MARKETPLACE_VIEW_ALL_ADS'),
+			'MP_ALL_CATEGORIES_TEXT' => $this->language->lang('MARKETPLACE_ALL_CATEGORIES'),
+			'MP_NO_IMAGE_TEXT' => $this->language->lang('MARKETPLACE_NO_IMAGE'),
+			'MP_INDEX_CATEGORIES' => $can_view ? $this->get_categories_for_index_filter() : [],
 			'MP_LATEST_ADS' => $can_view ? $this->get_latest_ads_for_index() : [],
 		]);
+	}
+
+	private function get_categories_for_index_filter()
+	{
+		if (!$this->table_exists($this->table_cats))
+		{
+			return [];
+		}
+
+		$sql = 'SELECT cat_id, cat_name FROM ' . $this->table_cats . ' WHERE cat_enabled = 1 ORDER BY cat_order, cat_id';
+		$result = $this->db->sql_query($sql);
+		$categories = [];
+
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$categories[] = [
+				'CAT_ID' => (int) $row['cat_id'],
+				'CAT_NAME' => $this->translate_category_text(isset($row['cat_name']) ? $row['cat_name'] : ''),
+				'U_CATEGORY' => $this->helper->route('mundophpbb_marketplace_category', ['cat_id' => (int) $row['cat_id']]),
+			];
+		}
+
+		$this->db->sql_freeresult($result);
+
+		return $categories;
 	}
 
 	private function get_latest_ads_for_index()
@@ -202,6 +235,7 @@ class main_listener implements EventSubscriberInterface
 		$ads = [];
 		while ($row = $this->db->sql_fetchrow($result))
 		{
+			$row['cat_name'] = $this->translate_category_text(isset($row['cat_name']) ? $row['cat_name'] : '');
 			$row['U_VIEW'] = $this->helper->route('mundophpbb_marketplace_view', ['ad_id' => (int) $row['ad_id']]);
 			$row['MAIN_IMAGE'] = $this->get_main_image((int) $row['ad_id']);
 			$row['AD_PRICE_DISPLAY'] = $this->format_ad_price($row);
@@ -212,6 +246,17 @@ class main_listener implements EventSubscriberInterface
 		$this->db->sql_freeresult($result);
 
 		return $ads;
+	}
+
+	private function translate_category_text($text)
+	{
+		$text = (string) $text;
+		if (strpos($text, 'MARKETPLACE_CAT_') === 0)
+		{
+			return $this->language->lang($text);
+		}
+
+		return $text;
 	}
 
 	private function get_main_image($ad_id)

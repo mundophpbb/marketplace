@@ -1504,12 +1504,36 @@ class acp_controller
 		$row = $this->db->sql_fetchrow($result);
 		$this->db->sql_freeresult($result);
 
+		return $this->format_payment_log_status_row($row);
+	}
+
+	private function get_latest_payment_log_status_by_reference($payment_reference)
+	{
+		$payment_reference = trim((string) $payment_reference);
+		if ($payment_reference === '')
+		{
+			return '';
+		}
+
+		$sql = 'SELECT payment_validation_status, payment_transaction_id, payment_created
+			FROM ' . $this->table_payment_logs . "
+			WHERE payment_reference = '" . $this->db->sql_escape($payment_reference) . "'
+			ORDER BY payment_created DESC, payment_log_id DESC";
+		$result = $this->db->sql_query_limit($sql, 1);
+		$row = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+
+		return $this->format_payment_log_status_row($row);
+	}
+
+	private function format_payment_log_status_row($row)
+	{
 		if (!$row)
 		{
 			return '';
 		}
 
-		$parts = [$this->get_payment_validation_status_lang($row['payment_validation_status'])];
+		$parts = [$this->get_payment_validation_status_lang(isset($row['payment_validation_status']) ? $row['payment_validation_status'] : '')];
 		if (!empty($row['payment_transaction_id']))
 		{
 			$parts[] = 'TXN: ' . $row['payment_transaction_id'];
@@ -1619,7 +1643,7 @@ class acp_controller
 			$row['PURCHASE_PRICE_DISPLAY'] = $this->format_package_price((int) $row['purchase_amount_cents'], $row['purchase_currency']);
 			$row['PAYMENT_PROVIDER_LANG'] = !empty($row['payment_provider']) ? strtoupper($row['payment_provider']) : '-';
 			$row['PAYMENT_REFERENCE_DISPLAY'] = !empty($row['payment_reference']) ? $row['payment_reference'] : '-';
-			$row['PAYMENT_LAST_STATUS_DISPLAY'] = $this->get_latest_payment_log_status((int) $row['promotion_id']);
+			$row['PAYMENT_LAST_STATUS_DISPLAY'] = $this->get_latest_payment_log_status_by_reference(!empty($row['payment_reference']) ? $row['payment_reference'] : '');
 			$row['U_VIEW'] = !empty($row['ad_id']) ? $this->helper->route('mundophpbb_marketplace_view', ['ad_id' => (int) $row['ad_id']]) : '';
 			$purchases[] = $row;
 		}

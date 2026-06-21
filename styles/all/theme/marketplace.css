@@ -2948,6 +2948,38 @@
 	margin-bottom: 10px;
 }
 
+
+.mp-index-latest-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.mp-index-latest-actions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 8px;
+	white-space: nowrap;
+}
+
+.mp-index-category-select {
+	max-width: 190px;
+	height: 24px;
+	padding: 2px 24px 2px 8px;
+	border: 1px solid rgba(255, 255, 255, .65);
+	border-radius: 4px;
+	background: #fff;
+	color: #105289;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+.mp-index-category-select:focus {
+	outline: 2px solid rgba(255, 255, 255, .75);
+	outline-offset: 1px;
+}
+
 .mp-index-latest-grid {
 	display: grid;
 	grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -3041,7 +3073,39 @@
 }
 
 @media (max-width: 900px) {
-	.mp-index-latest-grid {
+	
+.mp-index-latest-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.mp-index-latest-actions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 8px;
+	white-space: nowrap;
+}
+
+.mp-index-category-select {
+	max-width: 190px;
+	height: 24px;
+	padding: 2px 24px 2px 8px;
+	border: 1px solid rgba(255, 255, 255, .65);
+	border-radius: 4px;
+	background: #fff;
+	color: #105289;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+.mp-index-category-select:focus {
+	outline: 2px solid rgba(255, 255, 255, .75);
+	outline-offset: 1px;
+}
+
+.mp-index-latest-grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
@@ -3050,8 +3114,57 @@
 	.marketplace-nav-item {
 		gap: 2px;
 	}
-	.mp-index-latest-grid {
+	
+.mp-index-latest-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.mp-index-latest-actions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 8px;
+	white-space: nowrap;
+}
+
+.mp-index-category-select {
+	max-width: 190px;
+	height: 24px;
+	padding: 2px 24px 2px 8px;
+	border: 1px solid rgba(255, 255, 255, .65);
+	border-radius: 4px;
+	background: #fff;
+	color: #105289;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+.mp-index-category-select:focus {
+	outline: 2px solid rgba(255, 255, 255, .75);
+	outline-offset: 1px;
+}
+
+.mp-index-latest-grid {
 		grid-template-columns: 1fr;
+	}
+}
+
+
+@media (max-width: 700px) {
+	.mp-index-latest-header {
+		align-items: flex-start;
+	}
+
+	.mp-index-latest-actions {
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 4px;
+	}
+
+	.mp-index-category-select {
+		max-width: 150px;
 	}
 }
 
@@ -3577,6 +3690,38 @@
 	color: var(--mp-accent);
 }
 
+
+.mp-index-latest-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.mp-index-latest-actions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 8px;
+	white-space: nowrap;
+}
+
+.mp-index-category-select {
+	max-width: 190px;
+	height: 24px;
+	padding: 2px 24px 2px 8px;
+	border: 1px solid rgba(255, 255, 255, .65);
+	border-radius: 4px;
+	background: #fff;
+	color: #105289;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+.mp-index-category-select:focus {
+	outline: 2px solid rgba(255, 255, 255, .75);
+	outline-offset: 1px;
+}
+
 .mp-index-latest-grid {
 	gap: 12px;
 	padding: 12px;
@@ -3751,5 +3896,57 @@
 	.mp-shell:not(.mp-light) .mp-detail-list,
 	.mp-ucp-shell:not(.mp-light) .mp-ucp-hub-card {
 		background: #1e2937;
+	}
+}
+
+/* Category selector below phpBB breadcrumb on Marketplace listing pages */
+.mp-page-category-jump {
+	margin: 0 0 12px;
+	border-radius: 10px;
+	border: 1px solid var(--mp-border);
+	background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+}
+
+.mp-page-category-jump .inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 12px 14px;
+}
+
+.mp-page-category-jump label {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0;
+	color: var(--mp-text);
+	font-weight: 800;
+}
+
+.mp-page-category-select {
+	width: min(100%, 320px);
+	height: 36px;
+	padding: 6px 34px 6px 10px;
+	border: 1px solid var(--mp-border-strong);
+	border-radius: 8px;
+	background: #fff;
+	color: var(--mp-text);
+	font-weight: 700;
+}
+
+.mp-page-category-select:focus {
+	outline: 2px solid rgba(11, 111, 207, .25);
+	border-color: var(--mp-blue-2);
+}
+
+@media (max-width: 620px) {
+	.mp-page-category-jump .inner {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.mp-page-category-select {
+		width: 100%;
 	}
 }

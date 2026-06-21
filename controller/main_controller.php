@@ -416,6 +416,7 @@ class main_controller
 			'TOTAL_ADS'         => $total,
 			'S_CAN_POST'        => $this->auth->acl_get('u_marketplace_post'),
 			'U_POST_NEW'        => $this->helper->route('mundophpbb_marketplace_post'),
+			'U_MARKETPLACE_INDEX' => $this->helper->route('mundophpbb_marketplace_index'),
 			'U_FILTER_ACTION'   => $this->helper->route('mundophpbb_marketplace_index'),
 			'U_FILTER_RESET'    => $base_url,
 			'U_CLEAR_FILTERS'   => $base_url,

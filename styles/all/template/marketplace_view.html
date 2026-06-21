@@ -176,15 +176,6 @@
 		</div>
 	</section>
 
-	{% if AD.U_MAP %}
-	<section class="mp-map panel">
-		<div class="inner">
-			<h3>{{ lang('MARKETPLACE_MAP') }}</h3>
-			<p><a href="{{ AD.U_MAP }}" target="_blank" rel="noopener noreferrer" class="button">{{ lang('MARKETPLACE_OPEN_MAP') }}</a></p>
-			{% if AD.U_MAP_EMBED %}<iframe class="mp-map-frame" src="{{ AD.U_MAP_EMBED }}" loading="lazy" referrerpolicy="no-referrer"></iframe>{% else %}<p class="help">{{ lang('MARKETPLACE_MAP_COORDINATES_REQUIRED') }}</p>{% endif %}
-		</div>
-	</section>
-	{% endif %}
 
 	{% if S_HAS_AD_REVIEWS %}
 		<section class="mp-reputation-history panel">

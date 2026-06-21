@@ -16,15 +16,15 @@ if (!defined('IN_PHPBB'))
 
 if (empty($lang) || !is_array($lang))
 {
-	$lang = [	'MARKETPLACE_LATEST_ADS' => 'Últimos classificados',
-	'MARKETPLACE_VIEW_ALL_ADS' => 'Ver todos os anúncios',
-	'MARKETPLACE_VIEW_CONVERSATION' => 'Ver conversa',
-];
+	$lang = [];
 }
 
 $lang = array_merge($lang, [
 	// Geral
 	'MARKETPLACE'                  => 'Classificados',
+	'MARKETPLACE_LATEST_ADS'      => 'Últimos classificados',
+	'MARKETPLACE_VIEW_ALL_ADS'   => 'Ver todos os anúncios',
+	'MARKETPLACE_VIEW_CONVERSATION' => 'Ver conversa',
 	'MARKETPLACE_TITLE'            => 'Marketplace / Classificados',
 	'MARKETPLACE_DISABLED'         => 'O Marketplace está temporariamente desativado.',
 	'MARKETPLACE_NO_PERMISSION'    => 'Você não tem permissão para usar o Marketplace.',
@@ -42,6 +42,7 @@ $lang = array_merge($lang, [
 
 	// Lista
 	'MARKETPLACE_ALL_CATEGORIES'   => 'Todas as categorias',
+	'MARKETPLACE_BROWSE_BY_CATEGORY' => 'Navegar por categoria',
 	'MARKETPLACE_NO_ADS'           => 'Nenhum anúncio encontrado nesta seção.',
 	'MARKETPLACE_TOTAL_ADS'        => '%d anúncios encontrados',
 	'MARKETPLACE_NO_IMAGE'         => 'Sem imagem',
