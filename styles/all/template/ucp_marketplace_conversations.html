@@ -22,7 +22,7 @@
 
 {% if S_HAS_CONVERSATIONS %}
 	{% for conversation in CONVERSATIONS %}
-		<div class="panel mp-conversation-card{% if conversation.UNREAD_COUNT %} mp-conversation-unread{% endif %}">
+		<div id="mp-conversation-{{ conversation.conversation_id }}" class="panel mp-conversation-card{% if conversation.UNREAD_COUNT %} mp-conversation-unread{% endif %}">
 			<div class="inner">
 				<div class="mp-conversation-head">
 					<div>

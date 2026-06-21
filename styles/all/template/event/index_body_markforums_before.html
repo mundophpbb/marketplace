@@ -1,0 +1,28 @@
+{% if S_MARKETPLACE_ENABLED and MP_LATEST_ADS|length %}
+<div class="forabg mp-index-latest-block">
+	<div class="inner">
+		<ul class="topiclist">
+			<li class="header">
+				<dl class="row-item">
+					<dt><i class="icon fa-shopping-cart fa-fw" aria-hidden="true"></i> {{ lang('MARKETPLACE_LATEST_ADS') }}</dt>
+					<dd class="lastpost"><a href="{{ U_MARKETPLACE }}">{{ lang('MARKETPLACE_VIEW_ALL_ADS') }}</a></dd>
+				</dl>
+			</li>
+		</ul>
+		<div class="mp-index-latest-grid">
+			{% for ad in MP_LATEST_ADS %}
+				<a href="{{ ad.U_VIEW }}" class="mp-index-latest-card">
+					<span class="mp-index-latest-thumb">
+						{% if ad.MAIN_IMAGE %}<img src="{{ ad.MAIN_IMAGE }}" alt="{{ ad.ad_title }}" loading="lazy">{% else %}<span>{{ lang('MARKETPLACE_NO_IMAGE') }}</span>{% endif %}
+					</span>
+					<span class="mp-index-latest-info">
+						<strong>{{ ad.ad_title }}</strong>
+						{% if ad.AD_PRICE_DISPLAY %}<em>{{ ad.AD_PRICE_DISPLAY }}</em>{% endif %}
+						<small>{% if ad.cat_name %}{{ ad.cat_name }}{% endif %}{% if ad.LOCATION_SHORT %}{% if ad.cat_name %} &bull; {% endif %}{{ ad.LOCATION_SHORT }}{% endif %}</small>
+					</span>
+				</a>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+{% endif %}

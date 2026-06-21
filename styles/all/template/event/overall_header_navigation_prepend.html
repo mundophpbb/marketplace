@@ -1,7 +1,17 @@
 {% if S_MARKETPLACE_ENABLED and U_MARKETPLACE %}
-	<li>
-		<a href="{{ U_MARKETPLACE }}" title="{{ lang('MARKETPLACE') }}">
-			<i class="icon fa-shopping-cart fa-fw" aria-hidden="true"></i><span>{{ lang('MARKETPLACE') }}</span>{% if MARKETPLACE_UNREAD_NOTIFICATIONS %} <strong class="marketplace-nav-badge">{{ MARKETPLACE_UNREAD_NOTIFICATIONS }}</strong>{% endif %}
+	<li class="marketplace-nav-item">
+		<a href="{{ U_MARKETPLACE }}" title="{{ lang('MARKETPLACE') }}" class="marketplace-nav-link">
+			<i class="icon fa-shopping-cart fa-fw" aria-hidden="true"></i><span>{{ lang('MARKETPLACE') }}</span>
 		</a>
+		{% if MARKETPLACE_TOTAL_ALERTS %}
+			<a href="{{ U_MARKETPLACE_CONVERSATIONS|default(U_MARKETPLACE_NOTIFICATIONS)|default(U_MARKETPLACE) }}" class="marketplace-nav-badge marketplace-nav-badge-main" title="{{ lang('MARKETPLACE_NOTIFICATIONS') }}">
+				{{ MARKETPLACE_TOTAL_ALERTS }}
+			</a>
+		{% endif %}
+		{% if U_MARKETPLACE_CONVERSATIONS and MARKETPLACE_UNREAD_CONVERSATIONS %}
+			<a href="{{ U_MARKETPLACE_CONVERSATIONS }}" class="marketplace-nav-subbadge" title="{{ lang('UCP_MARKETPLACE_CONVERSATIONS') }}">
+				<i class="icon fa-comments fa-fw" aria-hidden="true"></i>{{ MARKETPLACE_UNREAD_CONVERSATIONS }}
+			</a>
+		{% endif %}
 	</li>
 {% endif %}

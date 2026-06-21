@@ -124,7 +124,10 @@
 
 							<div class="mp-field mp-field-wide">
 								<label for="ad_location">{{ lang('MARKETPLACE_LOCATION_LABEL') ~ lang('COLON') }}</label>
-								<input type="text" name="ad_location" id="ad_location" value="{{ AD.ad_location }}" class="inputbox" placeholder="{{ lang('MARKETPLACE_LOCATION_LABEL') }}">
+								<input list="mp-location-options" type="text" name="ad_location" id="ad_location" value="{{ AD.ad_location }}" class="inputbox" placeholder="{{ lang('MARKETPLACE_LOCATION_LABEL') }}">
+								<datalist id="mp-location-options">
+									{% for option in LOCATION_OPTIONS %}<option value="{{ option.VALUE }}">{{ option.LABEL }}</option>{% endfor %}
+								</datalist>
 								<p class="help">{{ lang('MARKETPLACE_LOCATION_LEGACY_EXPLAIN') }}</p>
 							</div>
 
@@ -135,7 +138,10 @@
 
 							<div class="mp-field">
 								<label for="ad_region">{{ lang('MARKETPLACE_REGION') ~ lang('COLON') }}</label>
-								<input type="text" name="ad_region" id="ad_region" value="{{ AD.ad_region }}" class="inputbox" autocomplete="address-level1">
+								<input list="mp-region-options" type="text" name="ad_region" id="ad_region" value="{{ AD.ad_region }}" class="inputbox" autocomplete="address-level1">
+								<datalist id="mp-region-options">
+									{% for option in REGION_OPTIONS %}<option value="{{ option.VALUE }}">{{ option.LABEL }}</option>{% endfor %}
+								</datalist>
 							</div>
 
 							<div class="mp-field">

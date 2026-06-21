@@ -88,7 +88,12 @@
 					</label>
 
 					<label>{{ lang('MARKETPLACE_CITY') }}<input type="text" name="city" value="{{ FILTER_CITY }}" class="inputbox"></label>
-					<label>{{ lang('MARKETPLACE_REGION') }}<input type="text" name="region" value="{{ FILTER_REGION }}" class="inputbox"></label>
+					<label>{{ lang('MARKETPLACE_REGION') }}
+						<select name="region">
+							<option value="">{{ lang('SELECT') }}</option>
+							{% for option in REGION_OPTIONS %}<option value="{{ option.VALUE }}"{% if option.SELECTED %} selected{% endif %}>{{ option.LABEL }}</option>{% endfor %}
+						</select>
+					</label>
 					<label>{{ lang('MARKETPLACE_COUNTRY') }}<input type="text" name="country" value="{{ FILTER_COUNTRY }}" class="inputbox"></label>
 					<div class="mp-price-row">
 						<label>{{ lang('MARKETPLACE_PRICE_MIN') }}<input type="text" name="price_min" value="{{ FILTER_PRICE_MIN }}" class="inputbox"></label>

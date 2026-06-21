@@ -29,7 +29,10 @@
 					<li class="mp-ucp-notification{% if not notification.notification_read %} unread{% endif %}">
 						<strong>{{ notification.notification_title }}</strong> <small>{{ notification.NOTIFICATION_TYPE_LANG }}</small><br>
 						<span>{{ notification.notification_message }}</span>
-						{% if notification.U_AD %}<br><a href="{{ notification.U_AD }}">{{ lang('MARKETPLACE_VIEW_AD') }}</a>{% endif %}
+						<div class="mp-notification-actions">
+							{% if notification.U_CONVERSATION %}<a href="{{ notification.U_CONVERSATION }}" class="button button-small mp-ucp-button mp-conversation-button"><i class="icon fa-comments fa-fw" aria-hidden="true"></i> {{ lang('MARKETPLACE_VIEW_CONVERSATION') }}</a>{% endif %}
+							{% if notification.U_AD %}<a href="{{ notification.U_AD }}" class="button button-small mp-ucp-button">{{ lang('MARKETPLACE_VIEW_AD') }}</a>{% endif %}
+						</div>
 						<small>{{ notification.NOTIFICATION_TIME_DISPLAY }}</small>
 						<form method="post" action="{{ U_ACTION }}" class="marketplace-inline-form">
 							<input type="hidden" name="action" value="delete_notification">

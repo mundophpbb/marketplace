@@ -16,7 +16,10 @@ if (!defined('IN_PHPBB'))
 
 if (empty($lang) || !is_array($lang))
 {
-	$lang = [];
+	$lang = [	'MARKETPLACE_LATEST_ADS' => 'Últimos classificados',
+	'MARKETPLACE_VIEW_ALL_ADS' => 'Ver todos os anúncios',
+	'MARKETPLACE_VIEW_CONVERSATION' => 'Ver conversa',
+];
 }
 
 $lang = array_merge($lang, [
