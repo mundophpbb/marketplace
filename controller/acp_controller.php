@@ -160,17 +160,37 @@ class acp_controller
 		$this->table_promotion_packages = $table_promotion_packages;
 		$this->table_purchases = $table_purchases;
 		$this->table_payment_logs = $table_payment_logs;
-		$this->table_coupons = preg_replace('/marketplace_ads$/', 'marketplace_coupons', $table_ads);
-		$this->table_promo_periods = preg_replace('/marketplace_ads$/', 'marketplace_promo_periods', $table_ads);
-		$this->table_group_freebies = preg_replace('/marketplace_ads$/', 'marketplace_group_freebies', $table_ads);
-		$this->table_forbidden_terms = preg_replace('/marketplace_ads$/', 'marketplace_forbidden_terms', $table_ads);
-		$this->table_user_limits = preg_replace('/marketplace_ads$/', 'marketplace_user_limits', $table_ads);
-		$this->table_group_limits = preg_replace('/marketplace_ads$/', 'marketplace_group_limits', $table_ads);
-		$this->table_user_security = preg_replace('/marketplace_ads$/', 'marketplace_user_security', $table_ads);
-		$this->table_ad_edit_history = preg_replace('/marketplace_ads$/', 'marketplace_ad_edit_history', $table_ads);
-		$this->table_moderation_logs = preg_replace('/marketplace_ads$/', 'marketplace_moderation_logs', $table_ads);
-		$this->table_category_fields = preg_replace('/marketplace_ads$/', 'marketplace_category_fields', $table_ads);
-		$this->table_ad_field_values = preg_replace('/marketplace_ads$/', 'marketplace_ad_field_values', $table_ads);
+
+		// Initialize additional marketplace tables based on the main ads table name
+		$this->init_marketplace_tables($table_ads);
+	}
+
+	/**
+	 * Initialize all additional marketplace table names based on the main ads table.
+	 * This replaces repetitive preg_replace calls with a cleaner approach.
+	 *
+	 * @param string $base_table
+	 */
+	protected function init_marketplace_tables($base_table)
+	{
+		$replacements = [
+			'coupons'            => 'marketplace_coupons',
+			'promo_periods'      => 'marketplace_promo_periods',
+			'group_freebies'     => 'marketplace_group_freebies',
+			'forbidden_terms'    => 'marketplace_forbidden_terms',
+			'user_limits'        => 'marketplace_user_limits',
+			'group_limits'       => 'marketplace_group_limits',
+			'user_security'      => 'marketplace_user_security',
+			'ad_edit_history'    => 'marketplace_ad_edit_history',
+			'moderation_logs'    => 'marketplace_moderation_logs',
+			'category_fields'    => 'marketplace_category_fields',
+			'ad_field_values'    => 'marketplace_ad_field_values',
+		];
+
+		foreach ($replacements as $property => $suffix) {
+			$property_name = 'table_' . $property;
+			$this->$property_name = preg_replace('/marketplace_ads$/', $suffix, $base_table);
+		}
 	}
 
 	/**
@@ -201,7 +221,15 @@ class acp_controller
 				$this->config->set('marketplace_items_per_page', $this->request->variable('marketplace_items_per_page', 20));
 				$this->config->set('marketplace_allow_images', $this->request->variable('marketplace_allow_images', 0));
 				$this->config->set('marketplace_enable_price', $this->request->variable('marketplace_enable_price', 0));
-				$this->config->set('marketplace_currency_default', $this->request->variable('marketplace_currency_default', 'R$', true));
+				$currency_default = $this->request->variable('marketplace_currency_default', 'R$', true);
+				$currency_custom = trim($this->request->variable('marketplace_currency_custom', '', true));
+
+				if ($currency_custom !== '')
+				{
+					$currency_default = $currency_custom;
+				}
+
+				$this->config->set('marketplace_currency_default', $currency_default);
 				$this->config->set('marketplace_show_sold_ads', $this->request->variable('marketplace_show_sold_ads', 0));
 				$this->config->set('marketplace_sold_visible_days', max(0, $this->request->variable('marketplace_sold_visible_days', 15)));
 				$this->config->set('marketplace_allow_reports', $this->request->variable('marketplace_allow_reports', 1));
@@ -682,6 +710,22 @@ class acp_controller
 			'$' => '$ - Dólar',
 			'€' => '€ - Euro',
 			'£' => '£ - Libra esterlina',
+			'¥' => '¥ - Iene / Yuan',
+			'₹' => '₹ - Rúpia indiana',
+			'₽' => '₽ - Rublo russo',
+			'₩' => '₩ - Won sul-coreano',
+			'₺' => '₺ - Lira turca',
+			'₴' => '₴ - Hryvnia ucraniana',
+			'₪' => '₪ - Novo shekel israelense',
+			'₫' => '₫ - Dong vietnamita',
+			'₦' => '₦ - Naira nigeriana',
+			'₱' => '₱ - Peso filipino',
+			'₲' => '₲ - Guarani paraguaio',
+			'Kz' => 'Kz - Kwanza angolano',
+			'MT' => 'MT - Metical moçambicano',
+			'CHF' => 'CHF - Franco suíço',
+			'CAD' => 'CAD - Dólar canadense',
+			'AUD' => 'AUD - Dólar australiano',
 			'BRL' => 'BRL - Real brasileiro',
 			'USD' => 'USD - US Dollar',
 			'EUR' => 'EUR - Euro',

@@ -3950,3 +3950,614 @@
 		width: 100%;
 	}
 }
+
+/* ============================================================
+   MODERN VISUAL REFINEMENT v1.8
+   Tighter, more elegant and premium feel
+   Addresses: oversized fonts, bloated spacing, integration with prosilver
+   ============================================================ */
+
+@layer marketplace-modern {
+
+	/* --- Refined Typography Scale --- */
+	.mp-shell {
+		--mp-font-size-base: 14.5px;
+		--mp-line-height-base: 1.55;
+		--mp-font-size-sm: 12.8px;
+		--mp-font-size-lg: 16px;
+		--mp-font-size-xl: 19px;
+		--mp-font-size-2xl: 23px;
+	}
+
+	.mp-shell,
+	.mp-ucp-shell {
+		font-size: var(--mp-font-size-base);
+		line-height: var(--mp-line-height-base);
+	}
+
+	.mp-hero h2,
+	.mp-view-hero h2,
+	.mp-post-hero h2 {
+		font-size: clamp(24px, 2.8vw, 34px);
+		line-height: 1.25;
+		letter-spacing: -0.015em;
+	}
+
+	.mp-card-body h4 {
+		font-size: 15.5px;
+		line-height: 1.35;
+		letter-spacing: -0.01em;
+	}
+
+	.mp-price,
+	.mp-product-price,
+	.mp-view-price-inline {
+		font-size: 19px;
+		font-weight: 800;
+		letter-spacing: -0.02em;
+	}
+
+	/* --- Tighter Spacing & Rhythm --- */
+	.mp-shell .inner,
+	.mp-ucp-shell .inner,
+	.mp-form-card .inner,
+	.mp-publish-card .inner {
+		padding: 16px;
+	}
+
+	.mp-hero > .inner,
+	.mp-view-hero > .inner,
+	.mp-post-hero > .inner {
+		padding: 20px 18px;
+	}
+
+	.mp-card-body {
+		padding: 13px 14px 14px;
+		gap: 6px;
+	}
+
+	.mp-card-modern {
+		border-radius: 10px;
+	}
+
+	.mp-grid {
+		gap: 14px;
+	}
+
+	.mp-searchbar {
+		gap: 10px;
+		padding: 12px;
+	}
+
+	/* --- More Elegant Buttons & Inputs --- */
+	.mp-shell .button,
+	.mp-shell input.button,
+	.mp-ucp-shell .button {
+		min-height: 36px;
+		padding: 0 13px;
+		font-size: 13.5px;
+		border-radius: 7px;
+	}
+
+	.mp-shell input.inputbox,
+	.mp-shell select,
+	.mp-shell textarea.inputbox {
+		min-height: 38px;
+		padding: 7px 11px;
+		font-size: 14px;
+		border-radius: 7px;
+	}
+
+	/* --- Premium Card & Section Polish --- */
+	.mp-card-modern {
+		box-shadow: 0 6px 18px rgba(20, 45, 70, 0.07);
+		transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+					box-shadow 0.18s cubic-bezier(0.4, 0.0, 0.2, 1),
+					border-color 0.18s ease;
+	}
+
+	.mp-card-modern:hover {
+		transform: translateY(-3px);
+		box-shadow: 0 14px 32px rgba(20, 45, 70, 0.11);
+	}
+
+	.mp-hero.panel,
+	.mp-view-hero.panel,
+	.mp-post-hero.panel {
+		border-radius: 14px;
+		box-shadow: 0 10px 30px rgba(16, 82, 137, 0.09);
+	}
+
+	/* --- Better Visual Hierarchy in Listings --- */
+	.mp-card-meta,
+	.mp-card-stats {
+		font-size: var(--mp-font-size-sm);
+		opacity: 0.9;
+	}
+
+	.mp-category-pill,
+	.mp-type-pill {
+		font-size: 11.5px;
+		padding: 1px 8px;
+	}
+
+	/* --- Refined Status & Badges --- */
+	.status-featured,
+	.mp-featured-ribbon {
+		font-size: 11px;
+		padding: 2px 9px;
+	}
+
+	.status-boosted,
+	.mp-boosted-ribbon {
+		font-size: 11px;
+		padding: 2px 9px;
+	}
+
+	/* --- Improved Mobile Experience --- */
+	@media (max-width: 700px) {
+		.mp-shell {
+			--mp-font-size-base: 14px;
+		}
+
+		.mp-card-body h4 {
+			font-size: 15px;
+		}
+
+		.mp-price {
+			font-size: 18px;
+		}
+
+		.mp-grid {
+			gap: 11px;
+		}
+	}
+
+	/* --- Subtle Modern Touches --- */
+	.mp-icon-action {
+		transition: all 0.15s ease;
+	}
+
+	.mp-icon-action:hover {
+		transform: scale(1.05);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+	}
+
+	.mp-ad-link {
+		transition: color 0.15s ease;
+	}
+
+	.mp-ad-link:hover {
+		color: var(--mp-blue-2);
+	}
+
+}
+
+
+/* ============================================================
+   HYBRID MODERN VISUAL - Clean + Impact (OLX/Mercado Livre inspired)
+   Clean/minimalista com cards fortes e alto contraste
+   v1.8.5 - Página Pública
+   ============================================================ */
+
+@layer marketplace-hybrid {
+
+	/* ========== TIPOGRAFIA MODERNA E COMPACTA ========== */
+	.mp-shell {
+		--mp-font-size-base: 14px;
+		--mp-line-height-base: 1.5;
+		--mp-font-size-sm: 12.5px;
+		--mp-font-size-md: 13.5px;
+		--mp-font-size-lg: 15.5px;
+		--mp-font-size-xl: 18px;
+		--mp-font-size-2xl: 22px;
+		
+		--mp-radius: 8px;
+		--mp-radius-sm: 6px;
+		--mp-radius-lg: 10px;
+	}
+
+	.mp-shell,
+	.mp-ucp-shell {
+		font-size: var(--mp-font-size-base);
+		line-height: var(--mp-line-height-base);
+		color: #1f2937;
+	}
+
+	/* Títulos mais impactantes mas clean */
+	.mp-hero h2,
+	.mp-view-hero h2,
+	.mp-post-hero h2 {
+		font-size: clamp(22px, 2.6vw, 30px);
+		font-weight: 800;
+		line-height: 1.2;
+		letter-spacing: -0.025em;
+		color: #111827;
+	}
+
+	.mp-card-body h4 {
+		font-size: 15px;
+		font-weight: 700;
+		line-height: 1.35;
+		color: #111827;
+		margin-bottom: 4px;
+	}
+
+	.mp-price,
+	.mp-product-price,
+	.mp-view-price-inline {
+		font-size: 17px;
+		font-weight: 800;
+		color: #0f766e;
+		letter-spacing: -0.01em;
+	}
+
+	/* ========== CARDS COM FORÇA (estilo OLX/Mercado Livre) ========== */
+	.mp-card-modern {
+		background: #ffffff;
+		border: 1px solid #e5e7eb;
+		border-radius: var(--mp-radius);
+		overflow: hidden;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+		transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+	}
+
+	.mp-card-modern:hover {
+		border-color: #9ca3af;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+		transform: translateY(-1px);
+	}
+
+	.mp-card-featured {
+		border-color: #f59e0b;
+		border-width: 1.5px;
+	}
+
+	.mp-card-boosted {
+		border-color: #0f766e;
+		border-width: 1.5px;
+	}
+
+	.mp-card-body {
+		padding: 12px 13px 13px;
+	}
+
+	.mp-card-media {
+		background: #f8fafc;
+	}
+
+	/* ========== BOTÕES E CTAs FORTES ========== */
+	.mp-shell .button-primary,
+	.mp-shell .button1,
+	.mp-shell .mp-primary-cta,
+	.mp-shell .mp-action-primary,
+	.mp-shell .mp-buy-form input[type="submit"] {
+		background: #0f766e !important;
+		border-color: #0f766e !important;
+		color: #fff !important;
+		font-weight: 700;
+		font-size: 13.5px;
+		padding: 0 16px;
+		min-height: 38px;
+		border-radius: var(--mp-radius-sm);
+		box-shadow: none !important;
+	}
+
+	.mp-shell .button-primary:hover,
+	.mp-shell .button1:hover,
+	.mp-shell .mp-primary-cta:hover {
+		background: #115e59 !important;
+		border-color: #115e59 !important;
+	}
+
+	.mp-shell .button2,
+	.mp-shell input.button2 {
+		background: #fff;
+		border: 1px solid #d1d5db;
+		color: #374151;
+		font-weight: 600;
+		min-height: 36px;
+		border-radius: var(--mp-radius-sm);
+	}
+
+	.mp-shell .button2:hover {
+		background: #f9fafb;
+		border-color: #9ca3af;
+	}
+
+	/* ========== FILTROS E BUSCA (clean e forte) ========== */
+	.mp-searchbar {
+		background: #ffffff;
+		border: 1px solid #e5e7eb;
+		border-radius: var(--mp-radius);
+		padding: 14px;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+	}
+
+	.mp-filter-form {
+		gap: 10px;
+	}
+
+	.mp-filter-category,
+	.mp-sidebar .panel {
+		background: #f8fafc;
+		border: 1px solid #e5e7eb;
+		border-radius: var(--mp-radius);
+	}
+
+	/* ========== PÁGINA DE CATEGORIA E LISTAGEM ========== */
+	.mp-results-head {
+		margin-bottom: 14px;
+	}
+
+	.mp-grid {
+		gap: 14px;
+	}
+
+	/* ========== PÁGINA DE VISUALIZAÇÃO DO ANÚNCIO ========== */
+	.mp-product-summary {
+		background: #ffffff;
+		border: 1px solid #e5e7eb;
+		border-radius: var(--mp-radius);
+		padding: 18px;
+	}
+
+	.mp-contact-box,
+	.mp-seller-box {
+		border: 1px solid #e5e7eb;
+		border-radius: var(--mp-radius);
+		background: #fff;
+	}
+
+	.mp-detail-list {
+		background: #f8fafc;
+		border-radius: var(--mp-radius-sm);
+	}
+
+	/* ========== ESTADO VAZIO MAIS ELEGANTE ========== */
+	.mp-acp-empty,
+	.mp-no-results {
+		padding: 32px 20px;
+		background: #f8fafc;
+		border: 1px dashed #cbd5e1;
+		border-radius: var(--mp-radius);
+		color: #64748b;
+		text-align: center;
+	}
+
+	/* ========== BADGES E STATUS COM CONTRASTE ========== */
+	.mp-badge,
+	.status-badge,
+	.mp-category-pill,
+	.mp-type-pill {
+		font-weight: 700;
+		font-size: 11px;
+		padding: 2px 8px;
+		border-radius: 999px;
+	}
+
+	.mp-badge-status-1 { /* Ativo */
+		background: #dcfce7;
+		color: #166534;
+		border: 1px solid #86efac;
+	}
+
+	.mp-badge-status-0 { /* Pendente */
+		background: #fef3c7;
+		color: #854d0e;
+		border: 1px solid #fcd34d;
+	}
+
+	.mp-badge-featured {
+		background: #fef3c7;
+		color: #854d0e;
+		border: 1px solid #f59e0b;
+		font-weight: 800;
+	}
+
+	.mp-badge-boosted {
+		background: #ccfbf1;
+		color: #134e4a;
+		border: 1px solid #14b8a6;
+		font-weight: 800;
+	}
+
+	/* ========== RESPONSIVO MAIS AGRADÁVEL ========== */
+	@media (max-width: 768px) {
+		.mp-shell {
+			--mp-font-size-base: 13.5px;
+		}
+
+		.mp-card-body h4 {
+			font-size: 14.5px;
+		}
+
+		.mp-price {
+			font-size: 16px;
+		}
+
+		.mp-grid {
+			gap: 11px;
+		}
+	}
+
+	/* ========== PEQUENOS AJUSTES DE CONTRASTE ========== */
+	.mp-card-meta,
+	.mp-card-stats {
+		color: #4b5563;
+		font-size: 12.5px;
+	}
+
+	.mp-ad-title-main {
+		color: #111827;
+	}
+
+}
+
+
+/* ============================================================
+   REFORÇO ESPECÍFICO - Página Principal de Classificados
+   e Página Única do Anúncio (v1.8.6)
+   ============================================================ */
+
+@layer marketplace-final {
+
+	/* ========== PÁGINA PRINCIPAL DE CLASSIFICADOS ========== */
+
+	/* Hero / Cabeçalho da página de listagem */
+	.mp-hero.panel {
+		background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+		border: 1px solid #e2e8f0;
+		border-radius: 12px;
+	}
+
+	.mp-hero h2 {
+		color: #0f172a;
+	}
+
+	/* Barra de filtros superior (PESQUISAR / CATEGORIA / CIDADE) */
+	.mp-searchbar {
+		background: #ffffff;
+		border: 1px solid #cbd5e1;
+		box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06);
+		padding: 16px 18px;
+	}
+
+	.mp-searchbar input.inputbox,
+	.mp-searchbar select {
+		border: 1px solid #94a3b8;
+		background: #fff;
+		font-size: 14px;
+	}
+
+	.mp-searchbar .button {
+		background: #0f766e;
+		border-color: #0f766e;
+		color: #fff;
+		font-weight: 700;
+	}
+
+	/* Grid de resultados */
+	.mp-grid {
+		gap: 16px;
+	}
+
+	/* Card individual na listagem */
+	.mp-card-modern {
+		border: 1px solid #d1d5db;
+		box-shadow: 0 2px 6px rgba(15, 23, 42, 0.07);
+	}
+
+	.mp-card-modern:hover {
+		border-color: #64748b;
+		box-shadow: 0 6px 16px rgba(15, 23, 42, 0.10);
+		transform: translateY(-2px);
+	}
+
+	.mp-card-body {
+		padding: 13px 14px 14px;
+	}
+
+	.mp-card-body h4 {
+		font-size: 15px;
+		font-weight: 700;
+		color: #0f172a;
+	}
+
+	.mp-price {
+		font-size: 17px;
+		color: #0f766e;
+		font-weight: 800;
+	}
+
+	/* ========== PÁGINA ÚNICA DO ANÚNCIO ========== */
+
+	/* Layout principal do anúncio */
+	.mp-product-layout {
+		gap: 22px;
+	}
+
+	/* Área da imagem / galeria */
+	.mp-product-media .inner {
+		background: #f8fafc;
+		border: 1px solid #e2e8f0;
+		border-radius: 12px;
+		padding: 14px;
+	}
+
+	.mp-gallery-main {
+		border-radius: 10px;
+		border: 1px solid #cbd5e1;
+	}
+
+	/* Box de resumo / preço / ações */
+	.mp-product-summary {
+		background: #ffffff;
+		border: 1px solid #cbd5e1;
+		border-radius: 12px;
+		padding: 20px;
+		box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+	}
+
+	.mp-product-summary .mp-price {
+		font-size: 22px;
+		color: #0f766e;
+	}
+
+	/* Caixa de contato e vendedor */
+	.mp-contact-box,
+	.mp-seller-box {
+		border: 1px solid #94a3b8;
+		border-radius: 10px;
+		background: #f8fafc;
+		padding: 16px;
+	}
+
+	.mp-contact-box {
+		border-color: #0f766e;
+		background: #f0fdfa;
+	}
+
+	/* Lista de detalhes */
+	.mp-detail-list {
+		background: #f8fafc;
+		border: 1px solid #e2e8f0;
+		border-radius: 8px;
+		padding: 4px 0;
+	}
+
+	.mp-detail-list dt {
+		color: #475569;
+		font-weight: 600;
+	}
+
+	/* Descrição */
+	.mp-desc-content {
+		font-size: 15px;
+		line-height: 1.65;
+		color: #1e2937;
+	}
+
+	/* Botões de ação na página do anúncio */
+	.mp-contact-actions .button,
+	.mp-owner-actions .button {
+		min-height: 42px;
+		font-weight: 700;
+		border-radius: 8px;
+	}
+
+	/* ========== AJUSTES GERAIS DE CONTRASTE ========== */
+
+	.mp-shell h1,
+	.mp-shell h2,
+	.mp-shell h3 {
+		color: #0f172a;
+	}
+
+	.mp-results-label {
+		color: #334155;
+		font-weight: 700;
+	}
+
+}
+

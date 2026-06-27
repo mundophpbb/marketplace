@@ -3,26 +3,63 @@
 <h1>{{ lang('MARKETPLACE_ACP_ADMIN_LOGS') }}</h1>
 <p>{{ lang('MARKETPLACE_ACP_ADMIN_LOGS_EXPLAIN') }}</p>
 
-<form method="get" action="{{ U_ACTION }}" class="quick">
-	<fieldset>
-		<label>{{ lang('MARKETPLACE_SEARCH') }}{{ lang('COLON') }} <input type="text" name="q" value="{{ FILTER_Q }}" class="inputbox autowidth" size="28"></label>
-		<label>{{ lang('MARKETPLACE_ACTION') }}{{ lang('COLON') }} <input type="text" name="action_type" value="{{ FILTER_ACTION_TYPE }}" class="inputbox autowidth" size="18"></label>
-		<label>{{ lang('MARKETPLACE_FILTER_USER_ID') }}{{ lang('COLON') }} <input type="number" name="user_id" value="{{ FILTER_USER_ID }}" min="1" class="inputbox autowidth" size="6"></label>
-		<input class="button2" type="submit" value="{{ lang('FILTER') }}">
-		<a class="button2" href="{{ U_EXPORT_CSV }}">{{ lang('MARKETPLACE_EXPORT_CSV') }}</a>
-	</fieldset>
-</form>
+<div class="marketplace-acp-toolbar">
+	<form method="get" action="{{ U_ACTION }}">
+		<fieldset>
+			<label>{{ lang('MARKETPLACE_SEARCH') }}{{ lang('COLON') }} 
+				<input type="text" name="q" value="{{ FILTER_Q|default('') }}" class="inputbox autowidth" size="28">
+			</label>
+			<label>{{ lang('MARKETPLACE_ACTION') }}{{ lang('COLON') }} 
+				<input type="text" name="action_type" value="{{ FILTER_ACTION_TYPE|default('') }}" class="inputbox autowidth" size="18">
+			</label>
+			<label>{{ lang('MARKETPLACE_FILTER_USER_ID') }}{{ lang('COLON') }} 
+				<input type="number" name="user_id" value="{{ FILTER_USER_ID|default('') }}" min="1" class="inputbox autowidth" size="8">
+			</label>
+			<input class="button2" type="submit" value="{{ lang('FILTER') }}">
+			<a class="button2" href="{{ U_EXPORT_CSV|default('#') }}">{{ lang('MARKETPLACE_EXPORT_CSV') }}</a>
+		</fieldset>
+	</form>
+</div>
 
-<table class="table1 zebra-table">
-	<thead><tr><th>ID</th><th>{{ lang('DATE') }}</th><th>{{ lang('MARKETPLACE_ACTION') }}</th><th>{{ lang('MARKETPLACE_ADMIN') }}</th><th>{{ lang('MARKETPLACE_USER') }}</th><th>{{ lang('MARKETPLACE_AD') }}</th><th>{{ lang('MARKETPLACE_NOTE') }}</th></tr></thead>
+<table class="table1 zebra-table marketplace-acp-admin-logs-table">
+	<thead>
+		<tr>
+			<th class="mp-col-id">{{ lang('MARKETPLACE_ID') }}</th>
+			<th>{{ lang('DATE') }}</th>
+			<th>{{ lang('MARKETPLACE_ACTION') }}</th>
+			<th>{{ lang('MARKETPLACE_ADMIN') }}</th>
+			<th>{{ lang('MARKETPLACE_USER') }}</th>
+			<th>{{ lang('MARKETPLACE_AD') }}</th>
+			<th>{{ lang('MARKETPLACE_NOTE') }}</th>
+		</tr>
+	</thead>
 	<tbody>
 	{% for log in ADMIN_LOGS %}
-	<tr>
-		<td>{{ log.log_id }}</td><td>{{ log.LOG_TIME_DISPLAY }}</td><td>{{ log.log_action }}</td><td>{{ log.admin_username|default('-') }}</td><td>{{ log.target_username|default('-') }}</td><td>{% if log.U_AD %}<a href="{{ log.U_AD }}" target="_blank">{{ log.ad_title }}</a>{% else %}{{ log.ad_title|default('-') }}{% endif %}</td><td>{{ log.log_note }}</td>
-	</tr>
-	{% else %}<tr><td colspan="7">{{ lang('MARKETPLACE_NO_MODERATION_LOGS') }}</td></tr>{% endfor %}
+		<tr>
+			<td class="mp-col-id">{{ log.log_id }}</td>
+			<td>{{ log.LOG_TIME_DISPLAY }}</td>
+			<td><strong>{{ log.log_action }}</strong></td>
+			<td>{{ log.admin_username|default('-') }}</td>
+			<td>{{ log.target_username|default('-') }}</td>
+			<td>
+				{% if log.U_AD %}
+					<a href="{{ log.U_AD }}" target="_blank" class="mp-ad-link">{{ log.ad_title }}</a>
+				{% else %}
+					{{ log.ad_title|default('-') }}
+				{% endif %}
+			</td>
+			<td class="mp-report-muted">{{ log.log_note }}</td>
+		</tr>
+	{% else %}
+		<tr>
+			<td colspan="7" class="mp-acp-empty">{{ lang('MARKETPLACE_NO_MODERATION_LOGS') }}</td>
+		</tr>
+	{% endfor %}
 	</tbody>
 </table>
-{% if pagination|length %}<div class="pagination">{% include 'pagination.html' %}</div>{% endif %}
+
+{% if pagination|length %}
+	{% include 'pagination.html' %}
+{% endif %}
 
 {% include 'overall_footer.html' %}

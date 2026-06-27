@@ -1,4 +1,10 @@
-/* acp_marketplace_ads.html */
+/* ============================================================
+   Marketplace ACP Styles - Consolidated & Improved v1.7.2
+   Common toolbar, badges, action groups and table helpers.
+   Duplicated blocks were removed for better maintainability.
+   ============================================================ */
+
+/* Common ACP Toolbar (used across ads, notifications, payments, etc.) */
 .marketplace-acp-toolbar {
 		margin: 12px 0 14px;
 		padding: 10px 12px;

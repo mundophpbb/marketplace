@@ -71,6 +71,10 @@
 				<select name="marketplace_currency_default" id="marketplace_currency_default">
 					{% for option in MARKETPLACE_CURRENCY_OPTIONS %}<option value="{{ option.VALUE }}"{% if option.SELECTED %} selected{% endif %}>{{ option.LABEL }}</option>{% endfor %}
 				</select>
+				<br>
+				<input type="text" name="marketplace_currency_custom" id="marketplace_currency_custom" value="" maxlength="16" placeholder="{{ lang('MARKETPLACE_CURRENCY_CUSTOM_PLACEHOLDER') }}">
+				<br>
+				<span>{{ lang('MARKETPLACE_CURRENCY_CUSTOM_EXPLAIN') }}</span>
 			</dd>
 		</dl>
 

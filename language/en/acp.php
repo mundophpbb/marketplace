@@ -38,6 +38,8 @@ $lang = array_merge($lang, [
 	'MARKETPLACE_ALLOW_IMAGES'          => 'Allow image uploads',
 	'MARKETPLACE_ENABLE_PRICE'          => 'Enable price field',
 	'MARKETPLACE_CURRENCY_DEFAULT'      => 'Default currency symbol',
+	'MARKETPLACE_CURRENCY_CUSTOM_PLACEHOLDER' => 'Example: ¥, CHF, Kz, MT, ₲',
+	'MARKETPLACE_CURRENCY_CUSTOM_EXPLAIN' => 'If filled in, this value will be used as the default currency symbol instead of the selected option above.',
 
 	'MARKETPLACE_SHOW_SOLD_ADS' => 'Show sold ads in public listings',
 	'MARKETPLACE_SHOW_SOLD_ADS_EXPLAIN' => 'When enabled, ads marked as sold remain visible with the “Sold” badge. Contact remains disabled.',
